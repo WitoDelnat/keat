@@ -1,8 +1,8 @@
 {
   "name": "keat-node",
   "version": "0.1.2",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "license": "MIT",
   "author": {
     "name": "Wito Delnat",
@@ -21,10 +21,10 @@
     "kubernetes"
   ],
   "files": [
-    "dist"
+    "lib"
   ],
   "scripts": {
-    "clean": "rimraf ./dist",
+    "clean": "rimraf ./lib",
     "build": "tsc"
   },
   "dependencies": {
