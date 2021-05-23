@@ -1,0 +1,46 @@
+{
+  "name": "keat-node",
+  "version": "0.1.2",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "license": "MIT",
+  "author": {
+    "name": "Wito Delnat",
+    "url": "https://github.com/WitoDelnat"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WitoDelnat/keat-node"
+  },
+  "keywords": [
+    "keat",
+    "client",
+    "feature flags",
+    "feature toggle",
+    "feature management",
+    "kubernetes"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "lodash": "4.17.21",
+    "node-abort-controller": "2.0.0",
+    "node-fetch": "2.6.1",
+    "zod": "1.11.17"
+  },
+  "devDependencies": {
+    "@types/lodash": "4.14.168",
+    "@types/node": "15.0.2",
+    "@types/node-fetch": "2.5.10",
+    "@types/pino": "6.3.8",
+    "pino": "6.11.3",
+    "rimraf": "^3.0.2",
+    "ts-node": "9.1.1",
+    "typescript": "4.2.4"
+  }
+}
