@@ -151,4 +151,4 @@ Keat is just getting started!
 [jest]: https://www.npmjs.com/package/jest
 [dotenv]: https://www.npmjs.com/package/dotenv
 [node-config]: https://www.npmjs.com/package/config
-[keat-server]: https://www.google.com
+[keat-server]: https://github.com/WitoDelnat/keat-server#installation
