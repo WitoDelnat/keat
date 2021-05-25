@@ -37,11 +37,11 @@ export class Keat<TFeatureNames extends string = string> {
     return keat;
   }
 
-  static async fromKubernetes<FName extends string>(
-    config: KubernetesConfig<FName> = {}
+  static fromKeatServer<FName extends string = string>(
+    config: KeatServerConfig<FName> = {}
   ) {
     const logger = createLogger(config.logger);
-    const client = await KubeClient.fromConfig(config.path);
+    const client = new KeatClient(config.origin);
     const engine = new PollEngine({ ...config, client, logger });
     const keat = new Keat<FName>(engine);
 
@@ -50,11 +50,11 @@ export class Keat<TFeatureNames extends string = string> {
     return keat;
   }
 
-  static async fromKeatServer<FName extends string = string>(
-    config: KeatServerConfig<FName> = {}
+  static async fromKubernetes<FName extends string>(
+    config: KubernetesConfig<FName> = {}
   ) {
     const logger = createLogger(config.logger);
-    const client = new KeatClient(config.origin);
+    const client = await KubeClient.fromConfig(config.path);
     const engine = new PollEngine({ ...config, client, logger });
     const keat = new Keat<FName>(engine);
 
