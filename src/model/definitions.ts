@@ -36,7 +36,7 @@ export const featureDefinitionSchema = z.object({
   name: z.string(),
   enabled: z.boolean().optional(),
   labels: labelsSchema.optional(),
-  audiences: z.array(z.string()),
+  audiences: z.array(z.string()).optional(),
 });
 
 export const definitionsSchema = z.object({

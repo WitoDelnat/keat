@@ -47,17 +47,24 @@ export abstract class AbstractEngine implements Engine {
     ];
 
     const features = definitions.features.map((featureDefinitions) => {
-      const featureAudiences = audiences.filter((audience) =>
-        featureDefinitions.audiences.includes(audience.name)
-      );
+      if (!featureDefinitions.audiences) {
+        return new Feature({
+          name: featureDefinitions.name,
+          enabled: featureDefinitions.enabled,
+        });
+      }
+
+      const featureAudiences = audiences.filter((audience) => {
+        return featureDefinitions.audiences?.includes(audience.name) ?? false;
+      });
 
       this.checkAudiences(featureDefinitions, featureAudiences);
 
-      return new Feature(
-        featureDefinitions.name,
-        featureAudiences,
-        featureDefinitions.enabled
-      );
+      return new Feature({
+        name: featureDefinitions.name,
+        enabled: featureDefinitions.enabled,
+        audiences: featureAudiences,
+      });
     });
 
     this._features = keyBy(features, "name");
@@ -87,8 +94,10 @@ export abstract class AbstractEngine implements Engine {
     feature: FeatureDefinition,
     audiences: Audience[]
   ): void {
+    if (!feature.audiences) return;
+
     const hasAllExpectedAudiences =
-      feature.audiences.length !== audiences.length;
+      feature.audiences.length === audiences.length;
 
     if (!hasAllExpectedAudiences) {
       this._logger.warn(

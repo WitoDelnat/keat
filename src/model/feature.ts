@@ -1,11 +1,21 @@
-import { Audience } from "./audience";
+import { Audience, EVERYONE } from "./audience";
+
+type FeatureInit = {
+  name: string;
+  audiences?: Audience[];
+  enabled?: boolean;
+};
 
 export class Feature {
-  constructor(
-    public name: string,
-    public audiences: Audience[],
-    public enabled: boolean = true
-  ) {}
+  public name: string;
+  public audiences: Audience[];
+  public enabled: boolean;
+
+  constructor(init: FeatureInit) {
+    this.name = init.name;
+    this.audiences = init.audiences ?? [EVERYONE];
+    this.enabled = init.enabled ?? true;
+  }
 
   toggle() {
     this.enabled = !this.enabled;

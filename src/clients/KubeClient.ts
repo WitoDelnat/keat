@@ -89,7 +89,7 @@ const FeatureResourceSchema = z.object({
     .nonstrict(),
   spec: z.object({
     enabled: z.boolean(),
-    audiences: z.array(z.string()),
+    audiences: z.array(z.string()).optional(),
   }),
 });
 

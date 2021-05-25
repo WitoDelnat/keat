@@ -24,6 +24,7 @@
     "lib"
   ],
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "clean": "rimraf ./lib",
     "build": "tsc"
   },
