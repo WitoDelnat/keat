@@ -48,7 +48,7 @@ type StaticWithAudiencesConfig<
 
 export type Feature<FName extends string, AName extends string = never> = {
   name: FName;
-  audiences: (AName | "everyone")[];
+  audiences?: (AName | "everyone")[];
   enabled?: boolean;
 };
 
