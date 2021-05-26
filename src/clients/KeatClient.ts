@@ -13,6 +13,11 @@ export class KeatClient implements Client {
     url.search = new URLSearchParams(labels).toString();
 
     const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      throw new Error(`request failed: ${response.status}`);
+    }
+
     const body = await response.json();
     const definitions = definitionsSchema.parse(body);
 

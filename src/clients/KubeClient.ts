@@ -72,6 +72,11 @@ export class KubeClient implements Client {
         agent: this.agent,
       }
     );
+
+    if (!response.ok) {
+      throw new Error(`request failed: ${response.status}`);
+    }
+
     const content = await response.json();
     return content;
   }
