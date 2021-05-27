@@ -1,4 +1,4 @@
-# Keat
+# [alpha] Keat
 
 Keat is the Kubernetes-native feature management tool.
 
@@ -34,7 +34,7 @@ npm install keat-node
 
 Keat has two concepts: **features** and **audiences**.
 
-Let's explore them through basic examples:
+Let's explore them through examples:
 
 ```typescript
 import { Keat } from "keat-node";
@@ -61,10 +61,16 @@ export const features = Keat.create({
       name: "developers",
       members: ["developer@yourcompany.com", "..."],
     },
+    {
+      kind: "random",
+      name: "dark-canary",
+      percentage: 5,
+    },
   ],
   features: [
     { name: "new-ui" },
     { name: "recommendations", audiences: ["developers"] },
+    { name: "sql-query-rewrite", audiences: ["developers", "dark-canary"] },
   ],
 });
 
@@ -72,24 +78,53 @@ features.isEnabled("recommendations", user.email);
 ```
 
 **Audiences** allow us to gradually expose our features.
-This example works with a static list of members, though there are plenty of other strategies.
+The feature is enabled if the user is part of _any_ of the given audiences.
 
-Keat loves TypeScript! Both audience and feature names have their types completely inferred which makes accidental typos impossible.
+To illustrate, _sql-query-rewrite_ first checks whether the email is part of developer's members.
+If not then afterwards Keat checks whether the request belongs to the lucky five percentage.
+The feature will only be disabled when both checks fail.
+
+### Keat ❤️ TypeScript
+
+Both audience and feature names have their types completely inferred which makes accidental typos impossible.
+
+```typescript
+import { Keat } from "keat-node";
+
+export const features = Keat.create({
+  audiences: [
+    {
+      kind: "static",
+      name: "developers",
+      members: ["developer@yourcompany.com", "..."],
+    },
+  ],
+  features: [
+    { name: "new-ui", audiences: ["beta-testers"] }, // Type '"beta-testers"' is not assignable
+    { name: "recommendations", audiences: ["developers"] }, // ok
+  ],
+});
+
+features.isEnabled("ui"); // Type '"ui"' is not assignable
+features.isEnabled("new-ui"); // ok
+```
 
 ## The road to decoupling release from deploy
 
-**Toggling a feature** allows us to enable or disable a feature.
-It's the bread and butter of a feature management tool.
-Quickly toggling a feature will give you the confidence to move fast.
+**Toggling a feature** allows us to enable or disable it.
+It's the bread and butter of feature management tools.
+The ability to quickly toggle a feature will give you the confidence to move faster.
+Generally you'll make a trade-off between propagation speed and operational complexity.
 
 ### Use environment variables
 
-Your features are likely to vary between deploys.
-Modern applications often follow the [twelve-factor methodology][12factor] and store config in the environment.
+Your features are likely to vary between deploys, which is why it should be part of your app's config.
+[The twelve-factor methodology][12factor] recommends to store this configuration in environment variables.
 
-Let's take a look at how you could implement this:
+You could implement this as follows:
 
 ```typescript
+import dotenv from "dotenv";
 import { Keat } from "keat-node";
 
 export const features = Keat.create({
@@ -100,7 +135,7 @@ export const features = Keat.create({
     },
     {
       name: "recommendations",
-      audiences: [process.env.ENABLE_RECOMMENDATIONS],
+      audiences: [process.env.ENABLE_RECOMMENDATIONS_TO],
     },
   ],
 });
@@ -108,7 +143,15 @@ export const features = Keat.create({
 features.isEnabled("new-ui");
 ```
 
-You can limit the exposure of your feature by using the _audiences_ property for your environment variables. This however requires an audience to enable the feature to everyone, which is why Keat provides a **default audience** called `everyone`.
+And afterwards start the application with these environment variables:
+
+```bash
+ENABLE_NEW_UI=true
+ENABLE_RECOMMENDATIONS_TO=everyone
+```
+
+As seen in the example above, you can opt to use environment variables in combination with _audiences_.
+To facilitate this, Keat provides two default audiences `'nobody'` and `'everyone'`.
 
 ### Use Keat server
 
