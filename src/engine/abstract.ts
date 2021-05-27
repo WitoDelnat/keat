@@ -1,6 +1,6 @@
 import { keyBy, values } from "lodash";
 import { BaseLogger, Logger } from "pino";
-import { Audience, createAudience, EVERYONE } from "../model/audience";
+import { Audience, createAudience, EVERYONE, NOBODY } from "../model/audience";
 import { Definitions, FeatureDefinition } from "../model/definitions";
 import { Feature } from "../model/feature";
 import { Signal } from "../utils/signal";
@@ -43,6 +43,7 @@ export abstract class AbstractEngine implements Engine {
 
     const audiences = [
       EVERYONE,
+      NOBODY,
       ...(definitions.audiences?.map(createAudience) ?? []),
     ];
 

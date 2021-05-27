@@ -16,6 +16,11 @@ export interface Audience {
   isEnabled(user?: string): boolean;
 }
 
+export const NOBODY: Audience = {
+  name: "nobody",
+  isEnabled: () => false,
+};
+
 export const EVERYONE: Audience = {
   name: "everyone",
   isEnabled: () => true,
