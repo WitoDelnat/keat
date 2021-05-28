@@ -1,6 +1,7 @@
-import AbortController from "node-abort-controller";
+import AbortController, { AbortSignal } from "node-abort-controller";
 import { Logger } from "pino";
 import { Client } from "../clients/interface";
+import { delay } from "../utils/delay";
 import { AbstractEngine } from "./abstract";
 
 type PollEngineInit = {
@@ -44,7 +45,7 @@ export class PollEngine extends AbstractEngine {
       } catch (err) {
         this._logger.error({ err }, "background sync failed");
       } finally {
-        await new Promise((resolve) => setTimeout(resolve, this._pollInterval));
+        await delay(this._pollInterval, signal);
       }
     } while (!signal.aborted);
   }
