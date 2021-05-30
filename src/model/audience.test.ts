@@ -62,3 +62,49 @@ describe("random", () => {
     expect(audience.isEnabled()).toBe(false);
   });
 });
+
+describe("sticky", () => {
+  it("should respond the same for any given user.", () => {
+    const audience = createAudience({
+      kind: "sticky",
+      name: "test",
+      percentage: 25,
+    });
+
+    for (let i = 0; i < 3; i++) {
+      const usr = faker.datatype.uuid();
+      const res = audience.isEnabled(usr);
+
+      for (let j = 0; j < 3; j++) {
+        expect(audience.isEnabled(usr)).toBe(res);
+      }
+    }
+  });
+
+  it("should properly distribute all user", () => {
+    const TOTAL = 2000;
+    const PERCENTAGE = 25;
+    const LEEWAY_PERCENTAGE = 5;
+    const LEEWAY = (TOTAL * LEEWAY_PERCENTAGE) / 100;
+
+    const audience = createAudience({
+      kind: "sticky",
+      name: "test",
+      percentage: PERCENTAGE,
+    });
+
+    let amountEnabled = 0;
+
+    for (let i = 0; i < TOTAL; i++) {
+      const usr = faker.datatype.uuid();
+      const res = audience.isEnabled(usr);
+
+      if (res) {
+        amountEnabled++;
+      }
+    }
+
+    const deviation = Math.abs(amountEnabled - (TOTAL * PERCENTAGE) / 100);
+    expect(deviation).toBeLessThan(LEEWAY);
+  });
+});

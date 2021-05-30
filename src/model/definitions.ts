@@ -9,12 +9,21 @@ export type StaticAudienceDefinition = z.infer<
 export type RandomAudienceDefinition = z.infer<
   typeof randomAudienceDefinitionSchema
 >;
+export type stickyAudienceDefinitionSchema = z.infer<
+  typeof stickyAudienceDefinitionSchema
+>;
 
 export type Labels = z.infer<typeof labelsSchema>;
 export type FeatureDefinition = z.infer<typeof featureDefinitionSchema>;
 
 export const randomAudienceDefinitionSchema = z.object({
   kind: z.literal("random"),
+  name: z.string(),
+  percentage: z.number(),
+});
+
+export const stickyAudienceDefinitionSchema = z.object({
+  kind: z.literal("sticky"),
   name: z.string(),
   percentage: z.number(),
 });
@@ -28,6 +37,7 @@ export const staticAudienceDefinitionSchema = z.object({
 export const audienceDefinitionSchema = z.union([
   staticAudienceDefinitionSchema,
   randomAudienceDefinitionSchema,
+  stickyAudienceDefinitionSchema,
 ]);
 
 export const labelsSchema = z.record(z.string());
