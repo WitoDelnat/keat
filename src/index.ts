@@ -50,11 +50,11 @@ export class Keat<TFeatureNames extends string = string> {
     return keat;
   }
 
-  static async fromKubernetes<FName extends string>(
+  static fromKubernetes<FName extends string>(
     config: KubernetesConfig<FName> = {}
   ) {
     const logger = createLogger(config.logger);
-    const client = await KubeClient.fromConfig(config.path);
+    const client = KubeClient.fromConfig(config.path);
     const engine = new PollEngine({ ...config, client, logger });
     const keat = new Keat<FName>(engine);
 

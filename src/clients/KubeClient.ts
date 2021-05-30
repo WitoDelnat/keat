@@ -1,4 +1,4 @@
-import { readFile } from "fs/promises";
+import { readFileSync } from "fs";
 import https, { Agent } from "https";
 import fetch from "node-fetch";
 import * as z from "zod";
@@ -20,10 +20,10 @@ type KubeInit = {
 };
 
 export class KubeClient implements Client {
-  static async fromConfig(path: string = DEFAULT_PATH) {
-    const namespace = await readFile(`${path}/namespace`, "utf-8");
-    const token = await readFile(`${path}/token`, "utf-8");
-    const cert = await readFile(`${path}/ca.crt`, "utf-8");
+  static fromConfig(path: string = DEFAULT_PATH) {
+    const namespace = readFileSync(`${path}/namespace`, "utf-8");
+    const token = readFileSync(`${path}/token`, "utf-8");
+    const cert = readFileSync(`${path}/ca.crt`, "utf-8");
     const agent = new https.Agent({ cert, rejectUnauthorized: false });
     return new KubeClient({ namespace, token, agent });
   }

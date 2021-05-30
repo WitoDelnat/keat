@@ -1,12 +1,13 @@
 import { Keat } from "../src";
 
 (async function main() {
-  const keat = await Keat.fromKubernetes({
+  const keat = Keat.fromKubernetes({
     labels: {
       app: "blog",
       env: "prod",
     },
   });
+  await keat.ready;
 
   if (keat.isEnabled("search")) {
     console.log("✅ search is enabled");

@@ -76,7 +76,7 @@ describe("Keat.fromKubernetes", () => {
       [JSON.stringify(featureList), { status: 200 }]
     );
 
-    const keat = await Keat.fromKubernetes();
+    const keat = Keat.fromKubernetes();
     await keat.ready;
     await keat.engine.stop();
 
