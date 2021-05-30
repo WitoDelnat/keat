@@ -2,12 +2,10 @@ import { AudienceDefinition } from "./definitions";
 
 export function createAudience(definition: AudienceDefinition): Audience {
   switch (definition.kind) {
-    case "static": {
-      return new StaticAudience(definition.name, definition.members);
-    }
-    case "random": {
-      return new RandomAudience(definition.name, definition.percentage);
-    }
+    case "static":
+      return createStaticAudience(definition);
+    case "random":
+      return createRandomAudience(definition);
   }
 }
 
@@ -26,19 +24,31 @@ export const EVERYONE: Audience = {
   isEnabled: () => true,
 };
 
-export class StaticAudience implements Audience {
-  constructor(public name: string, public members: string[]) {}
+export function createStaticAudience(args: {
+  name: string;
+  members: string[];
+}): Audience {
+  const { name, members } = args;
 
-  isEnabled(user?: string): boolean {
-    if (!user) return false;
-    return this.members.some((member) => member === user);
-  }
+  return {
+    name,
+    isEnabled(user?: string): boolean {
+      if (!user) return false;
+      return members.some((member) => member === user);
+    },
+  };
 }
 
-export class RandomAudience implements Audience {
-  constructor(public name: string, public percentage: number) {}
+export function createRandomAudience(args: {
+  name: string;
+  percentage: number;
+}): Audience {
+  const { name, percentage } = args;
 
-  isEnabled(): boolean {
-    return this.percentage > Math.random() * 100;
-  }
+  return {
+    name,
+    isEnabled(): boolean {
+      return percentage > Math.random() * 100;
+    },
+  };
 }

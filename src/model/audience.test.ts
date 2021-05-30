@@ -1,5 +1,5 @@
-import { EVERYONE, NOBODY, RandomAudience, StaticAudience } from "./audience";
 import faker from "faker";
+import { createAudience, EVERYONE, NOBODY } from "./audience";
 
 describe("everyone", () => {
   it("should always be enabled", () => {
@@ -17,13 +17,23 @@ describe("nobody", () => {
 
 describe("static", () => {
   it("should be disabled when the user is not part of members", () => {
-    const audience = new StaticAudience("test", ["foo", "bar"]);
-    expect(audience.isEnabled("baz")).toBe(false);
+    const audience = createAudience({
+      kind: "static",
+      name: "test",
+      members: ["usr1", "usr2"],
+    });
+
+    expect(audience.isEnabled("usr3")).toBe(false);
   });
 
   it("should be enabled when the user is part of members", () => {
-    const audience = new StaticAudience("test", ["foo", "bar"]);
-    expect(audience.isEnabled("foo")).toBe(true);
+    const audience = createAudience({
+      kind: "static",
+      name: "test",
+      members: ["usr1", "usr2"],
+    });
+
+    expect(audience.isEnabled("usr1")).toBe(true);
   });
 });
 
@@ -40,7 +50,11 @@ describe("random", () => {
       .mockReturnValueOnce(0.66)
       .mockReturnValueOnce(0.88);
 
-    const audience = new RandomAudience("test", 25);
+    const audience = createAudience({
+      kind: "random",
+      name: "test",
+      percentage: 25,
+    });
 
     expect(audience.isEnabled()).toBe(true);
     expect(audience.isEnabled()).toBe(false);
