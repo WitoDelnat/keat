@@ -26,8 +26,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.config.ts",
-    "clean": "rimraf ./lib",
-    "build": "tsc"
+    "build": "rimraf ./lib && tsc --project tsconfig.prd.json"
   },
   "dependencies": {
     "lodash": "4.17.21",
@@ -39,11 +38,15 @@
     "@types/faker": "5.5.5",
     "@types/jest": "26.0.23",
     "@types/lodash": "4.14.168",
+    "@types/mock-fs": "^4.13.0",
     "@types/node": "15.0.2",
     "@types/node-fetch": "2.5.10",
     "@types/pino": "6.3.8",
     "faker": "5.5.3",
+    "fluse": "1.0.0",
     "jest": "27.0.1",
+    "jest-fetch-mock": "3.0.3",
+    "mock-fs": "^5.0.0",
     "pino": "6.11.3",
     "rimraf": "3.0.2",
     "ts-jest": "27.0.1",

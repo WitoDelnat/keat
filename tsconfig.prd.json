@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib",
+    "lib": ["es6"],
+    "module": "commonjs",
+    "target": "es6",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "pretty": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "removeComments": false,
+    "strict": true
+  },
+  "exclude": [
+    "node_modules",
+    "lib",
+    "src/utils/testing/**",
+    "src/__fixtures__/**",
+    "**/*.test.ts"
+  ],
+  "include": ["src"]
+}

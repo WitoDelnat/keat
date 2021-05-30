@@ -82,7 +82,7 @@ export class KubeClient implements Client {
   }
 }
 
-type FeatureResource = z.infer<typeof FeatureResourceSchema>;
+export type FeatureResource = z.infer<typeof FeatureResourceSchema>;
 const FeatureResourceSchema = z.object({
   apiVersion: z.string(),
   kind: z.string(),
@@ -98,15 +98,16 @@ const FeatureResourceSchema = z.object({
   }),
 });
 
-const FeatureListResourceSchema = z.object({
+export type FeatureListResource = z.infer<typeof FeatureListResourceSchema>;
+export const FeatureListResourceSchema = z.object({
   apiVersion: z.string(),
   kind: z.string(),
   metadata: z.any(),
   items: z.array(FeatureResourceSchema),
 });
 
-type AudienceResource = z.infer<typeof AudienceResourceSchema>;
-const AudienceResourceSchema = z.object({
+export type AudienceResource = z.infer<typeof AudienceResourceSchema>;
+export const AudienceResourceSchema = z.object({
   apiVersion: z.string(),
   kind: z.string(),
   metadata: z
@@ -127,7 +128,8 @@ const AudienceResourceSchema = z.object({
   ]),
 });
 
-const AudienceListResourceSchema = z.object({
+export type AudienceListResource = z.infer<typeof AudienceListResourceSchema>;
+export const AudienceListResourceSchema = z.object({
   apiVersion: z.string(),
   kind: z.string(),
   metadata: z.any(),
