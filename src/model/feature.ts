@@ -23,6 +23,6 @@ export class Feature {
 
   isEnabled(user?: string): boolean {
     if (!this.enabled) return false;
-    return this.audiences.some((audience) => audience.isEnabled(user));
+    return this.audiences.some((audience) => audience.includes(user));
   }
 }

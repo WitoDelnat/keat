@@ -16,17 +16,17 @@ export function createAudience(definition: AudienceDefinition): Audience {
 
 export interface Audience {
   readonly name: string;
-  isEnabled(user?: string): boolean;
+  includes(user?: string): boolean;
 }
 
 export const NOBODY: Audience = {
   name: "nobody",
-  isEnabled: () => false,
+  includes: () => false,
 };
 
 export const EVERYONE: Audience = {
   name: "everyone",
-  isEnabled: () => true,
+  includes: () => true,
 };
 
 export function createStaticAudience(args: {
@@ -37,7 +37,7 @@ export function createStaticAudience(args: {
 
   return {
     name,
-    isEnabled(user?: string): boolean {
+    includes(user?: string): boolean {
       if (!user) return false;
       return members.some((member) => member === user);
     },
@@ -52,7 +52,7 @@ export function createRandomAudience(args: {
 
   return {
     name,
-    isEnabled(): boolean {
+    includes(): boolean {
       return percentage > Math.random() * 100;
     },
   };
@@ -67,7 +67,7 @@ export function createStickyAudience(args: {
 
   return {
     name,
-    isEnabled(user?: string): boolean {
+    includes(user?: string): boolean {
       if (!user) return false;
       return percentage > (hash.v3(user, seed) % 100) + 1;
     },

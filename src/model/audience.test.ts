@@ -3,15 +3,15 @@ import { createAudience, EVERYONE, NOBODY } from "./audience";
 
 describe("everyone", () => {
   it("should always be enabled", () => {
-    expect(EVERYONE.isEnabled()).toBe(true);
-    expect(EVERYONE.isEnabled(faker.random.word())).toBe(true);
+    expect(EVERYONE.includes()).toBe(true);
+    expect(EVERYONE.includes(faker.random.word())).toBe(true);
   });
 });
 
 describe("nobody", () => {
   it("should always be disabled", () => {
-    expect(NOBODY.isEnabled()).toBe(false);
-    expect(NOBODY.isEnabled(faker.random.word())).toBe(false);
+    expect(NOBODY.includes()).toBe(false);
+    expect(NOBODY.includes(faker.random.word())).toBe(false);
   });
 });
 
@@ -23,7 +23,7 @@ describe("static", () => {
       members: ["usr1", "usr2"],
     });
 
-    expect(audience.isEnabled("usr3")).toBe(false);
+    expect(audience.includes("usr3")).toBe(false);
   });
 
   it("should be enabled when the user is part of members", () => {
@@ -33,7 +33,7 @@ describe("static", () => {
       members: ["usr1", "usr2"],
     });
 
-    expect(audience.isEnabled("usr1")).toBe(true);
+    expect(audience.includes("usr1")).toBe(true);
   });
 });
 
@@ -56,10 +56,10 @@ describe("random", () => {
       percentage: 25,
     });
 
-    expect(audience.isEnabled()).toBe(true);
-    expect(audience.isEnabled()).toBe(false);
-    expect(audience.isEnabled()).toBe(false);
-    expect(audience.isEnabled()).toBe(false);
+    expect(audience.includes()).toBe(true);
+    expect(audience.includes()).toBe(false);
+    expect(audience.includes()).toBe(false);
+    expect(audience.includes()).toBe(false);
   });
 });
 
@@ -73,10 +73,10 @@ describe("sticky", () => {
 
     for (let i = 0; i < 3; i++) {
       const usr = faker.datatype.uuid();
-      const res = audience.isEnabled(usr);
+      const res = audience.includes(usr);
 
       for (let j = 0; j < 3; j++) {
-        expect(audience.isEnabled(usr)).toBe(res);
+        expect(audience.includes(usr)).toBe(res);
       }
     }
   });
@@ -97,7 +97,7 @@ describe("sticky", () => {
 
     for (let i = 0; i < TOTAL; i++) {
       const usr = faker.datatype.uuid();
-      const res = audience.isEnabled(usr);
+      const res = audience.includes(usr);
 
       if (res) {
         amountEnabled++;
