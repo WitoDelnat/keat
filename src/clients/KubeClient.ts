@@ -120,10 +120,16 @@ export const AudienceResourceSchema = z.object({
     z.object({
       kind: z.literal("static"),
       members: z.array(z.string()),
+      key: z.string().optional(),
     }),
     z.object({
       kind: z.literal("random"),
       percentage: z.number(),
+    }),
+    z.object({
+      kind: z.literal("sticky"),
+      percentage: z.number(),
+      key: z.string().optional(),
     }),
   ]),
 });
@@ -143,6 +149,7 @@ function toAudienceDefinition(audience: AudienceResource): AudienceDefinition {
         kind: "static",
         name: audience.metadata.name,
         members: audience.spec.members,
+        key: audience.spec.key,
       };
     }
     case "random": {
@@ -150,6 +157,14 @@ function toAudienceDefinition(audience: AudienceResource): AudienceDefinition {
         kind: "random",
         name: audience.metadata.name,
         percentage: audience.spec.percentage,
+      };
+    }
+    case "sticky": {
+      return {
+        kind: "sticky",
+        name: audience.metadata.name,
+        percentage: audience.spec.percentage,
+        key: audience.spec.key,
       };
     }
   }

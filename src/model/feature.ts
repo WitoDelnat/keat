@@ -1,4 +1,5 @@
 import { Audience, EVERYONE } from "./audience";
+import { User } from "./user";
 
 type FeatureInit = {
   name: string;
@@ -21,7 +22,7 @@ export class Feature {
     this.enabled = !this.enabled;
   }
 
-  isEnabled(user?: string): boolean {
+  isEnabled(user?: User): boolean {
     if (!this.enabled) return false;
     return this.audiences.some((audience) => audience.includes(user));
   }

@@ -1,4 +1,5 @@
 import { Logger } from "pino";
+import { UserKey } from "./model/user";
 
 export type DefinitionsConfig<FName extends string> = {
   definitions: unknown;
@@ -60,7 +61,13 @@ export type StaticAudience<AName extends string> = {
   kind: "static";
   name: AName;
   members: string[];
-};
+} & UserKey;
+
+export type StickyAudience<AName extends string> = {
+  kind: "sticky";
+  name: AName;
+  percentage: number;
+} & UserKey;
 
 export type RandomAudience<AName extends string> = {
   kind: "random";

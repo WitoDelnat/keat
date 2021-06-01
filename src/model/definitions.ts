@@ -25,12 +25,14 @@ export const randomAudienceDefinitionSchema = z.object({
 export const stickyAudienceDefinitionSchema = z.object({
   kind: z.literal("sticky"),
   name: z.string(),
+  key: z.string().optional(),
   percentage: z.number(),
 });
 
 export const staticAudienceDefinitionSchema = z.object({
   kind: z.literal("static"),
   name: z.string(),
+  key: z.string().optional(),
   members: z.array(z.string()),
 });
 

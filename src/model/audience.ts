@@ -1,5 +1,7 @@
-import { AudienceDefinition } from "./definitions";
+import { isString } from "lodash";
 import hash from "murmurhash";
+import { AudienceDefinition } from "./definitions";
+import { InternalUser } from "./user";
 
 const MURMURHASH_SEED = 1042019;
 
@@ -16,7 +18,7 @@ export function createAudience(definition: AudienceDefinition): Audience {
 
 export interface Audience {
   readonly name: string;
-  includes(user?: string): boolean;
+  includes(user?: InternalUser): boolean;
 }
 
 export const NOBODY: Audience = {
@@ -32,14 +34,17 @@ export const EVERYONE: Audience = {
 export function createStaticAudience(args: {
   name: string;
   members: string[];
+  key?: string;
 }): Audience {
-  const { name, members } = args;
+  const { name, members, key = "name" } = args;
 
   return {
     name,
-    includes(user?: string): boolean {
+    includes(user?: InternalUser): boolean {
       if (!user) return false;
-      return members.some((member) => member === user);
+
+      const usr = isString(user) ? user : user[key];
+      return members.some((member) => member === usr);
     },
   };
 }
@@ -61,15 +66,18 @@ export function createRandomAudience(args: {
 export function createStickyAudience(args: {
   name: string;
   percentage: number;
+  key?: string;
 }): Audience {
-  const { name, percentage } = args;
+  const { name, percentage, key = "name" } = args;
   const seed = hash.v3(name, MURMURHASH_SEED);
 
   return {
     name,
-    includes(user?: string): boolean {
+    includes(user?: InternalUser): boolean {
       if (!user) return false;
-      return percentage > (hash.v3(user, seed) % 100) + 1;
+
+      const usr = isString(user) ? user : user[key];
+      return percentage > (hash.v3(usr, seed) % 100) + 1;
     },
   };
 }

@@ -1,12 +1,13 @@
 import { KeatClient, KubeClient } from "./clients";
 import {
+  DefinitionsConfig,
   KeatServerConfig,
   KubernetesConfig,
-  DefinitionsConfig,
   StaticConfig,
 } from "./config";
 import { Engine, PollEngine, StaticEngine } from "./engine";
 import { Definitions, definitionsSchema } from "./model/definitions";
+import { User } from "./model/user";
 import { createLogger } from "./utils/logger";
 
 export { Definitions, definitionsSchema } from "./model/definitions";
@@ -77,7 +78,7 @@ export class Keat<TFeatureNames extends string = string> {
     return this.definitions.features.some((feature) => feature.name === name);
   }
 
-  isEnabled(name: TFeatureNames, user?: string): boolean {
+  isEnabled(name: TFeatureNames, user?: User): boolean {
     const feature = this.engine.feature(name);
     return feature?.isEnabled(user) ?? false;
   }
