@@ -33,7 +33,7 @@ export const EVERYONE: Audience = {
 
 export function createStaticAudience(args: {
   name: string;
-  members: string[];
+  members: (string | boolean | number)[];
   key?: string;
 }): Audience {
   const { name, members, key = "name" } = args;
@@ -76,7 +76,7 @@ export function createStickyAudience(args: {
     includes(user?: InternalUser): boolean {
       if (!user) return false;
 
-      const usr = isString(user) ? user : user[key];
+      const usr = isString(user) ? user : user[key]?.toString() ?? "";
       return percentage > (hash.v3(usr, seed) % 100) + 1;
     },
   };

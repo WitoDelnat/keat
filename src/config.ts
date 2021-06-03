@@ -60,7 +60,7 @@ export type Audience<AName extends string = string> =
 export type StaticAudience<AName extends string> = {
   kind: "static";
   name: AName;
-  members: string[];
+  members: (string | number | boolean)[];
 } & UserKey;
 
 export type StickyAudience<AName extends string> = {

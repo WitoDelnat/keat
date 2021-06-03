@@ -33,7 +33,7 @@ export const staticAudienceDefinitionSchema = z.object({
   kind: z.literal("static"),
   name: z.string(),
   key: z.string().optional(),
-  members: z.array(z.string()),
+  members: z.array(z.string().or(z.number()).or(z.boolean())),
 });
 
 export const audienceDefinitionSchema = z.union([

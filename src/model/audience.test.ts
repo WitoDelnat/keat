@@ -81,6 +81,24 @@ describe("sticky", () => {
     }
   });
 
+  it("should vary between multiple audiences", () => {
+    const canary = createAudience({
+      kind: "sticky",
+      name: "canary-test",
+      percentage: 50,
+    });
+    const ab = createAudience({
+      kind: "sticky",
+      name: "ab-test",
+      percentage: 50,
+    });
+
+    expect(canary.includes("usr")).toBe(ab.includes("usr"));
+    expect(canary.includes("bar")).toBe(ab.includes("bar"));
+    expect(canary.includes("foo")).not.toBe(ab.includes("foo"));
+    expect(canary.includes("dev")).not.toBe(ab.includes("dev"));
+  });
+
   it("should properly distribute all user", () => {
     const TOTAL = 2000;
     const PERCENTAGE = 25;

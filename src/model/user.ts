@@ -10,7 +10,7 @@
  * }
  * ```
  *
- * @remark Currently only Record<string, string> is allowed.
+ * @remark Currently only Record<string, string | boolean | number> is allowed.
  */
 export interface KeatNode {
   // user: ...
@@ -18,4 +18,6 @@ export interface KeatNode {
 
 export type User = KeatNode extends { user: infer T } ? T : string;
 export type UserKey = User extends string ? {} : { key: keyof User };
-export type InternalUser = string | Record<string, string>;
+export type InternalUser =
+  | string
+  | Record<string, string | boolean | number | undefined>;
