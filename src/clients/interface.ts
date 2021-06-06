@@ -1,5 +1,6 @@
-import { Definitions, Labels } from "../model/definitions";
+import { Definitions } from "../model/definitions";
+import { LabelSelectors } from "../model/labels";
 
 export interface Client {
-  getDefinitions(labels?: Labels): Promise<Definitions>;
+  getDefinitions(labels?: LabelSelectors): Promise<Definitions>;
 }

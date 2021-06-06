@@ -1,12 +1,14 @@
 import { readFileSync } from "fs";
 import https, { Agent } from "https";
 import fetch from "node-fetch";
+import { URL } from "url";
 import * as z from "zod";
 import {
+  AudienceDefinition,
   Definitions,
   FeatureDefinition,
-  AudienceDefinition,
 } from "../model/definitions";
+import { encodeLabelSelectors, LabelSelectors } from "../model/labels";
 import { Client } from "./interface";
 
 const DEFAULT_ORIGIN = "https://kubernetes.default.svc";
@@ -40,10 +42,10 @@ export class KubeClient implements Client {
     this.agent = agent;
   }
 
-  async getDefinitions(): Promise<Definitions> {
+  async getDefinitions(labels?: LabelSelectors): Promise<Definitions> {
     const [audiences, features] = await Promise.all([
       this.getAudiences(),
-      this.getFeatures(),
+      this.getFeatures(labels),
     ]);
     return { audiences, features };
   }
@@ -55,23 +57,40 @@ export class KubeClient implements Client {
     return audiences;
   }
 
-  private async getFeatures(): Promise<FeatureDefinition[]> {
-    const response = await this.fetch("keat.io", "features", "v1alpha1");
+  private async getFeatures(
+    labels?: LabelSelectors
+  ): Promise<FeatureDefinition[]> {
+    const response = await this.fetch(
+      "keat.io",
+      "features",
+      "v1alpha1",
+      labels
+    );
     const featureFlagList = FeatureListResourceSchema.parse(response);
     const features = featureFlagList.items.map(toFeatureDefinition);
     return features;
   }
 
-  private async fetch(audience: string, plural: string, version: string) {
-    const response = await fetch(
-      `${this.origin}/apis/${audience}/${version}/namespaces/${this.namespace}/${plural}`,
-      {
-        headers: {
-          Authorization: `Bearer ${this.token}`,
-        },
-        agent: this.agent,
-      }
-    );
+  private async fetch(
+    audience: string,
+    plural: string,
+    version: string,
+    labels?: LabelSelectors
+  ) {
+    const relativeUrl = `/apis/${audience}/${version}/namespaces/${this.namespace}/${plural}`;
+    const url = new URL(relativeUrl, this.origin);
+
+    if (labels) {
+      const labelSelector = encodeLabelSelectors(labels);
+      url.searchParams.append("labelSelector", labelSelector);
+    }
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+      },
+      agent: this.agent,
+    });
 
     if (!response.ok) {
       throw new Error(`request failed: ${response.status}`);

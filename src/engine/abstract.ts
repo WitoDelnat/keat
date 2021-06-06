@@ -50,8 +50,8 @@ export abstract class AbstractEngine implements Engine {
     const features = definitions.features.map((featureDefinitions) => {
       if (!featureDefinitions.audiences) {
         return new Feature({
-          name: featureDefinitions.name,
-          enabled: featureDefinitions.enabled,
+          ...featureDefinitions,
+          audiences: undefined,
         });
       }
 
@@ -62,8 +62,7 @@ export abstract class AbstractEngine implements Engine {
       this.checkAudiences(featureDefinitions, featureAudiences);
 
       return new Feature({
-        name: featureDefinitions.name,
-        enabled: featureDefinitions.enabled,
+        ...featureDefinitions,
         audiences: featureAudiences,
       });
     });

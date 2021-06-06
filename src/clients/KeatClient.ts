@@ -1,16 +1,21 @@
-import { Client } from "./interface";
-import { Labels, Definitions, definitionsSchema } from "../model/definitions";
-import { URL, URLSearchParams } from "url";
 import fetch from "node-fetch";
+import { URL } from "url";
+import { Definitions, definitionsSchema } from "../model/definitions";
+import { encodeLabelSelectors, LabelSelectors } from "../model/labels";
+import { Client } from "./interface";
 
 export class KeatClient implements Client {
   constructor(
     private origin: string = "http://keat-server.keat.svc.cluster.local"
   ) {}
 
-  async getDefinitions(labels?: Labels): Promise<Definitions> {
+  async getDefinitions(labels?: LabelSelectors): Promise<Definitions> {
     const url = new URL("/v1/definitions", this.origin);
-    url.search = new URLSearchParams(labels).toString();
+
+    if (labels) {
+      const labelSelector = encodeLabelSelectors(labels);
+      url.searchParams.append("labelSelector", labelSelector);
+    }
 
     const response = await fetch(url.toString());
 
