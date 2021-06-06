@@ -13,7 +13,6 @@ export type stickyAudienceDefinitionSchema = z.infer<
   typeof stickyAudienceDefinitionSchema
 >;
 
-export type Labels = z.infer<typeof labelsSchema>;
 export type FeatureDefinition = z.infer<typeof featureDefinitionSchema>;
 
 export const randomAudienceDefinitionSchema = z.object({
@@ -42,12 +41,10 @@ export const audienceDefinitionSchema = z.union([
   stickyAudienceDefinitionSchema,
 ]);
 
-export const labelsSchema = z.record(z.string());
-
 export const featureDefinitionSchema = z.object({
   name: z.string(),
   enabled: z.boolean().optional(),
-  labels: labelsSchema.optional(),
+  labels: z.record(z.string()).optional(),
   audiences: z.array(z.string()).optional(),
 });
 

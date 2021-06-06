@@ -7,6 +7,8 @@ import {
 } from "./config";
 import { Engine, PollEngine, StaticEngine } from "./engine";
 import { Definitions, definitionsSchema } from "./model/definitions";
+import { Feature } from "./model/feature";
+import { LabelSelectors } from "./model/labels";
 import { User } from "./model/user";
 import { createLogger } from "./utils/logger";
 
@@ -66,18 +68,44 @@ export class Keat<TFeatureNames extends string = string> {
 
   private constructor(public readonly engine: Engine) {}
 
+  /**
+   * Resolves when the first definitions have been set.
+   */
   get ready(): Promise<void> {
     return this.engine.ready;
   }
 
+  /**
+   * Returns the current definitions.
+   */
   get definitions(): Definitions {
     return this.engine.definitions();
   }
 
+  /**
+   * Returns a list of strings of features enabled for the given user.
+   * Add label selectors to filter the feature set.
+   *
+   * @example keat.getFor(user, { app: 'frontend' });
+   */
+  getFor(user: User, labels?: LabelSelectors): string[] {
+    return this.engine
+      .features()
+      .filter((feature) => feature.match(labels))
+      .filter((feature) => feature.isEnabled(user))
+      .map((feature) => feature.name);
+  }
+
+  /**
+   * Whether a feature with given name exists.
+   */
   has(name: string): boolean {
     return this.definitions.features.some((feature) => feature.name === name);
   }
 
+  /**
+   * Whether the feature is enabled for the given user.
+   */
   isEnabled(name: TFeatureNames, user?: User): boolean {
     const feature = this.engine.feature(name);
     return feature?.isEnabled(user) ?? false;
