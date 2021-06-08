@@ -1,5 +1,6 @@
 import { toPairs } from "lodash";
 import { Audience, EVERYONE } from "./audience";
+import { FeatureDefinition } from "./definitions";
 import { Labels, LabelSelectors } from "./labels";
 import { User } from "./user";
 
@@ -42,5 +43,14 @@ export class Feature {
   isEnabled(user?: User): boolean {
     if (!this.enabled) return false;
     return this.audiences.some((audience) => audience.includes(user));
+  }
+
+  toDefinition(): FeatureDefinition {
+    return {
+      name: this.name,
+      audiences: this.audiences.map((a) => a.name),
+      enabled: this.enabled,
+      labels: this.labels,
+    };
   }
 }
