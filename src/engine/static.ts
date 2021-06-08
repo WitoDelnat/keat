@@ -1,5 +1,5 @@
 import { Logger } from "pino";
-import { Definitions } from "..";
+import { Definitions } from "../model/definitions";
 import { AbstractEngine } from "./abstract";
 
 export class StaticEngine extends AbstractEngine {

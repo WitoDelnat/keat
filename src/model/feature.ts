@@ -2,7 +2,7 @@ import { toPairs } from "lodash";
 import { Audience, EVERYONE } from "./audience";
 import { FeatureDefinition } from "./definitions";
 import { Labels, LabelSelectors } from "./labels";
-import { User } from "./user";
+import { User } from "../keat";
 
 type FeatureInit = {
   name: string;

@@ -1,7 +1,7 @@
 import { isString } from "lodash";
 import hash from "murmurhash";
 import { AudienceDefinition } from "./definitions";
-import { InternalUser } from "./user";
+import { InternalUser } from "../keat";
 
 const MURMURHASH_SEED = 1042019;
 

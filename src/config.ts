@@ -1,5 +1,5 @@
 import { Logger } from "pino";
-import { UserKey } from "./model/user";
+import { UserKey } from "./keat";
 
 export type DefinitionsConfig<FName extends string> = {
   definitions: unknown;

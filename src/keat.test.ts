@@ -1,7 +1,7 @@
 import * as faker from "faker";
 import mockedFetch from "jest-fetch-mock";
 import mockedFs from "mock-fs";
-import { Keat } from "./index";
+import { Keat } from "./keat";
 import { basicDefinitions, basicResources } from "./__fixtures__/index";
 
 describe("Keat", () => {
