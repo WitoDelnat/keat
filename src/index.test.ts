@@ -1,8 +1,8 @@
 import * as faker from "faker";
 import mockedFetch from "jest-fetch-mock";
 import mockedFs from "mock-fs";
-import { Keat } from "./keat";
-import { basicDefinitions, basicResources } from "./__fixtures__/index";
+import { Keat } from ".";
+import { basicDefinitions, basicResources } from "./utils/testing/scenarios";
 
 describe("Keat", () => {
   it("should determine whether a feature is enabled for a given user", () => {

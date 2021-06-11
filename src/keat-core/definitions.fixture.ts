@@ -1,5 +1,5 @@
-import { Definitions } from "../model/definitions";
-import { fixture } from "./fluse";
+import { Definitions } from "./definitions";
+import { fixture } from "../utils/testing/fluse";
 
 type Args = Partial<Definitions>;
 

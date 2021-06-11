@@ -1,6 +1,6 @@
 import * as faker from "faker";
-import { FeatureListResource, FeatureResource } from "../../src/clients";
-import { fixture } from "./fluse";
+import { FeatureListResource, FeatureResource } from "./featureResource";
+import { fixture } from "../utils/testing/fluse";
 
 type Args = {
   name?: string;

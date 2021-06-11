@@ -1,16 +1,13 @@
+import { definitionsFixture } from "../../keat-core/definitions.fixture";
 import {
   audienceListResourceFixture,
   audienceResourceFixture,
-} from "./audienceResource";
-import { definitionsFixture } from "./definitions";
+} from "../../keat-kube/audienceResource.fixture";
 import {
   featureListResourceFixture,
   featureResourceFixture,
-} from "./featureResource";
+} from "../../keat-kube/featureResource.fixture";
 import { scenario } from "./fluse";
-
-export * from "./audienceResource";
-export * from "./featureResource";
 
 export const basicResources = scenario()
   .with("developers", () =>

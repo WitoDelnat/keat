@@ -1,9 +1,12 @@
 import { isString } from "lodash";
 import hash from "murmurhash";
 import { AudienceDefinition } from "./definitions";
-import { InternalUser } from "../keat";
 
 const MURMURHASH_SEED = 1042019;
+
+export type InternalUser =
+  | string
+  | Record<string, string | boolean | number | undefined>;
 
 export function createAudience(definition: AudienceDefinition): Audience {
   switch (definition.kind) {

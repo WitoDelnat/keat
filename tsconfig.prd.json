@@ -20,7 +20,7 @@
     "node_modules",
     "lib",
     "src/utils/testing/**",
-    "src/__fixtures__/**",
+    "**/*.fixture.ts",
     "**/*.test.ts"
   ],
   "include": ["src"]

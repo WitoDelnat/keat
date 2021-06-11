@@ -1,6 +1,6 @@
 import { Logger } from "pino";
-import { Definitions } from "../model/definitions";
-import { AbstractEngine } from "./abstract";
+import { Definitions } from "./definitions";
+import { AbstractEngine } from "./engine";
 
 export class StaticEngine extends AbstractEngine {
   constructor(private init: Definitions, logger: Logger) {

@@ -1,10 +1,19 @@
 import { keyBy, values } from "lodash";
 import { BaseLogger, Logger } from "pino";
-import { Audience, createAudience, EVERYONE, NOBODY } from "../model/audience";
-import { Definitions, FeatureDefinition } from "../model/definitions";
-import { Feature } from "../model/feature";
 import { Signal } from "../utils/signal";
-import { Engine } from "./interface";
+import { Audience, createAudience, EVERYONE, NOBODY } from "./audience";
+import { Definitions, FeatureDefinition } from "./definitions";
+import { Feature } from "./feature";
+
+export interface Engine {
+  feature(name: string): Feature | undefined;
+  features(): Feature[];
+  definitions(): Definitions;
+
+  start(): void;
+  stop(): Promise<void>;
+  ready: Promise<void>;
+}
 
 export abstract class AbstractEngine implements Engine {
   private _definitions: Definitions = { audiences: [], features: [] };

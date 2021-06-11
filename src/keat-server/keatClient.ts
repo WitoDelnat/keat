@@ -1,10 +1,13 @@
 import fetch from "node-fetch";
 import { URL } from "url";
-import { Definitions, definitionsSchema } from "../model/definitions";
-import { encodeLabelSelectors, LabelSelectors } from "../model/labels";
-import { Client } from "./interface";
+import {
+  LabelSelectors,
+  Definitions,
+  encodeLabelSelectors,
+  definitionsSchema,
+} from "../keat-core";
 
-export class KeatClient implements Client {
+export class KeatClient {
   constructor(
     private origin: string = "http://keat-server.keat.svc.cluster.local"
   ) {}

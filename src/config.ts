@@ -1,5 +1,5 @@
 import { Logger } from "pino";
-import { UserKey } from "./keat";
+import { User } from ".";
 
 export type DefinitionsConfig<FName extends string> = {
   definitions: unknown;
@@ -58,6 +58,12 @@ export type Audience<AName extends string = string> =
   | StaticAudience<AName>
   | RandomAudience<AName>;
 
+export type RandomAudience<AName extends string> = {
+  kind: "random";
+  name: AName;
+  percentage: number;
+};
+
 export type StaticAudience<AName extends string> = {
   kind: "static";
   name: AName;
@@ -70,8 +76,4 @@ export type StickyAudience<AName extends string> = {
   percentage: number;
 } & UserKey;
 
-export type RandomAudience<AName extends string> = {
-  kind: "random";
-  name: AName;
-  percentage: number;
-};
+export type UserKey = User extends string ? {} : { key: keyof User };

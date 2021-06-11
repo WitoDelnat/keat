@@ -2,14 +2,21 @@ import { readFileSync } from "fs";
 import https, { Agent } from "https";
 import fetch from "node-fetch";
 import { URL } from "url";
-import * as z from "zod";
 import {
   AudienceDefinition,
   Definitions,
+  encodeLabelSelectors,
   FeatureDefinition,
-} from "../model/definitions";
-import { encodeLabelSelectors, LabelSelectors } from "../model/labels";
-import { Client } from "./interface";
+  LabelSelectors,
+} from "../keat-core";
+import {
+  AudienceListResourceSchema,
+  toAudienceDefinition,
+} from "./audienceResource";
+import {
+  FeatureListResourceSchema,
+  toFeatureDefinition,
+} from "./featureResource";
 
 const DEFAULT_ORIGIN = "https://kubernetes.default.svc";
 const DEFAULT_PATH = "/var/run/secrets/kubernetes.io/serviceaccount";
@@ -21,7 +28,7 @@ type KubeInit = {
   agent?: Agent;
 };
 
-export class KubeClient implements Client {
+export class KubeClient {
   static fromConfig(path: string = DEFAULT_PATH) {
     const namespace = readFileSync(`${path}/namespace`, "utf-8");
     const token = readFileSync(`${path}/token`, "utf-8");
@@ -99,101 +106,4 @@ export class KubeClient implements Client {
     const content = await response.json();
     return content;
   }
-}
-
-export type FeatureResource = z.infer<typeof FeatureResourceSchema>;
-const FeatureResourceSchema = z.object({
-  apiVersion: z.string(),
-  kind: z.string(),
-  metadata: z
-    .object({
-      name: z.string(),
-      labels: z.record(z.string()).optional(),
-    })
-    .nonstrict(),
-  spec: z.object({
-    enabled: z.boolean(),
-    audiences: z.array(z.string()).optional(),
-  }),
-});
-
-export type FeatureListResource = z.infer<typeof FeatureListResourceSchema>;
-export const FeatureListResourceSchema = z.object({
-  apiVersion: z.string(),
-  kind: z.string(),
-  metadata: z.any(),
-  items: z.array(FeatureResourceSchema),
-});
-
-export type AudienceResource = z.infer<typeof AudienceResourceSchema>;
-export const AudienceResourceSchema = z.object({
-  apiVersion: z.string(),
-  kind: z.string(),
-  metadata: z
-    .object({
-      name: z.string(),
-      labels: z.record(z.string()).optional(),
-    })
-    .nonstrict(),
-  spec: z.union([
-    z.object({
-      kind: z.literal("static"),
-      members: z.array(z.string()),
-      key: z.string().optional(),
-    }),
-    z.object({
-      kind: z.literal("random"),
-      percentage: z.number(),
-    }),
-    z.object({
-      kind: z.literal("sticky"),
-      percentage: z.number(),
-      key: z.string().optional(),
-    }),
-  ]),
-});
-
-export type AudienceListResource = z.infer<typeof AudienceListResourceSchema>;
-export const AudienceListResourceSchema = z.object({
-  apiVersion: z.string(),
-  kind: z.string(),
-  metadata: z.any(),
-  items: z.array(AudienceResourceSchema),
-});
-
-function toAudienceDefinition(audience: AudienceResource): AudienceDefinition {
-  switch (audience.spec.kind) {
-    case "static": {
-      return {
-        kind: "static",
-        name: audience.metadata.name,
-        members: audience.spec.members,
-        key: audience.spec.key,
-      };
-    }
-    case "random": {
-      return {
-        kind: "random",
-        name: audience.metadata.name,
-        percentage: audience.spec.percentage,
-      };
-    }
-    case "sticky": {
-      return {
-        kind: "sticky",
-        name: audience.metadata.name,
-        percentage: audience.spec.percentage,
-        key: audience.spec.key,
-      };
-    }
-  }
-}
-
-function toFeatureDefinition(feature: FeatureResource): FeatureDefinition {
-  return {
-    name: feature.metadata.name,
-    labels: feature.metadata.labels,
-    enabled: feature.spec.enabled,
-    audiences: feature.spec.audiences,
-  };
 }

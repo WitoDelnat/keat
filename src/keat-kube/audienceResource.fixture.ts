@@ -1,6 +1,6 @@
 import * as faker from "faker";
-import { AudienceListResource, AudienceResource } from "../../src/clients";
-import { fixture } from "./fluse";
+import { fixture } from "../utils/testing/fluse";
+import { AudienceListResource, AudienceResource } from "./audienceResource";
 
 type Args = {
   name?: string;

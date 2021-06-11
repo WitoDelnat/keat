@@ -1,13 +1,18 @@
-import { KeatClient, KubeClient } from "./clients";
 import {
   DefinitionsConfig,
   KeatServerConfig,
   KubernetesConfig,
   StaticConfig,
 } from "./config";
-import { Engine, PollEngine, StaticEngine } from "./engine";
-import { Definitions, definitionsSchema } from "./model/definitions";
-import { LabelSelectors } from "./model/labels";
+import {
+  Definitions,
+  definitionsSchema,
+  Engine,
+  LabelSelectors,
+  StaticEngine,
+} from "./keat-core";
+import { KubeClient, KubeEngine } from "./keat-kube";
+import { KeatClient, KeatServerEngine } from "./keat-server";
 import { createLogger } from "./utils/logger";
 
 /**
@@ -17,7 +22,7 @@ import { createLogger } from "./utils/logger";
  * ```
  * declare module 'keat-node' {
  *   interface KeatNode {
- *     user: { name: string, email: string }
+ *     user: { name: string, email: string, developerPreview: boolean }
  *   }
  * }
  * ```
@@ -29,10 +34,6 @@ export interface KeatNode {
 }
 
 export type User = KeatNode extends { user: infer T } ? T : string;
-export type UserKey = User extends string ? {} : { key: keyof User };
-export type InternalUser =
-  | string
-  | Record<string, string | boolean | number | undefined>;
 
 export class Keat<TFeatureNames extends string = string> {
   static create<
@@ -65,7 +66,7 @@ export class Keat<TFeatureNames extends string = string> {
   ) {
     const logger = createLogger(config.logger);
     const client = new KeatClient(config.origin);
-    const engine = new PollEngine({ ...config, client, logger });
+    const engine = new KeatServerEngine({ ...config, client, logger });
     const keat = new Keat<FName>(engine);
 
     keat.engine.start();
@@ -78,7 +79,7 @@ export class Keat<TFeatureNames extends string = string> {
   ) {
     const logger = createLogger(config.logger);
     const client = KubeClient.fromConfig(config.path);
-    const engine = new PollEngine({ ...config, client, logger });
+    const engine = new KubeEngine({ ...config, client, logger });
     const keat = new Keat<FName>(engine);
 
     keat.engine.start();

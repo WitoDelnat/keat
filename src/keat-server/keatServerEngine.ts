@@ -1,27 +1,26 @@
 import AbortController, { AbortSignal } from "node-abort-controller";
 import { Logger } from "pino";
-import { Client } from "../clients/interface";
-import { LabelSelectors } from "../model/labels";
 import { delay } from "../utils/delay";
-import { AbstractEngine } from "./abstract";
+import { LabelSelectors, AbstractEngine } from "../keat-core";
+import { KeatClient } from "./keatClient";
 
-type PollEngineInit = {
-  client: Client;
+type KeatServerEngineInit = {
+  client: KeatClient;
   logger: Logger;
   pollInterval?: number;
   strict?: string[];
   labels?: LabelSelectors;
 };
 
-export class PollEngine extends AbstractEngine {
+export class KeatServerEngine extends AbstractEngine {
   private _abortController: AbortController = new AbortController();
   private _task: Promise<void> = Promise.resolve();
 
-  private _client: Client;
+  private _client: KeatClient;
   private _pollInterval: number;
   private _labels: LabelSelectors | undefined;
 
-  constructor(init: PollEngineInit) {
+  constructor(init: KeatServerEngineInit) {
     super(init.logger, init.strict);
     this._client = init.client;
     this._pollInterval = init.pollInterval ?? 5000;
