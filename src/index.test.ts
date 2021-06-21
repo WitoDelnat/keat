@@ -1,31 +1,34 @@
-import * as faker from "faker";
 import mockedFetch from "jest-fetch-mock";
-import mockedFs from "mock-fs";
+import fetch from "node-fetch";
 import { Keat } from ".";
-import { basicDefinitions, basicResources } from "./utils/testing/scenarios";
 
 describe("Keat", () => {
-  it("should determine whether a feature is enabled for a given user", () => {
+  it("should determine whether a feature is enabled", () => {
     const keat = Keat.create({
       audiences: [
         {
-          kind: "static",
           name: "developers",
-          members: ["dev1", "dev2"],
+          includes: (user) => (user ? ["dev1", "dev2"].includes(user) : false),
+        },
+        {
+          name: "company-example",
+          includes: (user) => user?.includes("@example.com") ?? false,
         },
       ],
       features: [
         {
           name: "new-ui",
-          audiences: ["developers"],
-          labels: { app: "frontend" },
+          audience: "developers",
         },
         {
           name: "recommendations",
+          audience: "everyone",
         },
       ],
     });
 
+    expect(keat.isEnabled("new-ui")).toBe(false);
+    expect(keat.isEnabled("recommendations")).toBe(true);
     expect(keat.isEnabled("new-ui", "dev1")).toBe(true);
     expect(keat.isEnabled("recommendations", "dev1")).toBe(true);
     expect(keat.isEnabled("new-ui", "usr1")).toBe(false);
@@ -36,116 +39,53 @@ describe("Keat", () => {
     const keat = Keat.create({
       audiences: [
         {
-          kind: "static",
           name: "developers",
-          members: ["dev1", "dev2"],
+          includes: (user) => (user ? ["dev1", "dev2"].includes(user) : false),
         },
       ],
       features: [
         {
           name: "new-ui",
-          audiences: ["developers"],
-          labels: { app: "frontend" },
+          audience: "developers",
         },
         {
           name: "recommendations",
+          audience: "everyone",
         },
       ],
     });
 
-    expect(keat.getFor("dev1")).toEqual(["new-ui", "recommendations"]);
-    expect(keat.getFor("dev1", { app: "frontend" })).toEqual(["new-ui"]);
-    expect(keat.getFor("usr1")).toEqual(["recommendations"]);
-    expect(keat.getFor("usr1", { app: "frontend" })).toEqual([]);
+    expect(keat.getFeaturesFor("dev1")).toEqual(["new-ui", "recommendations"]);
+    expect(keat.getFeaturesFor("usr1")).toEqual(["recommendations"]);
   });
 });
 
-describe("Keat.create", () => {
-  it("should initialise from given definitions", async () => {
+describe("Keat.remoteConfig", () => {
+  it("should work with custom remote configuration", async () => {
+    const remoteConfig = { test: "everyone" };
+    mockedFetch.mockResponses([JSON.stringify(remoteConfig), { status: 200 }]);
+
     const keat = Keat.create({
-      audiences: [
-        {
-          kind: "static",
-          name: "developers",
-          members: ["dev1", "dev2"],
-        },
-      ],
       features: [
         {
-          name: "new-ui",
-        },
-        {
-          name: "recommendations",
-          audiences: ["developers"],
+          name: "test",
+          audience: "nobody",
         },
       ],
-    });
-
-    assert(keat);
-  });
-});
-
-describe("Keat.fromDefinitions", () => {
-  it("should initialise from given definitions", async () => {
-    const { definitions } = await basicDefinitions.execute();
-
-    const keat = Keat.fromDefinitions({ definitions });
-
-    assert(keat);
-  });
-});
-
-describe("Keat.fromKeatServer", () => {
-  it("should initialise from fetched definitions", async () => {
-    const { definitions } = await basicDefinitions.execute();
-
-    mockedFetch.mockResponses([JSON.stringify(definitions), { status: 200 }]);
-
-    const keat = Keat.fromKeatServer();
-    await keat.ready;
-    await keat.engine.stop();
-
-    assert(keat);
-  });
-});
-
-describe("Keat.fromKubernetes", () => {
-  beforeEach(() => {
-    mockedFs({
-      "/var/run/secrets/kubernetes.io/serviceaccount": {
-        namespace: faker.random.word(),
-        token: faker.random.word(),
-        "ca.crt": faker.random.word(),
+      remoteConfig: {
+        kind: "poll",
+        fetch: async () => {
+          const response = await fetch("http://localhost:8080/config.json");
+          if (!response.ok) throw new Error("request failed");
+          return await response.json();
+        },
       },
     });
-  });
 
-  afterEach(() => {
-    mockedFs.restore();
-  });
-
-  it("should initialise from fetched Kubernetes resources", async () => {
-    const { audienceList, featureList } = await basicResources.execute();
-
-    mockedFetch.mockResponses(
-      [JSON.stringify(audienceList), { status: 200 }],
-      [JSON.stringify(featureList), { status: 200 }]
-    );
-
-    const keat = Keat.fromKubernetes();
     await keat.ready;
-    await keat.engine.stop();
 
-    assert(keat);
+    expect(keat.isEnabled("test")).toBe(true);
+
+    await keat.stop();
   });
 });
-
-function assert(keat: Keat) {
-  expect(keat.isEnabled("new-ui")).toBe(true);
-  expect(keat.isEnabled("new-ui", "usr1")).toBe(true);
-  expect(keat.isEnabled("new-ui", "dev1")).toBe(true);
-
-  expect(keat.isEnabled("recommendations")).toBe(false);
-  expect(keat.isEnabled("recommendations", "usr1")).toBe(false);
-  expect(keat.isEnabled("recommendations", "dev1")).toBe(true);
-}

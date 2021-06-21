@@ -1,79 +1,74 @@
-import { Logger } from "pino";
-import { User } from ".";
+import { DefaultAudienceName } from "./core/audience";
 
-export type DefinitionsConfig<FName extends string> = {
-  definitions: unknown;
-  strict?: FName[];
-  logger?: boolean | Logger;
-};
+/**
+ * Bring your own user with declaration merging:
+ *
+ * @example
+ * ```
+ * declare module 'keat-node' {
+ *   interface KeatNode {
+ *     user: { name: string, email: string, developerPreview: boolean }
+ *   }
+ * }
+ * ```
+ *
+ * @remark Currently only Record<string, string | boolean | number> is allowed.
+ */
+export interface KeatNode {
+  // user: ...
+}
 
-export type KubernetesConfig<FName extends string> = {
-  path?: string;
-  pollInterval?: number;
-  labels?: Record<string, string>;
-  strict?: FName[];
-  logger?: boolean | Logger;
-};
+export type User = KeatNode extends { user: infer T } ? T : string;
 
-export type KeatServerConfig<FName extends string> = {
-  origin?: string;
-  pollInterval?: number;
-  labels?: Record<string, string>;
-  strict?: FName[];
-  logger?: boolean | Logger;
-};
-
-export type StaticConfig<
-  FName extends string,
-  AName extends ANames,
-  ANames extends string
-> =
-  | StaticWithoutAudiencesConfig<string>
-  | StaticWithAudiencesConfig<FName, AName, ANames>;
-
-type StaticWithoutAudiencesConfig<FName extends string> = {
-  audiences?: undefined;
-  features: Feature<FName, never>[];
-  logger?: boolean | Logger;
-};
-
-type StaticWithAudiencesConfig<
+export type Config<
   FName extends string,
   AName extends ANames,
   ANames extends string
 > = {
-  audiences: Audience<ANames>[];
   features: Feature<FName, AName>[];
-  logger?: boolean | Logger;
+  audiences?: Audience<ANames>[];
+  userConfig?: UserConfig;
+  remoteConfig?: RemoteConfig<FName>;
 };
 
-export type Feature<FName extends string, AName extends string = never> = {
+export type Feature<
+  FName extends string = string,
+  AName extends string = string
+> = {
   name: FName;
-  labels?: Record<string, string>;
-  audiences?: (AName | "everyone" | "nobody")[];
-  enabled?: boolean;
+  audience: AName | DefaultAudienceName | (AName | DefaultAudienceName)[];
+  seed?: number;
 };
 
-export type Audience<AName extends string = string> =
-  | StaticAudience<AName>
-  | RandomAudience<AName>;
-
-export type RandomAudience<AName extends string> = {
-  kind: "random";
+export type Audience<AName extends string = string> = {
   name: AName;
-  percentage: number;
+  includes: (user?: User) => boolean;
 };
 
-export type StaticAudience<AName extends string> = {
-  kind: "static";
-  name: AName;
-  members: (string | number | boolean)[];
-} & UserKey;
+export type UserConfig = {
+  /**
+   * The key for the property that identifies a user.
+   * Required for sticky audiences.
+   * Defaults to `'id'`.
+   *
+   * @example
+   * type User = { sub: string, ...}
+   * const userConfig = { idKey = 'sub' }
+   */
+  idKey?: User extends string ? undefined : keyof User;
+};
 
-export type StickyAudience<AName extends string> = {
-  kind: "sticky";
-  name: AName;
-  percentage: number;
-} & UserKey;
+export type RemoteConfig<FNames extends string = string> =
+  PollingRemoteConfig<FNames>;
 
-export type UserKey = User extends string ? {} : { key: keyof User };
+export type PollingRemoteConfig<FNames extends string = string> = {
+  kind: "poll";
+  pollInterval?: number;
+  fetch: () => Promise<RemoteData<FNames>>;
+  onError?: (err: Error, data: unknown) => void;
+  onChange?: (data: RemoteData, previousData?: RemoteData) => void;
+};
+
+export type RemoteData<FNames extends string = string> = Partial<
+  Record<FNames, string>
+>;

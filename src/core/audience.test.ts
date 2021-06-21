@@ -1,37 +1,45 @@
 import faker from "faker";
-import { createAudience, EVERYONE, NOBODY } from "./audience";
+import { Audience } from "../config";
+import { DefaultAudienceName, DEFAULT_AUDIENCES } from "./audience";
+import { Feature } from "./feature";
+
+function getAudience(name: DefaultAudienceName) {
+  const aud = DEFAULT_AUDIENCES.find((a) => a.name === name);
+  if (!aud) throw new Error();
+  return aud;
+}
 
 describe("everyone", () => {
   it("should always be enabled", () => {
-    expect(EVERYONE.includes()).toBe(true);
-    expect(EVERYONE.includes(faker.random.word())).toBe(true);
+    const everyone = getAudience("everyone");
+    expect(everyone.includes()).toBe(true);
+    expect(everyone.includes(faker.random.word())).toBe(true);
   });
 });
 
 describe("nobody", () => {
   it("should always be disabled", () => {
-    expect(NOBODY.includes()).toBe(false);
-    expect(NOBODY.includes(faker.random.word())).toBe(false);
+    const nobody = getAudience("nobody");
+    expect(nobody.includes()).toBe(false);
+    expect(nobody.includes(faker.random.word())).toBe(false);
   });
 });
 
-describe("static", () => {
+describe("custom", () => {
   it("should be disabled when the user is not part of members", () => {
-    const audience = createAudience({
-      kind: "static",
-      name: "test",
-      members: ["usr1", "usr2"],
-    });
+    const audience: Audience = {
+      name: "custom",
+      includes: (user) => (user ? ["usr1", "usr2"].includes(user) : false),
+    };
 
     expect(audience.includes("usr3")).toBe(false);
   });
 
   it("should be enabled when the user is part of members", () => {
-    const audience = createAudience({
-      kind: "static",
-      name: "test",
-      members: ["usr1", "usr2"],
-    });
+    const audience: Audience = {
+      name: "custom",
+      includes: (user) => (user ? ["usr1", "usr2"].includes(user) : false),
+    };
 
     expect(audience.includes("usr1")).toBe(true);
   });
@@ -50,11 +58,7 @@ describe("random", () => {
       .mockReturnValueOnce(0.66)
       .mockReturnValueOnce(0.88);
 
-    const audience = createAudience({
-      kind: "random",
-      name: "test",
-      percentage: 25,
-    });
+    const audience = getAudience("dark-md");
 
     expect(audience.includes()).toBe(true);
     expect(audience.includes()).toBe(false);
@@ -65,11 +69,7 @@ describe("random", () => {
 
 describe("sticky", () => {
   it("should respond the same for any given user.", () => {
-    const audience = createAudience({
-      kind: "sticky",
-      name: "test",
-      percentage: 25,
-    });
+    const audience = getAudience("sticky-md");
 
     for (let i = 0; i < 3; i++) {
       const usr = faker.datatype.uuid();
@@ -81,22 +81,15 @@ describe("sticky", () => {
     }
   });
 
-  it("should vary between multiple audiences", () => {
-    const canary = createAudience({
-      kind: "sticky",
-      name: "canary-test",
-      percentage: 50,
-    });
-    const ab = createAudience({
-      kind: "sticky",
-      name: "ab-test",
-      percentage: 50,
-    });
+  it("should vary between multiple features", () => {
+    const audience = getAudience("sticky-lg");
+    const feature1 = new Feature("canary-test", [audience]);
+    const feature2 = new Feature("ab-test", [audience]);
 
-    expect(canary.includes("usr")).toBe(ab.includes("usr"));
-    expect(canary.includes("bar")).toBe(ab.includes("bar"));
-    expect(canary.includes("foo")).not.toBe(ab.includes("foo"));
-    expect(canary.includes("dev")).not.toBe(ab.includes("dev"));
+    expect(feature1.isEnabled("usr")).toBe(feature2.isEnabled("usr"));
+    expect(feature1.isEnabled("bar")).toBe(feature2.isEnabled("bar"));
+    expect(feature1.isEnabled("foo")).not.toBe(feature2.isEnabled("foo"));
+    expect(feature1.isEnabled("dev")).not.toBe(feature2.isEnabled("dev"));
   });
 
   it("should properly distribute all user", () => {
@@ -105,11 +98,7 @@ describe("sticky", () => {
     const LEEWAY_PERCENTAGE = 5;
     const LEEWAY = (TOTAL * LEEWAY_PERCENTAGE) / 100;
 
-    const audience = createAudience({
-      kind: "sticky",
-      name: "test",
-      percentage: PERCENTAGE,
-    });
+    const audience = getAudience("sticky-md");
 
     let amountEnabled = 0;
 

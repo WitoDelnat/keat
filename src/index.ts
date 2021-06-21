@@ -1,134 +1,68 @@
-import {
-  DefinitionsConfig,
-  KeatServerConfig,
-  KubernetesConfig,
-  StaticConfig,
-} from "./config";
-import {
-  Definitions,
-  definitionsSchema,
-  Engine,
-  LabelSelectors,
-  StaticEngine,
-} from "./keat-core";
-import { KubeClient, KubeEngine } from "./keat-kube";
-import { KeatClient, KeatServerEngine } from "./keat-server";
-import { createLogger } from "./utils/logger";
+import { Config, User } from "./config";
+import { Engine } from "./core";
+import { createSynchronizer, Synchronizer } from "./remote";
 
-/**
- * Bring your own user with declaration merging:
- *
- * @example
- * ```
- * declare module 'keat-node' {
- *   interface KeatNode {
- *     user: { name: string, email: string, developerPreview: boolean }
- *   }
- * }
- * ```
- *
- * @remark Currently only Record<string, string | boolean | number> is allowed.
- */
-export interface KeatNode {
-  // user: ...
-}
+export { KeatNode } from "./config";
+export { fromEnv } from "./utils/fromEnv";
 
-export type User = KeatNode extends { user: infer T } ? T : string;
+export type ExtractFeatures<K> = K extends Keat<infer K> ? K : never;
 
 export class Keat<TFeatureNames extends string = string> {
   static create<
     FName extends string,
     AName extends ANames,
     ANames extends string
-  >(config: StaticConfig<FName, AName, ANames>): Keat<FName> {
-    const definitions = {
-      features: config.features,
-      audiences: config.audiences,
+  >(init: Config<FName, AName, ANames>): Keat<FName> {
+    const config = {
+      audiences: init.audiences ?? [],
+      features: init.features,
     };
-    return Keat.fromDefinitions({ definitions, logger: config.logger });
-  }
+    const remote = createSynchronizer(init.remoteConfig);
+    const engine = new Engine(config, remote);
+    const keat = new Keat<FName>(engine, remote);
 
-  static fromDefinitions<FName extends string>(
-    config: DefinitionsConfig<FName>
-  ): Keat<FName> {
-    const logger = createLogger(config.logger);
-    const definitions = definitionsSchema.parse(config.definitions);
-    const engine = new StaticEngine(definitions, logger);
-    const keat = new Keat<FName>(engine);
-
-    keat.engine.start();
+    keat.start();
 
     return keat;
   }
 
-  static fromKeatServer<FName extends string = string>(
-    config: KeatServerConfig<FName> = {}
-  ) {
-    const logger = createLogger(config.logger);
-    const client = new KeatClient(config.origin);
-    const engine = new KeatServerEngine({ ...config, client, logger });
-    const keat = new Keat<FName>(engine);
-
-    keat.engine.start();
-
-    return keat;
-  }
-
-  static fromKubernetes<FName extends string>(
-    config: KubernetesConfig<FName> = {}
-  ) {
-    const logger = createLogger(config.logger);
-    const client = KubeClient.fromConfig(config.path);
-    const engine = new KubeEngine({ ...config, client, logger });
-    const keat = new Keat<FName>(engine);
-
-    keat.engine.start();
-
-    return keat;
-  }
-
-  private constructor(public readonly engine: Engine) {}
+  private constructor(
+    private readonly engine: Engine,
+    private readonly remoteConfig: Synchronizer
+  ) {}
 
   /**
-   * Resolves when the first definitions have been set.
+   * Resolves when the first remote configuration is fetched.
    */
   get ready(): Promise<void> {
-    return this.engine.ready;
+    return this.remoteConfig.ready;
   }
 
   /**
-   * Returns the current definitions.
+   * Starts remote configuration synchronization.
    */
-  get definitions(): Definitions {
-    return this.engine.definitions();
+  start(): void {
+    return this.remoteConfig.start();
   }
 
   /**
-   * Returns a list of strings of features enabled for the given user.
-   * Add label selectors to filter the feature set.
-   *
-   * @example keat.getFor(user, { app: 'frontend' });
+   * Stops remote configuration synchronization.
    */
-  getFor(user: User, labels?: LabelSelectors): string[] {
-    return this.engine
-      .features()
-      .filter((feature) => feature.match(labels))
-      .filter((feature) => feature.isEnabled(user))
-      .map((feature) => feature.name);
+  stop(): Promise<void> {
+    return this.remoteConfig.stop();
   }
 
   /**
-   * Whether a feature with given name exists.
-   */
-  has(name: string): boolean {
-    return this.definitions.features.some((feature) => feature.name === name);
-  }
-
-  /**
-   * Whether the feature is enabled for the given user.
+   * Whether the feature is enabled for a user.
    */
   isEnabled(name: TFeatureNames, user?: User): boolean {
-    const feature = this.engine.feature(name);
-    return feature?.isEnabled(user) ?? false;
+    return this.engine.isEnabled(name, user);
+  }
+
+  /**
+   * Returns all enabled features for given user.
+   */
+  getFeaturesFor(user: User): string[] {
+    return this.engine.getFeaturesFor(user);
   }
 }
