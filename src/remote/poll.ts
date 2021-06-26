@@ -6,7 +6,7 @@ import { Signal } from "../utils/signal";
 import { isRemoteData } from "../utils/types";
 import { Synchronizer } from "./types";
 
-const DEFAULT_POLL_INTERVAL = 30000;
+const DEFAULT_POLL_INTERVAL = 60000;
 
 export class PollingSynchronizer implements Synchronizer {
   private _data?: RemoteData;

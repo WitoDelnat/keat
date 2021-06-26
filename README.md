@@ -171,7 +171,7 @@ The response is simply a record where a feature name maps to its audience:
 
 The _new-ui_ will remain enabled to `everyone`.
 _Recommendation_'s reach has been increased once more, this time to a large audience.
-By default, Keat will fetch the remote configuration every 30 seconds and merge the received audiences.
+By default, Keat will fetch the remote configuration every minute and merge the received audiences.
 
 ## Users
 
