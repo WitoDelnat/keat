@@ -21,13 +21,13 @@ Keat succeeds when adding it for feature management is as boring as adding [jest
 Install Keat for either NodeJs or the browser using `yarn`:
 
 ```
-yarn add keat-node
+yarn add keat
 ```
 
 or `npm`:
 
 ```
-npm install keat-node
+npm install keat
 ```
 
 ## Getting started
@@ -37,7 +37,7 @@ Keat has two main concepts: **features** and **audiences**.
 Let's explore them through some examples:
 
 ```typescript
-import { Keat } from "keat-node";
+import { Keat } from "keat";
 
 export const keat = Keat.create({
   features: [
@@ -57,7 +57,7 @@ In essence, you could say that features describe _what_ while audiences _to who_
 Let's imagine that the recommendation feature is finished:
 
 ```typescript
-import { Keat } from "keat-node";
+import { Keat } from "keat";
 
 export const keat = Keat.create({
   features: [
@@ -80,7 +80,7 @@ All audiences and feature names are completely inferred making typos unlikely.
 Maintenance is also easier as you can remove features without worrying that you missed a guard.
 
 ```typescript
-import { Keat } from "keat-node";
+import { Keat } from "keat";
 
 export const keat = Keat.create({
   features: [
@@ -110,7 +110,7 @@ Otherwise you'll have to rebuild your application which reduces propagation spee
 You can use the `fromEnv` utility to implement this as follows:
 
 ```typescript
-import { Keat, fromEnv } from "keat-node";
+import { Keat, fromEnv } from "keat";
 
 export const keat = Keat.create({
   features: [
@@ -143,7 +143,7 @@ When you reach this point it's a great moment to get started with remote configu
 It's possible to integrate with any existing remote configuration tool.
 
 ```typescript
-import { Keat } from "keat-node";
+import { Keat } from "keat";
 
 export const keat = Keat.create({
   features: [
@@ -181,9 +181,9 @@ It's likely that this is to limiting once you start segregating your users based
 That is why you can define your own user with declaration merging:
 
 ```typescript
-import { Keat } from "keat-node";
+import { Keat } from "keat";
 
-declare module "keat-node" {
+declare module "keat" {
   interface KeatNode {
     user: {
       id: string;
@@ -213,9 +213,9 @@ You will need to configure this key whenever it's different then the default `'i
 To illustrate, you would use ID tokens as follows:
 
 ```typescript
-import { Keat } from "keat-node";
+import { Keat } from "keat";
 
-declare module "keat-node" {
+declare module "keat" {
   interface KeatNode {
     user: {
       sub: string;
@@ -251,7 +251,7 @@ const team = [
   "...",
 ];
 
-declare module "keat-node" {
+declare module "keat" {
   interface KeatNode {
     user: {
       id: string;

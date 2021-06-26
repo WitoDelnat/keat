@@ -1,5 +1,5 @@
 {
-  "name": "keat-node",
+  "name": "keat",
   "version": "0.3.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/WitoDelnat/keat-node"
+    "url": "https://github.com/WitoDelnat/keat"
   },
   "keywords": [
     "keat",
-    "client",
     "feature flags",
     "feature toggle",
     "feature management",
-    "kubernetes"
+    "continuous delivery",
+    "release"
   ],
   "files": [
     "lib"

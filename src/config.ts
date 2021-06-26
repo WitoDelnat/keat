@@ -5,7 +5,7 @@ import { DefaultAudienceName } from "./core/audience";
  *
  * @example
  * ```
- * declare module 'keat-node' {
+ * declare module 'keat' {
  *   interface KeatNode {
  *     user: { name: string, email: string, developerPreview: boolean }
  *   }
