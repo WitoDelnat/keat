@@ -1,6 +1,6 @@
 # [beta] Keat
 
-Keat is a minimalistic feature management tool.
+Keat is a minimalistic feature management tool for NodeJs or the browser.
 
 **Problem:** "I want to increase my deployment frequency while keeping control of my stability."
 
@@ -84,8 +84,8 @@ import { Keat } from "keat";
 
 export const keat = Keat.create({
   features: [
-    { name: "new-ui", audiences: ["everybody"] }, // Type '"everybody"' is not assignable
-    { name: "recommendations", audiences: ["sticky-xs"] }, // ok
+    { name: "new-ui", audience: "everybody" }, // Type '"everybody"' is not assignable
+    { name: "recommendations", audience: "sticky-xs" }, // ok
   ],
 });
 
