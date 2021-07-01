@@ -1,59 +1,50 @@
-import { isString, toPairs } from "lodash";
+import { isString, mapValues } from "lodash";
 import hash from "murmurhash";
 import { User } from "../config";
 
 export const DEFAULT_SEED = 1042019;
 
-export type Audience = {
-  name: string;
-  includes: (user?: User, seed?: number, userIdKey?: string) => boolean;
-};
+export class Audience {
+  constructor(
+    public includes: (user?: User, seed?: number, userIdKey?: string) => boolean
+  ) {}
+}
 
 type InternalUser =
   | string
   | Record<string, string | boolean | number | undefined>;
 
-export type DefaultAudienceName =
+export type DefaultAudience =
   | "everyone"
   | "nobody"
-  | "dark-xs"
-  | "dark-sm"
-  | "dark-md"
-  | "dark-lg"
-  | "dark-xl"
-  | "sticky-xs"
-  | "sticky-sm"
-  | "sticky-md"
-  | "sticky-lg"
-  | "sticky-xl";
+  | keyof typeof DARK
+  | keyof typeof STICKY;
 
-const PERCENTAGES = {
-  xs: 3,
-  sm: 10,
-  md: 25,
-  lg: 50,
-  xl: 75,
+const DARK = {
+  "dark-xs": 3,
+  "dark-sm": 10,
+  "dark-md": 25,
+  "dark-lg": 50,
+  "dark-xl": 75,
 };
 
-export const DEFAULT_AUDIENCES: Audience[] = [
-  {
-    name: "everyone",
-    includes: () => true,
-  },
-  {
-    name: "nobody",
-    includes: () => false,
-  },
-  ...toPairs(PERCENTAGES).map(
-    ([modifier, percentage]): Audience => ({
-      name: `dark-${modifier}`,
-      includes: () => percentage > Math.random() * 100,
-    })
-  ),
-  ...toPairs(PERCENTAGES).map(
-    ([modifier, percentage]): Audience => ({
-      name: `sticky-${modifier}`,
-      includes: (user, seed = DEFAULT_SEED, userIdKey = "id") => {
+const STICKY = {
+  "sticky-xs": 3,
+  "sticky-sm": 10,
+  "sticky-md": 25,
+  "sticky-lg": 50,
+  "sticky-xl": 75,
+};
+
+export const DEFAULT_AUDIENCES: Record<string, Audience> = {
+  everyone: new Audience(() => true),
+  nobody: new Audience(() => false),
+  ...mapValues(DARK, (percentage) => {
+    return new Audience(() => percentage > Math.random() * 100);
+  }),
+  ...mapValues(STICKY, (percentage) => {
+    return new Audience(
+      (user?: User, seed = DEFAULT_SEED, userIdKey = "id") => {
         if (!user) return false;
 
         const _user = user as InternalUser;
@@ -62,7 +53,7 @@ export const DEFAULT_AUDIENCES: Audience[] = [
           : _user[userIdKey]?.toString() ?? "";
 
         return percentage > (hash.v3(usr, seed) % 100) + 1;
-      },
-    })
-  ),
-];
+      }
+    );
+  }),
+};

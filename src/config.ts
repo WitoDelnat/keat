@@ -1,4 +1,4 @@
-import { DefaultAudienceName } from "./core/audience";
+import { DefaultAudience } from "./core/audience";
 
 /**
  * Bring your own user with declaration merging:
@@ -22,32 +22,21 @@ export type User = KeatNode extends { user: infer T } ? T : string;
 
 export type Config<
   FName extends string,
-  AName extends ANames,
-  ANames extends string
+  FAudience extends AName,
+  AName extends string
 > = {
-  features: Feature<FName, AName>[];
-  audiences?: Audience<ANames>[];
+  audiences?: Record<AName, (user?: User) => boolean>;
+  features: Record<
+    FName,
+    FAudience | DefaultAudience | (FAudience | DefaultAudience)[]
+  >;
   userConfig?: UserConfig;
   remoteConfig?: RemoteConfig<FName>;
 };
 
-export type Feature<
-  FName extends string = string,
-  AName extends string = string
-> = {
-  name: FName;
-  audience: AName | DefaultAudienceName | (AName | DefaultAudienceName)[];
-  seed?: number;
-};
-
-export type Audience<AName extends string = string> = {
-  name: AName;
-  includes: (user?: User) => boolean;
-};
-
 export type UserConfig = {
   /**
-   * The key for the property that identifies a user.
+   * The key of the property identifying a user.
    * Required for sticky audiences.
    * Defaults to `'id'`.
    *

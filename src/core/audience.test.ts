@@ -1,10 +1,9 @@
 import faker from "faker";
-import { Audience } from "../config";
-import { DefaultAudienceName, DEFAULT_AUDIENCES } from "./audience";
+import { Audience, DefaultAudience, DEFAULT_AUDIENCES } from "./audience";
 import { Feature } from "./feature";
 
-function getAudience(name: DefaultAudienceName) {
-  const aud = DEFAULT_AUDIENCES.find((a) => a.name === name);
+function getAudience(name: DefaultAudience) {
+  const aud = DEFAULT_AUDIENCES[name];
   if (!aud) throw new Error();
   return aud;
 }
@@ -27,19 +26,17 @@ describe("nobody", () => {
 
 describe("custom", () => {
   it("should be disabled when the user is not part of members", () => {
-    const audience: Audience = {
-      name: "custom",
-      includes: (user) => (user ? ["usr1", "usr2"].includes(user) : false),
-    };
+    const audience = new Audience((user) => {
+      return user ? ["usr1", "usr2"].includes(user) : false;
+    });
 
     expect(audience.includes("usr3")).toBe(false);
   });
 
   it("should be enabled when the user is part of members", () => {
-    const audience: Audience = {
-      name: "custom",
-      includes: (user) => (user ? ["usr1", "usr2"].includes(user) : false),
-    };
+    const audience = new Audience((user) => {
+      return user ? ["usr1", "usr2"].includes(user) : false;
+    });
 
     expect(audience.includes("usr1")).toBe(true);
   });

@@ -13,30 +13,15 @@ declare module "./src" {
 }
 
 const keat = Keat.create({
-  audiences: [
-    {
-      name: "developers",
-      includes: (user) => user.name === "john",
-    },
-    {
-      name: "preview",
-      includes: (user) => user.developerPreview,
-    },
-    {
-      name: "company-example",
-      includes: (user) => user.email.includes("@example.com") ?? false,
-    },
-  ],
-  features: [
-    {
-      name: "test",
-      audience: fromEnv(process.env.ENABLE_TEST_TO),
-    },
-    {
-      name: "new-ui",
-      audience: "preview",
-    },
-  ],
+  audiences: {
+    developers: (user) => user?.name === "john" ?? false,
+    preview: (user) => user?.developerPreview ?? false,
+    staff: (user) => user.email.includes("@example.com") ?? false,
+  },
+  features: {
+    test: fromEnv(process.env.ENABLE_TEST_TO),
+    redesign: ["preview", "staff"],
+  },
 });
 
 (async () => {

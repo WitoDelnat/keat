@@ -7,17 +7,13 @@ export { fromEnv } from "./utils/fromEnv";
 
 export type ExtractFeatures<K> = K extends Keat<infer K> ? K : never;
 
-export class Keat<TFeatureNames extends string = string> {
+export class Keat<FName extends string = string> {
   static create<
     FName extends string,
     AName extends ANames,
     ANames extends string
-  >(init: Config<FName, AName, ANames>): Keat<FName> {
-    const config = {
-      audiences: init.audiences ?? [],
-      features: init.features,
-    };
-    const remote = createSynchronizer(init.remoteConfig);
+  >(config: Config<FName, AName, ANames>): Keat<FName> {
+    const remote = createSynchronizer(config.remoteConfig);
     const engine = new Engine(config, remote);
     const keat = new Keat<FName>(engine, remote);
 
@@ -55,7 +51,7 @@ export class Keat<TFeatureNames extends string = string> {
   /**
    * Whether the feature is enabled for a user.
    */
-  isEnabled(name: TFeatureNames, user?: User): boolean {
+  isEnabled(name: FName, user?: User): boolean {
     return this.engine.isEnabled(name, user);
   }
 
