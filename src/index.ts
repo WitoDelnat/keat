@@ -56,9 +56,9 @@ export class Keat<FName extends string = string> {
   }
 
   /**
-   * Returns all enabled features for given user.
+   * Returns a snapshot of all features for a user.
    */
-  getFeaturesFor(user: User): string[] {
-    return this.engine.getFeaturesFor(user);
+  snapshot(user: User): Record<FName, boolean> {
+    return this.engine.snapshot(user);
   }
 }

@@ -1,4 +1,4 @@
-import { mapValues, toPairs, values } from "lodash";
+import { mapValues, toPairs } from "lodash";
 import { Config, RemoteData, User } from "../config";
 import { Synchronizer } from "../remote";
 import { normalise } from "../utils/fromEnv";
@@ -7,7 +7,6 @@ import { Audience, DEFAULT_AUDIENCES } from "./audience";
 import { Feature } from "./feature";
 
 export class Engine {
-  private featureList: Feature[] = [];
   private features: Record<string, Feature> = {};
   private audiences: Record<string, Audience> = {};
 
@@ -19,10 +18,8 @@ export class Engine {
     this.remote.onChange = (data) => this.onRemoteConfigChanged(data);
   }
 
-  getFeaturesFor(user: User): string[] {
-    return this.featureList
-      .filter((feature) => feature.isEnabled(user))
-      .map((feature) => feature.name);
+  snapshot(user: User): Record<string, boolean> {
+    return mapValues(this.features, (feature) => feature.isEnabled(user));
   }
 
   isEnabled(feature: string, user?: User): boolean {
@@ -38,7 +35,6 @@ export class Engine {
       const audiences = this.mapToAudiences(audience);
       return new Feature(name, audiences, config.userConfig?.idKey);
     });
-    this.featureList = values(this.features);
   }
 
   private onRemoteConfigChanged = (data: RemoteData) => {

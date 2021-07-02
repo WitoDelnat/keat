@@ -34,11 +34,12 @@ describe("Keat", () => {
       },
     });
 
-    expect(keat.getFeaturesFor("dev1")).toEqual([
-      "redesign",
-      "recommendations",
-    ]);
-    expect(keat.getFeaturesFor("usr1")).toEqual(["recommendations"]);
+    const devSnapshot = keat.snapshot("dev1");
+    expect(devSnapshot.recommendations).toBe(true);
+    expect(devSnapshot.redesign).toBe(true);
+    const usrSnapshot = keat.snapshot("usr1");
+    expect(usrSnapshot.recommendations).toBe(true);
+    expect(usrSnapshot.redesign).toBe(false);
   });
 });
 
