@@ -59,5 +59,5 @@ export type PollingRemoteConfig<FNames extends string = string> = {
 };
 
 export type RemoteData<FNames extends string = string> = Partial<
-  Record<FNames, string>
+  Record<FNames, string | string[]>
 >;

@@ -1,7 +1,7 @@
 import { mapValues, toPairs, values } from "lodash";
 import { Config, RemoteData, User } from "../config";
 import { Synchronizer } from "../remote";
-import { fromEnv, normalise } from "../utils/fromEnv";
+import { normalise } from "../utils/fromEnv";
 import { isDefined } from "../utils/types";
 import { Audience, DEFAULT_AUDIENCES } from "./audience";
 import { Feature } from "./feature";
@@ -35,9 +35,7 @@ export class Engine {
       ...mapValues(config.audiences, (a) => new Audience(a)),
     };
     this.features = mapValues(config.features, (audience, name) => {
-      const audiences = normalise(audience)
-        .map((a) => this.audiences[a])
-        .filter(isDefined);
+      const audiences = this.mapToAudiences(audience);
       return new Feature(name, audiences, config.userConfig?.idKey);
     });
     this.featureList = values(this.features);
@@ -47,9 +45,13 @@ export class Engine {
     toPairs(data).forEach(([name, audience]) => {
       const feature = this.features[name];
       if (!feature) return;
-      feature.audiences = fromEnv(audience)
-        .map((aName) => this.audiences[aName])
-        .filter(isDefined);
+      feature.audiences = this.mapToAudiences(audience);
     });
   };
+
+  private mapToAudiences(audience: string | string[] | undefined): Audience[] {
+    return normalise(audience)
+      .map((aName) => this.audiences[aName])
+      .filter(isDefined);
+  }
 }
