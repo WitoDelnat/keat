@@ -5,17 +5,16 @@ import { fromEnv, Keat } from "./src";
 declare module "./src" {
   interface KeatNode {
     user: {
-      name: string;
+      id: string;
       email: string;
-      developerPreview: boolean;
+      earlyPreview: boolean;
     };
   }
 }
 
 const keat = Keat.create({
   audiences: {
-    developers: (user) => user?.name === "john" ?? false,
-    preview: (user) => user?.developerPreview ?? false,
+    preview: (user) => user?.earlyPreview ?? false,
     staff: (user) => user.email.includes("@example.com") ?? false,
   },
   features: {
@@ -28,9 +27,9 @@ const keat = Keat.create({
   await keat.ready;
 
   const user = {
+    id: "123",
     email: "john.doe@example.com",
-    developerPreview: false,
-    name: "john",
+    earlyPreview: false,
   };
 
   console.log(`test is ${keat.isEnabled("test", user)}`);
