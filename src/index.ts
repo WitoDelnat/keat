@@ -51,8 +51,8 @@ export class Keat<FName extends string = string> {
   /**
    * Whether the feature is enabled for a user.
    */
-  isEnabled(name: FName, user?: User): boolean {
-    return this.engine.isEnabled(name, user);
+  isEnabled(name?: FName, user?: User): boolean {
+    return name ? this.engine.isEnabled(name, user) : false;
   }
 
   /**
