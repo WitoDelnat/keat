@@ -27,6 +27,7 @@ export type Config<
 > = ConfigWithAudience<FName> | ConfigWithoutAudience<FName, FAudience, AName>;
 
 export type ConfigWithAudience<FName extends string> = {
+  audiences?: never;
   features: Record<FName, DefaultAudience | DefaultAudience[]>;
   userConfig?: UserConfig;
   remoteConfig?: RemoteConfig<FName>;

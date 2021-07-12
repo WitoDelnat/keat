@@ -29,7 +29,7 @@ export class Engine {
   private bootstrap(config: Config<string, string, string>) {
     this.audiences = {
       ...DEFAULT_AUDIENCES,
-      ...mapValues(config.audiences, (a) => new Audience(a)),
+      ...mapValues(config.audiences ?? {}, (a) => new Audience(a)),
     };
     this.features = mapValues(config.features, (audience, name) => {
       const audiences = this.mapToAudiences(audience);
