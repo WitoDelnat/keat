@@ -1,4 +1,11 @@
-import { isArray, isObject, isString, isUndefined, values } from "lodash";
+import {
+  isArray,
+  isNumber,
+  isObject,
+  isString,
+  isUndefined,
+  values,
+} from "lodash";
 import { RemoteData } from "../config";
 
 export function isDefined(x: unknown) {
@@ -6,5 +13,8 @@ export function isDefined(x: unknown) {
 }
 
 export function isRemoteData(x: unknown): x is RemoteData {
-  return isObject(x) && values(x).every((p) => isString(p) || isArray(p));
+  return (
+    isObject(x) &&
+    values(x).every((p) => isString(p) || isNumber(p) || isArray(p))
+  );
 }

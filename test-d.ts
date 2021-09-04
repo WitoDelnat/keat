@@ -16,15 +16,22 @@ const keat = Keat.create({
   identifier: "id",
   audiences: {
     preview: (user) => user?.earlyPreview ?? false,
-    staff: (user) => user.email.includes("@example.com") ?? false,
+    staff: (user) => user?.email.includes("@example.com") ?? false,
   },
   features: {
     test: fromEnv(process.env.ENABLE_TEST_TO),
     redesign: ["preview", "staff"],
+    search: "everyone",
+  },
+  remoteConfig: {
+    kind: "keat",
+    url: "http://localhost:8080/sync?app=demo",
+    onError: (err) => console.error(err.message),
   },
 });
 
 (async () => {
+  console.log("start");
   await keat.ready;
 
   const user = {
@@ -34,6 +41,7 @@ const keat = Keat.create({
   };
 
   console.log(`test is ${keat.isEnabled("test", user)}`);
+  console.log(`search is ${keat.isEnabled("search", user)}`);
 
   await keat.stop();
 })();
