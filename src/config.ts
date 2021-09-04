@@ -1,4 +1,4 @@
-import { DefaultAudience } from "./core/audience";
+import { AudienceDefault, AudienceFn } from "./core";
 
 /**
  * Bring your own user with declaration merging:
@@ -6,7 +6,7 @@ import { DefaultAudience } from "./core/audience";
  * @example
  * ```
  * declare module 'keat' {
- *   interface KeatNode {
+ *   interface CustomTypes {
  *     user: { name: string, email: string, developerPreview: boolean }
  *   }
  * }
@@ -14,38 +14,36 @@ import { DefaultAudience } from "./core/audience";
  *
  * @remark Currently only Record<string, string | boolean | number> is allowed.
  */
-export interface KeatNode {
+export interface CustomTypes {
   // user: ...
 }
 
-export type User = KeatNode extends { user: infer T } ? T : string;
+export type User = CustomTypes extends { user: infer T } ? T : string;
 
 export type Config<
   FName extends string,
   FAudience extends AName,
   AName extends string
-> = ConfigWithAudience<FName> | ConfigWithoutAudience<FName, FAudience, AName>;
+> = ConfigWithoutAudience<FName> | ConfigWithAudience<FName, FAudience, AName>;
 
-export type ConfigWithAudience<FName extends string> = {
+export type ConfigWithoutAudience<FName extends string> = {
   audiences?: never;
-  features: Record<FName, DefaultAudience | DefaultAudience[]>;
-  userConfig?: UserConfig;
+  features: Record<FName, AudienceDefault | AudienceDefault[]>;
   remoteConfig?: RemoteConfig<FName>;
-};
+} & UserConfig;
 
-export type ConfigWithoutAudience<
+export type ConfigWithAudience<
   FName extends string,
   FAudience extends AName,
   AName extends string
 > = {
-  audiences: Record<AName, (user?: User) => boolean>;
+  audiences: Record<AName, AudienceFn>;
   features: Record<
     FName,
-    FAudience | DefaultAudience | (FAudience | DefaultAudience)[]
+    FAudience | AudienceDefault | (FAudience | AudienceDefault)[]
   >;
-  userConfig?: UserConfig;
   remoteConfig?: RemoteConfig<FName>;
-};
+} & UserConfig;
 
 export type UserConfig = {
   /**
@@ -57,7 +55,7 @@ export type UserConfig = {
    * type User = { sub: string, ...}
    * const userConfig = { idKey = 'sub' }
    */
-  idKey?: User extends string ? undefined : keyof User;
+  identifier: User extends string ? never : keyof User;
 };
 
 export type RemoteConfig<FNames extends string = string> =
@@ -68,7 +66,6 @@ export type PollingRemoteConfig<FNames extends string = string> = {
   pollInterval?: number;
   fetch: () => Promise<RemoteData<FNames>>;
   onError?: (err: Error, data: unknown) => void;
-  onChange?: (data: RemoteData, previousData?: RemoteData) => void;
 };
 
 export type RemoteData<FNames extends string = string> = Partial<

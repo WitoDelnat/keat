@@ -3,7 +3,7 @@ import { fromEnv, Keat } from "./src";
 // This file tests declaration merging and environment variables.
 // test with `yarn build && ENABLE_TEST_TO=developers,canary yarn ts-node test-d.ts`
 declare module "./src" {
-  interface KeatNode {
+  interface CustomTypes {
     user: {
       id: string;
       email: string;
@@ -13,6 +13,7 @@ declare module "./src" {
 }
 
 const keat = Keat.create({
+  identifier: "id",
   audiences: {
     preview: (user) => user?.earlyPreview ?? false,
     staff: (user) => user.email.includes("@example.com") ?? false,

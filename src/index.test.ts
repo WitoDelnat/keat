@@ -22,25 +22,6 @@ describe("Keat", () => {
     expect(keat.isEnabled("redesign", "usr1")).toBe(false);
     expect(keat.isEnabled("recommendations", "usr2")).toBe(true);
   });
-
-  it("should determine all enabled features for a given user", () => {
-    const keat = Keat.create({
-      audiences: {
-        developers: (user) => (user ? ["dev1", "dev2"].includes(user) : false),
-      },
-      features: {
-        redesign: "developers",
-        recommendations: "everyone",
-      },
-    });
-
-    const devSnapshot = keat.snapshot("dev1");
-    expect(devSnapshot.recommendations).toBe(true);
-    expect(devSnapshot.redesign).toBe(true);
-    const usrSnapshot = keat.snapshot("usr1");
-    expect(usrSnapshot.recommendations).toBe(true);
-    expect(usrSnapshot.redesign).toBe(false);
-  });
 });
 
 describe("Keat.remoteConfig", () => {

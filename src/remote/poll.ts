@@ -1,6 +1,6 @@
 import AbortController, { AbortSignal } from "abort-controller";
-import { isEqual } from "lodash";
 import { PollingRemoteConfig, RemoteData } from "../config";
+import { Engine } from "../core";
 import { delay } from "../utils/delay";
 import { Signal } from "../utils/signal";
 import { isRemoteData } from "../utils/types";
@@ -9,14 +9,12 @@ import { Synchronizer } from "./types";
 const DEFAULT_POLL_INTERVAL = 60000;
 
 export class PollingSynchronizer implements Synchronizer {
-  private _data?: RemoteData;
-
+  private _lastResponse?: RemoteData;
   private _task: Promise<void> = Promise.resolve();
   private _abortController: AbortController = new AbortController();
   private _signal: Signal = new Signal();
-  public onChange?: (data: RemoteData) => void = undefined;
 
-  constructor(private init: PollingRemoteConfig) {}
+  constructor(private init: PollingRemoteConfig, private engine: Engine) {}
 
   get ready() {
     return this._signal.promise;
@@ -36,23 +34,17 @@ export class PollingSynchronizer implements Synchronizer {
   private async syncInBackground(signal: AbortSignal): Promise<void> {
     do {
       try {
-        const previousData = this._data;
         const response = await this.init.fetch();
+        this._lastResponse = response;
 
         if (!isRemoteData(response)) {
           throw new Error("invalid format");
         }
 
-        this._data = response;
-
-        if (!isEqual(previousData, this._data)) {
-          this.onChange?.(this._data);
-          this.init.onChange?.(this._data, previousData);
-        }
-
+        this.engine.features = response;
         this._signal.resolve();
       } catch (err) {
-        this.init.onError?.(err, this._data);
+        this.init.onError?.(err, this._lastResponse);
       } finally {
         await delay(this.init.pollInterval ?? DEFAULT_POLL_INTERVAL, signal);
       }

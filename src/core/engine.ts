@@ -1,53 +1,75 @@
-import { mapValues, toPairs } from "lodash";
-import { Config, RemoteData, User } from "../config";
-import { Synchronizer } from "../remote";
+import { mapValues } from "lodash";
+import hash from "murmurhash";
+import { Config, User } from "../config";
 import { normalise } from "../utils/fromEnv";
-import { isDefined } from "../utils/types";
-import { Audience, DEFAULT_AUDIENCES } from "./audience";
-import { Feature } from "./feature";
+
+export type AudienceFn = (user?: User) => boolean;
+export type AudienceId = number | string;
+export type AudienceDefault = number | "everyone" | "nobody";
+
+export const DEFAULT_SEED = 1042019;
 
 export class Engine {
-  private features: Record<string, Feature> = {};
-  private audiences: Record<string, Audience> = {};
+  private _features: Record<string, AudienceId[]> = {};
+  private _audiences: Record<string, AudienceFn>;
+  private _identifier: string | undefined;
 
-  constructor(
-    readonly config: Config<string, string, string>,
-    readonly remote: Synchronizer
-  ) {
-    this.bootstrap(config);
-    this.remote.onChange = (data) => this.onRemoteConfigChanged(data);
+  constructor(config: Config<string, string, string>) {
+    this.features = config.features;
+    this._audiences = {
+      everyone: () => true,
+      nobody: () => false,
+      ...config.audiences,
+    };
+    this._identifier = config.identifier;
   }
 
-  snapshot(user: User): Record<string, boolean> {
-    return mapValues(this.features, (feature) => feature.isEnabled(user));
+  get features(): Record<string, Array<AudienceId>> {
+    return this._features;
+  }
+
+  set features(
+    newFeatures: Record<string, AudienceId | Array<AudienceId> | undefined>
+  ) {
+    this._features = {
+      ...this._features,
+      ...mapValues(newFeatures, normalise),
+    };
   }
 
   isEnabled(feature: string, user?: User): boolean {
-    return this.features[feature]?.isEnabled(user) ?? false;
-  }
+    const audiences = this.features[feature];
+    if (!audiences) return false;
 
-  private bootstrap(config: Config<string, string, string>) {
-    this.audiences = {
-      ...DEFAULT_AUDIENCES,
-      ...mapValues(config.audiences ?? {}, (a) => new Audience(a)),
-    };
-    this.features = mapValues(config.features, (audience, name) => {
-      const audiences = this.mapToAudiences(audience);
-      return new Feature(name, audiences, config.userConfig?.idKey);
+    return audiences.some((audience) => {
+      return this.includes(feature, audience, user);
     });
   }
 
-  private onRemoteConfigChanged = (data: RemoteData) => {
-    toPairs(data).forEach(([name, audience]) => {
-      const feature = this.features[name];
-      if (!feature) return;
-      feature.audiences = this.mapToAudiences(audience);
-    });
-  };
+  private includes(feature: string, audience: string | number, user?: User) {
+    return typeof audience === "number"
+      ? this.rollout(feature, audience, user)
+      : this._audiences[audience]?.(user) ?? false;
+  }
 
-  private mapToAudiences(audience: string | string[] | undefined): Audience[] {
-    return normalise(audience)
-      .map((aName) => this.audiences[aName])
-      .filter(isDefined);
+  private rollout(feature: string, percentage: number, user?: User) {
+    percentage = percentage < 0 ? 0 : percentage > 100 ? 100 : percentage;
+    if (!user) return percentage > Math.random() * 100;
+
+    const userString = this.determineUserString(user);
+    const seed = hash.v3(feature, DEFAULT_SEED);
+    return percentage > (hash.v3(userString, seed) % 100) + 1;
+  }
+
+  private determineUserString(
+    user: string | Record<string, string | boolean | number | undefined>
+  ): string {
+    if (typeof user === "string") {
+      return user;
+    }
+    if (!this._identifier) {
+      return "";
+    }
+    return user[this._identifier]?.toString() ?? "";
   }
 }
