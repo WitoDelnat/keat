@@ -42,10 +42,10 @@ export class PollingSynchronizer implements Synchronizer {
         }
 
         this.engine.features = response;
-        this._signal.resolve();
       } catch (err) {
         this.init.onError?.(err, this._lastResponse);
       } finally {
+        this._signal.resolve();
         await delay(this.init.pollInterval ?? DEFAULT_POLL_INTERVAL, signal);
       }
     } while (!signal.aborted);
