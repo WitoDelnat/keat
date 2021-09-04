@@ -59,7 +59,8 @@ export type UserConfig = {
 };
 
 export type RemoteConfig<FNames extends string = string> =
-  PollingRemoteConfig<FNames>;
+  | PollingRemoteConfig<FNames>
+  | KeatRemoteConfig;
 
 export type PollingRemoteConfig<FNames extends string = string> = {
   kind: "poll";
@@ -68,6 +69,13 @@ export type PollingRemoteConfig<FNames extends string = string> = {
   onError?: (err: Error, data: unknown) => void;
 };
 
+export type KeatRemoteConfig = {
+  kind: "keat";
+  origin: string;
+  application: string;
+  onError?: (err: Error, data?: unknown) => void;
+};
+
 export type RemoteData<FNames extends string = string> = Partial<
-  Record<FNames, string | string[]>
+  Record<FNames, number | string | (number | string)[]>
 >;

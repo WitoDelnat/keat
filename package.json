@@ -26,14 +26,17 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.config.ts",
-    "build": "microbundle --tsconfig tsconfig.build.json --format esm,cjs"
+    "build": "microbundle --tsconfig tsconfig.build.json --format esm,cjs",
+    "e2e": "ts-node test-d.ts"
   },
   "dependencies": {
     "abort-controller": "3.0.0",
+    "eventsource": "1.1.0",
     "lodash": "4.17.21",
     "murmurhash": "2.0.0"
   },
   "devDependencies": {
+    "@types/eventsource": "1.1.6",
     "@types/faker": "5.5.5",
     "@types/jest": "26.0.23",
     "@types/lodash": "4.14.168",

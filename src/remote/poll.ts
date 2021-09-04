@@ -1,5 +1,5 @@
 import AbortController, { AbortSignal } from "abort-controller";
-import { PollingRemoteConfig, RemoteData } from "../config";
+import { PollingRemoteConfig } from "../config";
 import { Engine } from "../core";
 import { delay } from "../utils/delay";
 import { Signal } from "../utils/signal";
@@ -9,7 +9,6 @@ import { Synchronizer } from "./types";
 const DEFAULT_POLL_INTERVAL = 60000;
 
 export class PollingSynchronizer implements Synchronizer {
-  private _lastResponse?: RemoteData;
   private _task: Promise<void> = Promise.resolve();
   private _abortController: AbortController = new AbortController();
   private _signal: Signal = new Signal();
@@ -33,17 +32,17 @@ export class PollingSynchronizer implements Synchronizer {
 
   private async syncInBackground(signal: AbortSignal): Promise<void> {
     do {
+      let remoteConfig;
       try {
-        const response = await this.init.fetch();
-        this._lastResponse = response;
+        remoteConfig = await this.init.fetch();
 
-        if (!isRemoteData(response)) {
+        if (!isRemoteData(remoteConfig)) {
           throw new Error("invalid format");
         }
 
-        this.engine.features = response;
+        this.engine.features = remoteConfig;
       } catch (err) {
-        this.init.onError?.(err, this._lastResponse);
+        this.init.onError?.(err, remoteConfig);
       } finally {
         this._signal.resolve();
         await delay(this.init.pollInterval ?? DEFAULT_POLL_INTERVAL, signal);
