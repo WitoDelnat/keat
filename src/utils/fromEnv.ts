@@ -7,20 +7,30 @@ import { isArray } from "lodash";
  * fromEnv(process.env.ENABLE_UI_TO)
  *
  * `ENABLE_UI_TO=everyone` // 'everyone'
- * `ENABLE_UI_TO=developers,canary` // `['developers', 'canary']`
+ * `ENABLE_UI_TO=developers, 5` // `['developers', 5]`
  * `ENABLE_UI_TO=` // `"nobody"`
  */
 export function fromEnv<FName extends string = string>(
   value: string | undefined,
-  fallback?: string | string[]
-): FName[] {
+  fallback?: number | string | (number | string)[]
+): any[] {
   return (value
-    ? value.split(",").map((v) => v.trim())
+    ? value
+        .split(",")
+        .map((v) => v.trim())
+        .map(maybeParseInt)
     : fallback
     ? normalise(fallback)
     : ["nobody"]) as unknown as FName[];
 }
 
-export function normalise(value: string | string[] | undefined): string[] {
+function maybeParseInt(v: string): number | string {
+  const parsed = parseInt(v);
+  return parsed === NaN ? v : parsed;
+}
+
+export function normalise(
+  value: number | string | (number | string)[] | undefined
+): Array<number | string> {
   return value ? (isArray(value) ? value : [value]) : [];
 }

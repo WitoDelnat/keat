@@ -2,7 +2,7 @@ import { Config, User } from "./config";
 import { Engine } from "./core";
 import { createSynchronizer, Synchronizer } from "./remote";
 
-export { KeatNode } from "./config";
+export { CustomTypes } from "./config";
 export { fromEnv } from "./utils/fromEnv";
 
 export type ExtractFeatures<K> = K extends Keat<infer K> ? K : never;
@@ -13,8 +13,8 @@ export class Keat<FName extends string = string> {
     AName extends ANames,
     ANames extends string
   >(config: Config<FName, AName, ANames>): Keat<FName> {
-    const remote = createSynchronizer(config.remoteConfig);
-    const engine = new Engine(config, remote);
+    const engine = new Engine(config);
+    const remote = createSynchronizer(config.remoteConfig, engine);
     const keat = new Keat<FName>(engine, remote);
 
     keat.start();
@@ -53,12 +53,5 @@ export class Keat<FName extends string = string> {
    */
   isEnabled(name?: FName, user?: User): boolean {
     return name ? this.engine.isEnabled(name, user) : false;
-  }
-
-  /**
-   * Returns a snapshot of all features for a user.
-   */
-  snapshot(user: User): Record<FName, boolean> {
-    return this.engine.snapshot(user);
   }
 }
