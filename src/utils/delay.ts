@@ -1,5 +1,3 @@
-import { AbortSignal } from "abort-controller";
-
 export function delay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
     const listener = () => {

@@ -1,4 +1,3 @@
-import AbortController, { AbortSignal } from "abort-controller";
 import { PollingRemoteConfig } from "../config";
 import { Engine } from "../core";
 import { delay } from "../utils/delay";
@@ -41,7 +40,7 @@ export class PollingSynchronizer implements Synchronizer {
         }
 
         this.engine.features = remoteConfig;
-      } catch (err) {
+      } catch (err: any) {
         this.init.onError?.(err, remoteConfig);
       } finally {
         this._signal.resolve();

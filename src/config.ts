@@ -55,9 +55,8 @@ export type UserConfig = {
    * type User = { sub: string, ...}
    * const userConfig = { idKey = 'sub' }
    */
-  identifier: User extends string ? never : keyof User;
+  identifier?: User extends string ? never : keyof User;
 };
-
 export type RemoteConfig<FNames extends string = string> =
   | PollingRemoteConfig<FNames>
   | KeatRemoteConfig;
