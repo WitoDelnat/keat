@@ -3,7 +3,6 @@ import { Engine } from "../core";
 import { Signal } from "../utils/signal";
 import { isRemoteData } from "../utils/types";
 import { Synchronizer } from "./types";
-import EventSource from "eventsource";
 
 export class KeatSynchronizer implements Synchronizer {
   private _source?: EventSource;

@@ -9,19 +9,25 @@ export type AudienceDefault = number | "everyone" | "nobody";
 
 export const DEFAULT_SEED = 1042019;
 
+type EngineInit = {
+  identifier?: string;
+  audiences?: Record<string, AudienceFn>;
+  features: Record<string, AudienceId | AudienceId[]>;
+};
+
 export class Engine {
   private _features: Record<string, AudienceId[]> = {};
   private _audiences: Record<string, AudienceFn>;
   private _identifier: string | undefined;
 
-  constructor(config: Config<string, string, string>) {
-    this.features = config.features;
+  constructor(init: EngineInit) {
+    this.features = init.features;
     this._audiences = {
       everyone: () => true,
       nobody: () => false,
-      ...config.audiences,
+      ...init.audiences,
     };
-    this._identifier = config.identifier;
+    this._identifier = init.identifier;
   }
 
   get features(): Record<string, Array<AudienceId>> {
