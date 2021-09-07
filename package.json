@@ -1,7 +1,10 @@
 {
   "name": "keat",
   "version": "0.5.2",
-  "main": "lib/index.js",
+  "type": "module",
+  "source": "src/index.ts",
+  "main": "lib/index.cjs",
+  "module": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
   "author": {
@@ -26,12 +29,10 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.config.ts",
-    "build": "microbundle --tsconfig tsconfig.build.json --format esm,cjs",
+    "build": "microbundle --tsconfig tsconfig.build.json --format esm",
     "e2e": "ts-node test-d.ts"
   },
   "dependencies": {
-    "abort-controller": "3.0.0",
-    "eventsource": "1.1.0",
     "lodash": "4.17.21",
     "murmurhash": "2.0.0"
   },
