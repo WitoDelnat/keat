@@ -44,7 +44,13 @@ export class PollingSynchronizer implements Synchronizer {
         this.init.onError?.(err, remoteConfig);
       } finally {
         this._signal.resolve();
-        await delay(this.init.pollInterval ?? DEFAULT_POLL_INTERVAL, signal);
+
+        const pollInterval = this.init.pollInterval;
+        if (pollInterval !== undefined && pollInterval <= 0) {
+          return;
+        }
+
+        await delay(pollInterval ?? DEFAULT_POLL_INTERVAL, signal);
       }
     } while (!signal.aborted);
   }
