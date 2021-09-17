@@ -25,7 +25,8 @@ const keat = Keat.create({
   },
   remoteConfig: {
     kind: "keat",
-    url: "http://localhost:8080/sync?app=demo",
+    origin: "http://localhost:8080",
+    application: "demo",
     onError: (err) => console.error(err.message),
   },
 });

@@ -1,6 +1,6 @@
 import { mapValues } from "lodash";
 import hash from "murmurhash";
-import { Config, User } from "../config";
+import { User } from "../config";
 import { normalise } from "../utils/fromEnv";
 
 export type AudienceFn = (user?: User) => boolean;
@@ -28,6 +28,10 @@ export class Engine {
       ...init.audiences,
     };
     this._identifier = init.identifier;
+  }
+
+  get audiences(): string[] {
+    return Object.keys(this._audiences);
   }
 
   get features(): Record<string, Array<AudienceId>> {
