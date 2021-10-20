@@ -54,7 +54,7 @@ export class KeatSynchronizer implements Synchronizer {
       body: JSON.stringify({
         name: this.init.application,
         audiences: this.engine.audiences,
-        features: this.engine.features,
+        features: Object.keys(this.engine.features),
       }),
       signal,
     });
