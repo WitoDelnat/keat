@@ -1,4 +1,4 @@
-import { fromEnv, Keat } from "./src";
+import { fromEnv, Keat } from "./lib";
 
 // This file tests declaration merging and environment variables.
 // test with `yarn build && ENABLE_TEST_TO=developers,canary yarn ts-node test-d.ts`
@@ -29,6 +29,7 @@ const keat = Keat.create({
     application: "demo",
     onError: (err) => console.error(err.message),
   },
+  remoteConfig: {},
 });
 
 (async () => {
