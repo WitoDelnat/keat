@@ -1,6 +1,6 @@
 export type User = { sub: string };
 export type AudienceFn = (user: User) => boolean;
-export type HashFn = (user: User) => number; // number between 0-100.
+export type HashFn = (user: User, feature: string) => number; // number between 0-100.
 
 export type Rule = boolean | string | number | (string | number)[];
 export type BiVariateRule = Rule;
