@@ -1,4 +1,5 @@
 import { mapValues } from "lodash";
+import { DEFAULT_HASH } from "./hash";
 import { normalizeVariateRule, preprocessRule } from "./rules";
 import type {
   RawFeatures,
@@ -33,7 +34,7 @@ export class Keat<TFeatures extends RawFeatures> {
       const rule = normalizeVariateRule(r, isMultiVariate);
       return preprocessRule(rule);
     });
-    this.#hashFn = init.hashFn ?? defaultHash;
+    this.#hashFn = init.hashFn ?? DEFAULT_HASH;
   }
 
   eval<TName extends keyof TFeatures>(
@@ -70,20 +71,11 @@ export class Keat<TFeatures extends RawFeatures> {
     const rolloutRule = this.#config[name]?.rolloutPhase;
     if (!rolloutRule) return undefined;
 
-    const percentage = this.#hashFn(user);
+    const percentage = this.#hashFn(user, name);
     for (const [index, rollout] of rolloutRule.entries()) {
       if (rollout === false) continue;
       if (rollout === true) return index;
       if (percentage <= rollout) return index;
     }
   }
-}
-
-function defaultHash(user: User): number {
-  const seed = "default-seed";
-  return murmurHash(user["sub"], seed);
-}
-
-function murmurHash(input: string, seed: string): number {
-  return 0; // todo
 }
