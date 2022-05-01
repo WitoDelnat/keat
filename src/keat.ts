@@ -2,34 +2,44 @@ import { isBoolean } from "lodash";
 
 type User = { sub: string };
 type AudienceFn = (user: User) => boolean;
-type Variant = any;
+type HashFn = (user: User) => number; // number between 0-100.
 
 type TargetRule = string[] | boolean;
 type RolloutRule = number | boolean;
+type RawFeatures = Record<string, readonly any[]>;
 
-type KeatInit = {
+type KeatInit<TFeatures extends RawFeatures> = {
   audiences: Record<string, AudienceFn>;
-  features: Record<string, Variant[]>;
+  features: TFeatures;
   config: Record<string, [TargetRule[], RolloutRule[]]>;
+  hashFn?: HashFn;
 };
-type HashFn = (user: User) => number; // number between 0-100.
 
-export class Keat {
+export class Keat<TFeatures extends RawFeatures> {
+  static create<TFeatures extends RawFeatures>(
+    init: KeatInit<TFeatures>
+  ): Keat<TFeatures> {
+    return new Keat(init);
+  }
+
   #audiences: Record<string, AudienceFn>;
-  #features: Record<string, Variant[]>;
+  #features: TFeatures;
   #config: Record<string, [TargetRule[], RolloutRule[]]>;
   #hashFn: HashFn;
 
-  constructor(init: KeatInit, hashFn?: HashFn) {
+  constructor(init: KeatInit<TFeatures>) {
     this.#audiences = init.audiences;
     this.#features = init.features;
     this.#config = init.config;
-    this.#hashFn = hashFn ?? defaultHash;
+    this.#hashFn = init.hashFn ?? defaultHash;
   }
 
-  eval(name: string, user: User): any {
+  eval<TName extends keyof TFeatures>(
+    name: TName,
+    user: User
+  ): TFeatures[TName][number] {
     const variants = this.#features[name];
-    const [targets, rollouts] = this.#config[name];
+    const [targets, rollouts] = this.#config[name as string];
 
     for (const [index, target] of targets.entries()) {
       if (isBoolean(target)) {
