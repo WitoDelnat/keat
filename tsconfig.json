@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "src-foo-old",
+    "rootDir": "src",
     "outDir": "lib",
     "lib": ["es6", "DOM"],
     "module": "commonjs",
@@ -17,5 +17,5 @@
     "strict": true
   },
   "exclude": ["node_modules", "lib"],
-  "include": ["src-foo-old"]
+  "include": ["src"]
 }

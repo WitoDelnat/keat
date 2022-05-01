@@ -1,19 +1,14 @@
-import { isBoolean } from "lodash";
-
-type User = { sub: string };
-type AudienceFn = (user: User) => boolean;
-type HashFn = (user: User) => number; // number between 0-100.
-
-type TargetRule = string[] | boolean;
-type RolloutRule = number | boolean;
-type RawFeatures = Record<string, readonly any[]>;
-
-type KeatInit<TFeatures extends RawFeatures> = {
-  audiences: Record<string, AudienceFn>;
-  features: TFeatures;
-  config: Record<string, [TargetRule[], RolloutRule[]]>;
-  hashFn?: HashFn;
-};
+import { mapValues } from "lodash";
+import { normalizeVariateRule, preprocessRule } from "./rules";
+import type {
+  RawFeatures,
+  KeatInit,
+  AudienceFn,
+  TargetRule,
+  RolloutRule,
+  HashFn,
+  User,
+} from "./types";
 
 export class Keat<TFeatures extends RawFeatures> {
   static create<TFeatures extends RawFeatures>(
@@ -24,13 +19,20 @@ export class Keat<TFeatures extends RawFeatures> {
 
   #audiences: Record<string, AudienceFn>;
   #features: TFeatures;
-  #config: Record<string, [TargetRule[], RolloutRule[]]>;
+  #config: Record<
+    string,
+    { targetPhase: TargetRule; rolloutPhase: RolloutRule }
+  >;
   #hashFn: HashFn;
 
   constructor(init: KeatInit<TFeatures>) {
     this.#audiences = init.audiences;
     this.#features = init.features;
-    this.#config = init.config;
+    this.#config = mapValues(init.config, (r, feature) => {
+      const isMultiVariate = init.features[feature].length > 2;
+      const rule = normalizeVariateRule(r, isMultiVariate);
+      return preprocessRule(rule);
+    });
     this.#hashFn = init.hashFn ?? defaultHash;
   }
 
@@ -39,41 +41,41 @@ export class Keat<TFeatures extends RawFeatures> {
     user: User
   ): TFeatures[TName][number] {
     const variants = this.#features[name];
-    const [targets, rollouts] = this.#config[name as string];
+    if (!variants) return undefined;
 
-    for (const [index, target] of targets.entries()) {
-      if (isBoolean(target)) {
-        if (target) {
-          return variants[index];
-        } else {
-          continue;
-        }
-      }
+    const targetIndex = this.#evalAudiencePhase(name as string, user);
+    if (targetIndex !== undefined) return variants[targetIndex];
 
-      for (const audience of target) {
-        const fn = this.#audiences[audience];
-        if (fn(user)) {
-          return variants[index];
-        }
-      }
-    }
-
-    const percentage = this.#hashFn(user);
-    for (const [index, rollout] of rollouts.entries()) {
-      if (isBoolean(rollout)) {
-        if (rollout) {
-          return variants[index];
-        } else {
-          continue;
-        }
-      }
-
-      if (percentage <= rollout) {
-        return variants[index];
-      }
-    }
+    const rolloutIndex = this.#evalRolloutPhase(name as string, user);
+    if (rolloutIndex !== undefined) return variants[rolloutIndex];
 
     return variants[variants.length - 1];
+  }
+
+  #evalAudiencePhase(name: string, user: User): number | undefined {
+    const targetRule = this.#config[name]?.targetPhase;
+    if (!targetRule) return undefined;
+
+    for (const [index, target] of targetRule.entries()) {
+      if (target === false) continue;
+      if (target === true) return index;
+      const match = target.some((a) => this.#audiences[a]?.(user));
+      if (match) return index;
+    }
+
+    return undefined;
+  }
+
+  #evalRolloutPhase(name: string, user: User): number | undefined {
+    const rolloutRule = this.#config[name]?.rolloutPhase;
+    if (!rolloutRule) return undefined;
+
+    const percentage = this.#hashFn(user);
+    for (const [index, rollout] of rolloutRule.entries()) {
+      if (rollout === false) continue;
+      if (rollout === true) return index;
+      if (percentage <= rollout) return index;
+    }
   }
 }
 
