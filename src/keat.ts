@@ -9,6 +9,7 @@ import type {
   RolloutRule,
   HashFn,
   User,
+  Config,
 } from "./types";
 
 export class Keat<TFeatures extends RawFeatures> {
@@ -20,7 +21,7 @@ export class Keat<TFeatures extends RawFeatures> {
 
   #audiences: Record<string, AudienceFn>;
   #features: TFeatures;
-  #config: Record<
+  #config!: Record<
     string,
     { targetPhase: TargetRule; rolloutPhase: RolloutRule }
   >;
@@ -29,12 +30,16 @@ export class Keat<TFeatures extends RawFeatures> {
   constructor(init: KeatInit<TFeatures>) {
     this.#audiences = init.audiences;
     this.#features = init.features;
-    this.#config = mapValues(init.config, (r, feature) => {
-      const isMultiVariate = init.features[feature].length > 2;
+    this.#hashFn = init.hashFn ?? DEFAULT_HASH;
+    this.config = init.config;
+  }
+
+  set config(value: Config) {
+    this.#config = mapValues(value, (r, feature) => {
+      const isMultiVariate = this.#features[feature].length > 2;
       const rule = normalizeVariateRule(r, isMultiVariate);
       return preprocessRule(rule);
     });
-    this.#hashFn = init.hashFn ?? DEFAULT_HASH;
   }
 
   eval<TName extends keyof TFeatures>(
