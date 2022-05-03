@@ -10,9 +10,9 @@ export type MultiVariateRule = Rule[];
 export type Config = Record<string, BiVariateRule | MultiVariateRule>;
 
 export type KeatInit<TFeatures extends RawFeatures> = {
-  audiences: Record<string, AudienceFn>;
   features: TFeatures;
-  config: Config;
+  audiences?: Record<string, AudienceFn>;
+  config?: Config;
   hashFn?: HashFn;
   plugins?: Plugin[];
 };
