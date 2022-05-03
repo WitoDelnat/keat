@@ -1,3 +1,5 @@
+import { Plugin } from "./plugins/plugin";
+
 export type User = { sub: string };
 export type AudienceFn = (user: User) => boolean;
 export type HashFn = (user: User, feature: string) => number; // number between 0-100.
@@ -12,6 +14,7 @@ export type KeatInit<TFeatures extends RawFeatures> = {
   features: TFeatures;
   config: Config;
   hashFn?: HashFn;
+  plugins?: Plugin[];
 };
 
 /* * * * * * * * * * * * *
@@ -19,5 +22,8 @@ export type KeatInit<TFeatures extends RawFeatures> = {
  * * * * * * * * * * * * * */
 export type NormalizedRule = boolean | (string | number)[];
 export type RawFeatures = Record<string, readonly any[]>;
-export type TargetRule = false | Array<string[] | boolean>;
-export type RolloutRule = false | Array<number | boolean>;
+export type PhasedConfig = {
+  audience: false | Array<string[] | boolean>;
+  rollout: false | Array<number | boolean>;
+  fallback: number;
+};
