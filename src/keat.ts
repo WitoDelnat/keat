@@ -21,14 +21,16 @@ export class Keat<TFeatures extends RawFeatures> {
     return new Keat(init);
   }
 
-  #audiences: Record<string, AudienceFn>;
+  #userIdentifier: keyof User;
   #features: TFeatures;
+  #audiences: Record<string, AudienceFn>;
   #config!: Record<string, PhasedConfig>;
   #hashFn: HashFn;
   #plugins: Plugin[];
   #initialized: Promise<void>;
 
   constructor(init: KeatInit<TFeatures>) {
+    this.#userIdentifier = init.userIdentifier ?? "id";
     this.#features = init.features;
     this.#audiences = init.audiences ?? {};
     this.#hashFn = init.hashFn ?? DEFAULT_HASH;
@@ -39,9 +41,16 @@ export class Keat<TFeatures extends RawFeatures> {
 
   async #initialize(): Promise<void> {
     for (const plugin of this.#plugins) {
-      await plugin.onPluginInit?.({
-        setConfig: (newConfig) => this.#setConfig(newConfig),
-      });
+      await plugin.onPluginInit?.(
+        {
+          audiences: this.#audiences,
+          features: this.#features,
+          userIdentifier: this.#userIdentifier,
+        },
+        {
+          setConfig: (newConfig) => this.#setConfig(newConfig),
+        }
+      );
     }
   }
 
@@ -67,10 +76,13 @@ export class Keat<TFeatures extends RawFeatures> {
     let afterEval: AfterEvalHook[] = [];
 
     this.#plugins.forEach((plugin) => {
-      const callback = plugin.onEval?.(name as string, user, {
-        setResult: (newResult) => (result = newResult),
-        setUser: (newUser) => (usr = newUser as User),
-      });
+      const callback = plugin.onEval?.(
+        { name: name as string, user, userIdentifier: this.#userIdentifier },
+        {
+          setResult: (newResult) => (result = newResult),
+          setUser: (newUser) => (usr = newUser as User),
+        }
+      );
       if (callback) afterEval.push(callback);
     });
 
@@ -102,7 +114,11 @@ export class Keat<TFeatures extends RawFeatures> {
     }
 
     if (user && rollout) {
-      const percentage = this.#hashFn(user, name as string);
+      const percentage = this.#hashFn(
+        user,
+        name as string,
+        this.#userIdentifier
+      );
       for (const [index, value] of rollout.entries()) {
         if (value === false) continue;
         if (percentage <= value) return variants[index];

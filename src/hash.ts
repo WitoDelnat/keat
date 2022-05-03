@@ -2,9 +2,11 @@ import { HashFn } from "./types";
 
 export const DEFAULT_SEED = 1042019;
 
-export const DEFAULT_HASH: HashFn = (user, feature) => {
+export const DEFAULT_HASH: HashFn = (user, feature, userId) => {
   const seed = murmurHash(feature, DEFAULT_SEED);
-  return murmurHash(user["sub"], seed);
+  const usr = user as any;
+  const id = usr[userId ?? "id"] ?? usr["id"] ?? usr["sub"] ?? usr["email"];
+  return murmurHash(id, seed);
 };
 
 /**

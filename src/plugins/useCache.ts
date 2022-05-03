@@ -12,9 +12,9 @@ export const useCache = (options?: CachePluginOptions): Plugin => {
     onConfigChange() {
       cache.clear();
     },
-    onEval: (name, user, { setResult }) => {
-      const key =
-        options?.createCacheKey?.(name, user) ?? `${name}-${user?.sub}`;
+    onEval: ({ name, user, userIdentifier }, { setResult }) => {
+      const userId = user ? user[userIdentifier] : "unknown";
+      const key = options?.createCacheKey?.(name, user) ?? `${name}-${userId}`;
       const cachedResult = cache.get(key);
 
       if (cachedResult !== undefined) {

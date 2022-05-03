@@ -8,7 +8,7 @@ const keat = Keat.create({
     algo: ["heuristic", "brute", "basic"],
   } as const,
   audiences: {
-    preview: (user) => user.sub.endsWith("@company.io"),
+    preview: (user) => user.id.endsWith("@company.io"),
   },
   config: {
     test: true,
@@ -18,5 +18,5 @@ const keat = Keat.create({
   plugins: [useCache()],
 });
 
-const res1 = keat.eval("test", { sub: "usr" }); // returns boolean
-const res2 = keat.eval("algo", { sub: "usr" }); // returns 'basic' | 'heuristic' | 'brute'
+const res1 = keat.eval("test", { id: "usr" }); // returns boolean
+const res2 = keat.eval("algo", { id: "usr" }); // returns 'basic' | 'heuristic' | 'brute'

@@ -1,4 +1,4 @@
-import { Config, User } from "../types";
+import { AudienceFn, Config, User } from "../types";
 
 export type Plugin = {
   /**
@@ -17,7 +17,16 @@ export type Plugin = {
   onEval?: OnEvalHook;
 };
 
-export type OnPluginInitHook = (api: OnPluginInitApi) => void | Promise<void>;
+export type OnPluginInitHook = (
+  ctx: OnPluginInitCtx,
+  api: OnPluginInitApi
+) => void | Promise<void>;
+
+export type OnPluginInitCtx = {
+  features: Record<string, any>;
+  audiences: Record<string, AudienceFn>;
+  userIdentifier: string;
+};
 
 export type OnPluginInitApi = {
   setConfig: (newConfig: Config) => void;
@@ -26,10 +35,15 @@ export type OnPluginInitApi = {
 export type OnConfigChangeHook = (config: Config) => void;
 
 export type OnEvalHook = (
-  name: string,
-  user: User | undefined,
+  ctx: OnEvalCtx,
   api: OnEvalApi
 ) => void | AfterEvalHook;
+
+export type OnEvalCtx = {
+  name: string;
+  user: User | undefined;
+  userIdentifier: keyof User;
+};
 
 export type OnEvalApi = {
   setResult: (newResult: unknown) => void;
