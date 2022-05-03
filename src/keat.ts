@@ -29,19 +29,23 @@ export class Keat<TFeatures extends RawFeatures> {
   #initialized: Promise<void>;
 
   constructor(init: KeatInit<TFeatures>) {
-    this.#audiences = init.audiences;
     this.#features = init.features;
+    this.#audiences = init.audiences ?? {};
     this.#hashFn = init.hashFn ?? DEFAULT_HASH;
     this.#plugins = init.plugins ?? [];
-    this.config = init.config;
+    this.#setConfig(init.config ?? {});
     this.#initialized = this.#initialize();
   }
 
-  get ready(): Promise<void> {
-    return this.#initialized;
+  async #initialize(): Promise<void> {
+    for (const plugin of this.#plugins) {
+      await plugin.onPluginInit?.({
+        setConfig: (newConfig) => this.#setConfig(newConfig),
+      });
+    }
   }
 
-  set config(value: Config) {
+  #setConfig(value: Config) {
     this.#config = mapValues(value, (r, feature) => {
       const isMultiVariate = this.#features[feature].length > 2;
       const rule = normalizeVariateRule(r, isMultiVariate);
@@ -50,12 +54,8 @@ export class Keat<TFeatures extends RawFeatures> {
     this.#plugins.forEach((p) => p.onConfigChange?.(value));
   }
 
-  async #initialize(): Promise<void> {
-    for (const plugin of this.#plugins) {
-      await plugin.onPluginInit?.({
-        setConfig: (newConfig) => (this.config = newConfig),
-      });
-    }
+  get ready(): Promise<void> {
+    return this.#initialized;
   }
 
   eval<TName extends keyof TFeatures>(
