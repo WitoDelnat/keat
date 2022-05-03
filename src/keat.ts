@@ -10,6 +10,7 @@ import type {
   HashFn,
   User,
   Config,
+  FallbackRule,
 } from "./types";
 
 export class Keat<TFeatures extends RawFeatures> {
@@ -23,7 +24,11 @@ export class Keat<TFeatures extends RawFeatures> {
   #features: TFeatures;
   #config!: Record<
     string,
-    { targetPhase: TargetRule; rolloutPhase: RolloutRule }
+    {
+      targetPhase: TargetRule;
+      rolloutPhase: RolloutRule;
+      fallbackPhase: FallbackRule;
+    }
   >;
   #hashFn: HashFn;
 
@@ -44,7 +49,7 @@ export class Keat<TFeatures extends RawFeatures> {
 
   eval<TName extends keyof TFeatures>(
     name: TName,
-    user: User
+    user?: User
   ): TFeatures[TName][number] {
     const variants = this.#features[name];
     if (!variants) return undefined;
@@ -55,10 +60,11 @@ export class Keat<TFeatures extends RawFeatures> {
     const rolloutIndex = this.#evalRolloutPhase(name as string, user);
     if (rolloutIndex !== undefined) return variants[rolloutIndex];
 
-    return variants[variants.length - 1];
+    return this.#evalFallbackPhase(name as string);
   }
 
-  #evalAudiencePhase(name: string, user: User): number | undefined {
+  #evalAudiencePhase(name: string, user?: User): number | undefined {
+    if (!user) return undefined;
     const targetRule = this.#config[name]?.targetPhase;
     if (!targetRule) return undefined;
 
@@ -72,7 +78,8 @@ export class Keat<TFeatures extends RawFeatures> {
     return undefined;
   }
 
-  #evalRolloutPhase(name: string, user: User): number | undefined {
+  #evalRolloutPhase(name: string, user?: User): number | undefined {
+    if (!user) return undefined;
     const rolloutRule = this.#config[name]?.rolloutPhase;
     if (!rolloutRule) return undefined;
 
@@ -82,5 +89,15 @@ export class Keat<TFeatures extends RawFeatures> {
       if (rollout === true) return index;
       if (percentage <= rollout) return index;
     }
+  }
+
+  #evalFallbackPhase(name: string): number {
+    const fallback = (this.#features[name]?.length ?? 0) - 1;
+    const fallbackRule = this.#config[name]?.fallbackPhase;
+    if (!fallbackRule) return fallback;
+    for (const [index, enabled] of fallbackRule.entries()) {
+      if (enabled) return index;
+    }
+    return fallback;
   }
 }
