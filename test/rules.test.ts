@@ -1,4 +1,4 @@
-import { normalizeVariateRule, preprocessRule } from "./rules";
+import { normalizeVariateRule, preprocessRule } from "../src/rules";
 
 const normalize = normalizeVariateRule;
 
