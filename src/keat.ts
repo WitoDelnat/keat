@@ -53,51 +53,27 @@ export class Keat<TFeatures extends RawFeatures> {
   ): TFeatures[TName][number] {
     const variants = this.#features[name];
     if (!variants) return undefined;
+    const config = this.#config[name as string];
+    if (!config) return variants[variants.length - 1];
+    const { audience, rollout, fallback } = config;
 
-    const targetIndex = this.#evalAudiencePhase(name as string, user);
-    if (targetIndex !== undefined) return variants[targetIndex];
-
-    const rolloutIndex = this.#evalRolloutPhase(name as string, user);
-    if (rolloutIndex !== undefined) return variants[rolloutIndex];
-
-    return this.#evalFallbackPhase(name as string);
-  }
-
-  #evalAudiencePhase(name: string, user?: User): number | undefined {
-    if (!user) return undefined;
-    const targetRule = this.#config[name]?.targetPhase;
-    if (!targetRule) return undefined;
-
-    for (const [index, target] of targetRule.entries()) {
-      if (target === false) continue;
-      if (target === true) return index;
-      const match = target.some((a) => this.#audiences[a]?.(user));
-      if (match) return index;
+    if (user && audience) {
+      for (const [index, value] of audience.entries()) {
+        if (value === true) return variants[index];
+        if (value === false) continue;
+        const match = value.some((a) => this.#audiences[a]?.(user));
+        if (match) return variants[index];
+      }
     }
 
-    return undefined;
-  }
-
-  #evalRolloutPhase(name: string, user?: User): number | undefined {
-    if (!user) return undefined;
-    const rolloutRule = this.#config[name]?.rolloutPhase;
-    if (!rolloutRule) return undefined;
-
-    const percentage = this.#hashFn(user, name);
-    for (const [index, rollout] of rolloutRule.entries()) {
-      if (rollout === false) continue;
-      if (rollout === true) return index;
-      if (percentage <= rollout) return index;
+    if (user && rollout) {
+      const percentage = this.#hashFn(user, name as string);
+      for (const [index, value] of rollout.entries()) {
+        if (value === false) continue;
+        if (percentage <= value) return variants[index];
+      }
     }
-  }
 
-  #evalFallbackPhase(name: string): number {
-    const fallback = (this.#features[name]?.length ?? 0) - 1;
-    const fallbackRule = this.#config[name]?.fallbackPhase;
-    if (!fallbackRule) return fallback;
-    for (const [index, enabled] of fallbackRule.entries()) {
-      if (enabled) return index;
-    }
-    return fallback;
+    return variants[fallback];
   }
 }
