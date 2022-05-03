@@ -29,12 +29,14 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.config.ts",
-    "build": "microbundle --tsconfig tsconfig.build.json --format esm",
+    "build": "microbundle --tsconfig tsconfig.build.json --format esm --visualize",
     "e2e": "ts-node test-d.ts"
   },
   "dependencies": {
+    "@envelop/core": "^2.3.1",
     "lodash": "4.17.21",
-    "murmurhash": "2.0.0"
+    "murmurhash": "2.0.0",
+    "nanoid": "^3.3.4"
   },
   "devDependencies": {
     "@types/eventsource": "1.1.6",
@@ -49,7 +51,7 @@
     "fluse": "1.0.0",
     "jest": "27.0.1",
     "jest-fetch-mock": "3.0.3",
-    "microbundle": "0.13.3",
+    "microbundle": "0.15.0",
     "node-fetch": "2.6.1",
     "ts-jest": "27.0.1",
     "ts-node": "9.1.1",

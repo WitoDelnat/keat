@@ -1,17 +1,18 @@
 import { mapValues } from "lodash";
 import { DEFAULT_HASH } from "./hash";
+import { AfterEvalHook, Plugin } from "./plugins/plugin";
 import { normalizeVariateRule, preprocessRule } from "./rules";
 import type {
-  RawFeatures,
-  KeatInit,
   AudienceFn,
-  TargetRule,
-  RolloutRule,
-  HashFn,
-  User,
   Config,
-  FallbackRule,
+  HashFn,
+  KeatInit,
+  PhasedConfig,
+  RawFeatures,
+  User,
 } from "./types";
+
+export const booleanFlag = [true, false];
 
 export class Keat<TFeatures extends RawFeatures> {
   static create<TFeatures extends RawFeatures>(
@@ -22,21 +23,22 @@ export class Keat<TFeatures extends RawFeatures> {
 
   #audiences: Record<string, AudienceFn>;
   #features: TFeatures;
-  #config!: Record<
-    string,
-    {
-      targetPhase: TargetRule;
-      rolloutPhase: RolloutRule;
-      fallbackPhase: FallbackRule;
-    }
-  >;
+  #config!: Record<string, PhasedConfig>;
   #hashFn: HashFn;
+  #plugins: Plugin[];
+  #initialized: Promise<void>;
 
   constructor(init: KeatInit<TFeatures>) {
     this.#audiences = init.audiences;
     this.#features = init.features;
     this.#hashFn = init.hashFn ?? DEFAULT_HASH;
+    this.#plugins = init.plugins ?? [];
     this.config = init.config;
+    this.#initialized = this.#initialize();
+  }
+
+  get ready(): Promise<void> {
+    return this.#initialized;
   }
 
   set config(value: Config) {
@@ -45,9 +47,42 @@ export class Keat<TFeatures extends RawFeatures> {
       const rule = normalizeVariateRule(r, isMultiVariate);
       return preprocessRule(rule);
     });
+    this.#plugins.forEach((p) => p.onConfigChange?.(value));
+  }
+
+  async #initialize(): Promise<void> {
+    for (const plugin of this.#plugins) {
+      await plugin.onPluginInit?.({
+        setConfig: (newConfig) => (this.config = newConfig),
+      });
+    }
   }
 
   eval<TName extends keyof TFeatures>(
+    name: TName,
+    user?: User
+  ): TFeatures[TName][number] {
+    let usr = user;
+    let result: unknown;
+    let afterEval: AfterEvalHook[] = [];
+
+    this.#plugins.forEach((plugin) => {
+      const callback = plugin.onEval?.(name as string, user, {
+        setResult: (newResult) => (result = newResult),
+        setUser: (newUser) => (usr = newUser as User),
+      });
+      if (callback) afterEval.push(callback);
+    });
+
+    if (!result) {
+      result = this.#doEval(name as string, usr);
+    }
+
+    afterEval.forEach((cb) => cb({ result }));
+    return result;
+  }
+
+  #doEval<TName extends keyof TFeatures>(
     name: TName,
     user?: User
   ): TFeatures[TName][number] {
