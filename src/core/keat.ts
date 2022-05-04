@@ -1,6 +1,6 @@
 import { mapValues } from "lodash";
 import { DEFAULT_HASH } from "./hash";
-import { AfterEvalHook, Plugin } from "./plugins/plugin";
+import { AfterEvalHook, Plugin } from "../plugins/plugin";
 import { normalizeVariateRule, preprocessRule } from "./rules";
 import type {
   AudienceFn,
@@ -11,8 +11,6 @@ import type {
   RawFeatures,
   User,
 } from "./types";
-
-export const booleanFlag = [true, false];
 
 export class Keat<TFeatures extends RawFeatures> {
   static create<TFeatures extends RawFeatures>(
