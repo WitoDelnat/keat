@@ -1,4 +1,4 @@
-import { AudienceFn, Config, User } from "../types";
+import { AudienceFn, Config, User } from "../core";
 
 export type Plugin = {
   /**

@@ -1,4 +1,4 @@
-import { Config } from "../types";
+import { Config } from "../core";
 import { Plugin } from "./plugin";
 
 type FetchOncePluginOptions = {
@@ -14,7 +14,7 @@ export const useFetchOnce = (rawOptions: FetchOncePluginOptions): Plugin => {
   const options = { ...DEFAULT_OPTIONS, ...rawOptions };
 
   return {
-    onPluginInit: async ({ setConfig }) => {
+    onPluginInit: async (_ctx, { setConfig }) => {
       let timeout = 50;
       for (let i = 0; i < options.retries; i++) {
         try {
