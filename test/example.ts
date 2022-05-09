@@ -1,5 +1,5 @@
-import { booleanFlag, Keat } from "../src/keat";
-import { useCache } from "../src/plugins";
+import { booleanFlag, Keat } from "../src/core";
+import { useAudiences, useCache, useRollouts } from "../src/plugins";
 
 const keat = Keat.create({
   features: {
@@ -7,15 +7,17 @@ const keat = Keat.create({
     redesign: booleanFlag,
     algo: ["heuristic", "brute", "basic"],
   } as const,
-  audiences: {
-    preview: (user) => user.id.endsWith("@company.io"),
-  },
   config: {
     test: true,
     redesign: false,
     algo: [false, ["staff", 80], true],
   },
-  plugins: [useCache()],
+  plugins: [
+    useCache(),
+    useAudiences({
+      staff: (user) => user.id.endsWith("@company.io"),
+    }),
+  ],
 });
 
 const res1 = keat.eval("test", { id: "usr" }); // returns boolean

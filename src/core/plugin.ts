@@ -1,4 +1,4 @@
-import { AudienceFn, Config, User } from "../core";
+import { Config, NormalizedConfig, User } from ".";
 
 export type Plugin = {
   /**
@@ -24,15 +24,13 @@ export type OnPluginInitHook = (
 
 export type OnPluginInitCtx = {
   features: Record<string, any>;
-  audiences: Record<string, AudienceFn>;
-  userIdentifier: string;
 };
 
 export type OnPluginInitApi = {
   setConfig: (newConfig: Config) => void;
 };
 
-export type OnConfigChangeHook = (config: Config) => void;
+export type OnConfigChangeHook = (config: NormalizedConfig) => void;
 
 export type OnEvalHook = (
   ctx: OnEvalCtx,
@@ -42,7 +40,7 @@ export type OnEvalHook = (
 export type OnEvalCtx = {
   name: string;
   user: User | undefined;
-  userIdentifier: keyof User;
+  result: unknown | undefined;
 };
 
 export type OnEvalApi = {

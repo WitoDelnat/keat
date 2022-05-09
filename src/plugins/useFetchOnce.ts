@@ -1,5 +1,5 @@
 import { Config } from "../core";
-import { Plugin } from "./plugin";
+import { Plugin } from "../core/plugin";
 
 type FetchOncePluginOptions = {
   fetch: () => Promise<Config>;

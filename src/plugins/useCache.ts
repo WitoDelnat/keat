@@ -1,5 +1,4 @@
-import { User } from "../types";
-import { Plugin } from "./plugin";
+import { User, Plugin } from "../core";
 
 type CachePluginOptions = {
   createCacheKey?: (name: string, user?: User) => string;

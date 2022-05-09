@@ -1,15 +1,17 @@
+import { DEFAULT_CREATE_USER, Plugin, User } from "../core";
 import { nanoid } from "nanoid";
-import { Plugin } from "./plugin";
 
 type AnonymousPluginOptions = {
+  createUser: (id: string) => User;
   persist?: boolean;
 };
 
 export const useAnonymous = (options?: AnonymousPluginOptions): Plugin => {
+  const createUser = options?.createUser ?? DEFAULT_CREATE_USER;
   let anonymousUser: unknown;
 
   return {
-    onPluginInit({ userIdentifier }) {
+    onPluginInit() {
       let anonymousId;
 
       if (options?.persist) {
@@ -22,9 +24,9 @@ export const useAnonymous = (options?: AnonymousPluginOptions): Plugin => {
         anonymousId = nanoid();
       }
 
-      anonymousUser = { [userIdentifier]: anonymousId };
+      anonymousUser = createUser(anonymousId);
     },
-    onEval(_name, user, { setUser }) {
+    onEval({ user }, { setUser }) {
       if (!user) {
         setUser(anonymousUser);
       }
