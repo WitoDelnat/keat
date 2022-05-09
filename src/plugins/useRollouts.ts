@@ -1,13 +1,61 @@
-import { HashFn } from "./types";
+import { isBoolean, isNumber, last, mapValues } from "lodash";
+import { NormalizedRule, User } from "../core";
+import { Plugin } from "../core/plugin";
 
-export const DEFAULT_SEED = 1042019;
+type RolloutsPluginOptions = {
+  hash?: HashFn;
+};
 
-export const DEFAULT_HASH: HashFn = (user, feature, userId) => {
+type HashFn = (user: User, feature: string, userIdentifier?: string) => number; // number between 0-100.
+
+const DEFAULT_SEED = 1042019;
+const DEFAULT_HASH: HashFn = (user, feature, userIdentifier) => {
   const seed = murmurHash(feature, DEFAULT_SEED);
-  const usr = user as any;
-  const id = usr[userId ?? "id"] ?? usr["id"] ?? usr["sub"] ?? usr["email"];
+  const u = user as any;
+  const id = u[userIdentifier ?? "id"] ?? u["id"] ?? u["sub"] ?? u["email"];
   return murmurHash(id, seed);
 };
+
+export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
+  const hashFn = options?.hash ?? DEFAULT_HASH;
+  let features: Record<string, unknown[]>;
+  let rollouts: Record<string, false | Array<number | boolean>>;
+
+  return {
+    onPluginInit({ features }) {
+      features = features;
+    },
+    onConfigChange(config) {
+      rollouts = mapValues(config, preprocessRollout);
+    },
+    onEval({ user, name, result }, { setResult }) {
+      if (result || !user) return;
+      const variates = features[name];
+      const rollout = rollouts[name];
+      if (!variates || !rollout) return;
+
+      const percentage = hashFn(user, name);
+      for (const [index, value] of rollout.entries()) {
+        if (value === false) continue;
+        if (percentage <= value) {
+          const result = variates[index];
+          setResult(result);
+          return;
+        }
+      }
+    },
+  };
+};
+
+function preprocessRollout(rule: NormalizedRule[]) {
+  const rolloutRule = rule.map((p) => {
+    if (isBoolean(p)) return p;
+    const arr = p.filter(isNumber);
+    return last(arr) ?? false;
+  });
+  const skipRolloutPhase = rolloutRule.every((p) => p === false);
+  return skipRolloutPhase ? false : rolloutRule;
+}
 
 /**
  * Fast, non-cryptographic hash function.
