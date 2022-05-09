@@ -16,10 +16,10 @@ export const useAudiences = (options: AudiencesPluginOptions): Plugin => {
     onConfigChange(config) {
       audienceRules = mapValues(config, preprocessAudiences);
     },
-    onEval({ user, name, result }, { setResult }) {
+    onEval({ user, feature, result }, { setResult }) {
       if (result || !user) return;
-      const variates = features[name];
-      const rule = audienceRules[name];
+      const variates = features[feature];
+      const rule = audienceRules[feature];
       if (!variates || !rule) return;
 
       for (const [index, value] of rule.entries()) {
