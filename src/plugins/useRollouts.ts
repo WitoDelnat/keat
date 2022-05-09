@@ -19,7 +19,7 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
   const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
   let featureMap: Record<string, unknown[]> = {};
-  let rollouts: Record<string, false | Array<number | boolean>>;
+  let rollouts: Record<string, Array<number | undefined> | undefined>;
 
   return {
     onPluginInit({ features }) {
@@ -36,9 +36,11 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
 
       const userId = userFn(user);
       const percentage = hashFn(userId, feature);
+      let sum = 0;
       for (const [index, value] of rollout.entries()) {
-        if (value === false) continue;
-        if (percentage <= value) {
+        if (value === undefined) continue;
+        sum += value;
+        if (percentage <= sum) {
           const result = variates[index];
           return setResult(result);
         }
@@ -49,12 +51,12 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
 
 function preprocessRollout(rule: NormalizedRule[]) {
   const rolloutRule = rule.map((p) => {
-    if (isBoolean(p)) return p;
+    if (isBoolean(p)) return undefined;
     const arr = p.filter(isNumber);
-    return last(arr) ?? false;
+    return last(arr) ?? undefined;
   });
-  const skipRolloutPhase = rolloutRule.every((p) => p === false);
-  return skipRolloutPhase ? false : rolloutRule;
+  const skipRolloutPhase = rolloutRule.every((p) => p === undefined);
+  return skipRolloutPhase ? undefined : rolloutRule;
 }
 
 /**
