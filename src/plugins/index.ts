@@ -1,5 +1,6 @@
 export * from "./useAnonymous";
 export * from "./useCache";
-export * from "./useFetchOnce";
+export * from "./useCustomConfig";
 export * from "./useAudiences";
 export * from "./useRollouts";
+export * from "./useRemoteConfig";

@@ -1,5 +1,10 @@
 import { booleanFlag, Keat } from "../src/core";
-import { useAudiences, useCache, useRollouts } from "../src/plugins";
+import {
+  useAudiences,
+  useCache,
+  useRemoteConfig,
+  useRollouts,
+} from "../src/plugins";
 
 const keat = Keat.create({
   features: {
@@ -13,10 +18,12 @@ const keat = Keat.create({
     algo: [false, ["staff", 80], true],
   },
   plugins: [
+    useRemoteConfig("https://example.com/config"),
     useCache(),
     useAudiences({
       staff: (user) => user.id.endsWith("@company.io"),
     }),
+    useRollouts(),
   ],
 });
 

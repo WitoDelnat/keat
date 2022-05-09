@@ -38,7 +38,7 @@ export type OnEvalHook = (
 ) => void | AfterEvalHook;
 
 export type OnEvalCtx = {
-  name: string;
+  feature: string;
   user: User | undefined;
   result: unknown | undefined;
 };

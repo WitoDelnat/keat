@@ -1,22 +1,22 @@
 import { isBoolean, isNumber, last, mapValues } from "lodash";
-import { NormalizedRule, User } from "../core";
+import { DEFAULT_GET_USER_ID, NormalizedRule, User } from "../core";
 import { Plugin } from "../core/plugin";
 
 type RolloutsPluginOptions = {
+  getUserId?: (user: User) => string;
   hash?: HashFn;
 };
 
-type HashFn = (user: User, feature: string, userIdentifier?: string) => number; // number between 0-100.
+type HashFn = (userId: string, feature: string) => number; // number between 0-100.
 
 const DEFAULT_SEED = 1042019;
-const DEFAULT_HASH: HashFn = (user, feature, userIdentifier) => {
+const DEFAULT_HASH: HashFn = (userId, feature) => {
   const seed = murmurHash(feature, DEFAULT_SEED);
-  const u = user as any;
-  const id = u[userIdentifier ?? "id"] ?? u["id"] ?? u["sub"] ?? u["email"];
-  return murmurHash(id, seed);
+  return murmurHash(userId, seed);
 };
 
 export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
+  const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
   let features: Record<string, unknown[]>;
   let rollouts: Record<string, false | Array<number | boolean>>;
@@ -28,13 +28,14 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
     onConfigChange(config) {
       rollouts = mapValues(config, preprocessRollout);
     },
-    onEval({ user, name, result }, { setResult }) {
+    onEval({ user, feature, result }, { setResult }) {
       if (result || !user) return;
-      const variates = features[name];
-      const rollout = rollouts[name];
+      const variates = features[feature];
+      const rollout = rollouts[feature];
       if (!variates || !rollout) return;
 
-      const percentage = hashFn(user, name);
+      const userId = userFn(user);
+      const percentage = hashFn(userId, feature);
       for (const [index, value] of rollout.entries()) {
         if (value === false) continue;
         if (percentage <= value) {
