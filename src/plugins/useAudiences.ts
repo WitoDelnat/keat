@@ -6,19 +6,19 @@ type AudienceFn = (user: User) => boolean;
 
 export const useAudiences = (options: AudiencesPluginOptions): Plugin => {
   const audiences = options;
-  let features: Record<string, unknown[]>;
+  let featureMap: Record<string, unknown[]> = {};
   let audienceRules: Record<string, false | Array<string[] | boolean>>;
 
   return {
     onPluginInit({ features }) {
-      features = features;
+      featureMap = features;
     },
     onConfigChange(config) {
       audienceRules = mapValues(config, preprocessAudiences);
     },
     onEval({ user, feature, result }, { setResult }) {
       if (result || !user) return;
-      const variates = features[feature];
+      const variates = featureMap[feature];
       const rule = audienceRules[feature];
       if (!variates || !rule) return;
 

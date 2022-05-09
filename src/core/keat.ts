@@ -49,10 +49,10 @@ export class Keat<TFeatures extends RawFeatures> {
     return this.#initialized;
   }
 
-  eval<TName extends keyof TFeatures>(
-    name: TName,
+  eval<TFeature extends keyof TFeatures>(
+    feature: TFeature,
     user?: User
-  ): TFeatures[TName][number] {
+  ): TFeatures[TFeature][number] {
     let usr = user;
     let result: unknown;
     let afterEval: AfterEvalHook[] = [];
@@ -60,32 +60,36 @@ export class Keat<TFeatures extends RawFeatures> {
     this.#plugins.forEach((plugin) => {
       const callback = plugin.onEval?.(
         {
-          name: name as string,
+          feature: feature as string,
           user,
           result,
         },
         {
-          setResult: (newResult) => (result = newResult),
-          setUser: (newUser) => (usr = newUser as User),
+          setResult: (newResult) => {
+            result = newResult;
+          },
+          setUser: (newUser) => {
+            usr = newUser as User;
+          },
         }
       );
       if (callback) afterEval.push(callback);
     });
 
     if (!result) {
-      result = this.#doEval(name as string);
+      result = this.#doEval(feature as string);
     }
 
     afterEval.forEach((cb) => cb({ result }));
     return result;
   }
 
-  #doEval<TName extends keyof TFeatures>(
-    name: TName
-  ): TFeatures[TName][number] {
-    const variants = this.#features[name];
+  #doEval<TFeature extends keyof TFeatures>(
+    feature: TFeature
+  ): TFeatures[TFeature][number] {
+    const variants = this.#features[feature];
     if (!variants) return undefined;
-    const rule = this.#config[name as string];
+    const rule = this.#config[feature as string];
     const index = rule?.findIndex((v) => v === true) ?? -1;
     return index === -1 ? variants[rule.length - 1] : variants[index];
   }

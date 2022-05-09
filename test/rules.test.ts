@@ -1,4 +1,4 @@
-import { normalizeVariateRule, preprocessRule } from "../src/rules";
+import { normalizeVariateRule } from "../src/core/rules";
 
 const normalize = normalizeVariateRule;
 
@@ -36,26 +36,6 @@ describe("normalize", () => {
       [25],
       [74],
     ]);
-  });
-});
-
-describe("preprocess", () => {
-  it.only("should work for a varia of cases", () => {
-    expect(preprocessRule([])).toEqual({
-      targetPhase: false,
-      rolloutPhase: false,
-    });
-    expect(preprocessRule([["staff", 50, 30], [60], [74]])).toEqual({
-      targetPhase: [["staff"], false, false],
-      rolloutPhase: [30, 60, 74],
-    });
-    expect(preprocessRule([["staff", "preview"], false, [74]])).toEqual({
-      targetPhase: [["staff", "preview"], false, false],
-      rolloutPhase: [false, false, 74],
-    });
-    expect(preprocessRule([["preview"], false, ["staff"]])).toEqual({
-      targetPhase: [["preview"], false, ["staff"]],
-      rolloutPhase: false,
-    });
+    expect(normalize([30, "staff"], isMulti)).toEqual([[30], ["staff"]]);
   });
 });
