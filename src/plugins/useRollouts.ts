@@ -18,19 +18,19 @@ const DEFAULT_HASH: HashFn = (userId, feature) => {
 export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
   const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
-  let features: Record<string, unknown[]>;
+  let featureMap: Record<string, unknown[]> = {};
   let rollouts: Record<string, false | Array<number | boolean>>;
 
   return {
     onPluginInit({ features }) {
-      features = features;
+      featureMap = features;
     },
     onConfigChange(config) {
       rollouts = mapValues(config, preprocessRollout);
     },
     onEval({ user, feature, result }, { setResult }) {
       if (result || !user) return;
-      const variates = features[feature];
+      const variates = featureMap[feature];
       const rollout = rollouts[feature];
       if (!variates || !rollout) return;
 
@@ -40,8 +40,7 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
         if (value === false) continue;
         if (percentage <= value) {
           const result = variates[index];
-          setResult(result);
-          return;
+          return setResult(result);
         }
       }
     },
