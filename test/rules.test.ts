@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { normalizeVariateRule } from "../src/core/rules";
 
 const normalize = normalizeVariateRule;

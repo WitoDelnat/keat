@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { Keat } from "../src/core";
 import { useAudiences, useRollouts } from "../src/plugins";
 
