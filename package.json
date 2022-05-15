@@ -1,9 +1,8 @@
 {
   "name": "keat",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "source": "src/index.ts",
-  "main": "lib/index.cjs",
   "module": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
@@ -29,32 +28,17 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.config.ts",
-    "build": "microbundle --tsconfig tsconfig.build.json --format esm --visualize",
-    "e2e": "ts-node test-d.ts"
+    "build": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "@envelop/core": "^2.3.1",
     "lodash": "4.17.21",
-    "murmurhash": "2.0.0",
-    "nanoid": "^3.3.4"
+    "nanoid": "3.3.4"
   },
   "devDependencies": {
-    "@types/eventsource": "1.1.6",
-    "@types/faker": "5.5.5",
     "@types/jest": "26.0.23",
     "@types/lodash": "4.14.168",
-    "@types/mock-fs": "4.13.0",
-    "@types/node": "15.0.2",
-    "@types/node-fetch": "2.5.10",
-    "@types/pino": "6.3.8",
-    "faker": "5.5.3",
-    "fluse": "1.0.0",
     "jest": "27.0.1",
-    "jest-fetch-mock": "3.0.3",
-    "microbundle": "0.15.0",
-    "node-fetch": "2.6.1",
     "ts-jest": "27.0.1",
-    "ts-node": "9.1.1",
     "typescript": "4.3.2"
   }
 }
