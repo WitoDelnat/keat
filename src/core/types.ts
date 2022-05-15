@@ -16,7 +16,10 @@ export interface CustomTypes {
   // user: ...
 }
 
-export type User = CustomTypes extends { user: infer T } ? T : { id: string };
+export type User = CustomTypes extends { user: infer T }
+  ? T
+  : ({ id: string } | { sub: string } | { email: string }) &
+      Record<string, any>;
 
 /* * * * * * * * * * * * *
  * API
