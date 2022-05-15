@@ -1,4 +1,3 @@
-import { isBoolean, isNumber, last, mapValues } from "lodash";
 import { DEFAULT_GET_USER_ID, NormalizedRule, User } from "../core";
 import { Plugin } from "../core/plugin";
 
@@ -26,7 +25,11 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
       featureMap = features;
     },
     onConfigChange(config) {
-      rollouts = mapValues(config, preprocessRollout);
+      rollouts = Object.fromEntries(
+        Object.entries(config).map(([feature, rule]) => {
+          return [feature, preprocessRollout(rule)];
+        })
+      );
     },
     onEval({ user, feature, result }, { setResult }) {
       if (result || !user) return;
@@ -51,9 +54,9 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
 
 function preprocessRollout(rule: NormalizedRule[]) {
   const rolloutRule = rule.map((p) => {
-    if (isBoolean(p)) return undefined;
-    const arr = p.filter(isNumber);
-    return last(arr) ?? undefined;
+    if (typeof p === "boolean") return undefined;
+    const arr = p.filter((v): v is number => typeof v === "number");
+    return arr[arr.length - 1] ?? undefined;
   });
   const skipRolloutPhase = rolloutRule.every((p) => p === undefined);
   return skipRolloutPhase ? undefined : rolloutRule;

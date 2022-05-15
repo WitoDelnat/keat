@@ -1,4 +1,3 @@
-import { isNumber, isString } from "lodash";
 import type {
   BiVariateRule,
   MultiVariateRule,
@@ -24,6 +23,6 @@ export function normalizeVariateRule(
 }
 
 function normalizeRule(rule: Rule): NormalizedRule {
-  if (isString(rule) || isNumber(rule)) return [rule];
+  if (typeof rule === "string" || typeof rule === "number") return [rule];
   return rule;
 }

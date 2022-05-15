@@ -1,4 +1,3 @@
-import { mapValues } from "lodash";
 import { AfterEvalHook, Plugin } from "./plugin";
 import { normalizeVariateRule } from "./rules";
 import type {
@@ -38,10 +37,13 @@ export class Keat<TFeatures extends RawFeatures> {
   }
 
   #setConfig(value: Config) {
-    this.#config = mapValues(value, (r, feature) => {
-      const isMultiVariate = this.#features[feature].length > 2;
-      return normalizeVariateRule(r, isMultiVariate);
-    });
+    this.#config = Object.fromEntries(
+      Object.entries(value).map(([feature, rule]) => {
+        const isMultiVariate = this.#features[feature].length > 2;
+        return [feature, normalizeVariateRule(rule, isMultiVariate)];
+      })
+    );
+
     this.#plugins.forEach((p) => p.onConfigChange?.(this.#config));
   }
 
