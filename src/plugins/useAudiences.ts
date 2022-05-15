@@ -1,4 +1,3 @@
-import { isBoolean, isString, mapValues } from "lodash";
 import { NormalizedRule, Plugin, User } from "../core";
 
 type AudiencesPluginOptions = Record<string, AudienceFn>;
@@ -14,7 +13,11 @@ export const useAudiences = (options: AudiencesPluginOptions): Plugin => {
       featureMap = features;
     },
     onConfigChange(config) {
-      audienceRules = mapValues(config, preprocessAudiences);
+      audienceRules = Object.fromEntries(
+        Object.entries(config).map(([feature, rule]) => {
+          return [feature, preprocessAudiences(rule)];
+        })
+      );
     },
     onEval({ user, feature, result }, { setResult }) {
       if (result || !user) return;
@@ -34,8 +37,8 @@ export const useAudiences = (options: AudiencesPluginOptions): Plugin => {
 
 function preprocessAudiences(rule: NormalizedRule[]) {
   const audienceRule = rule.map((p) => {
-    if (isBoolean(p)) return p;
-    const arr = p.filter(isString);
+    if (typeof p === "boolean") return p;
+    const arr = p.filter((v): v is string => typeof v === "string");
     return arr.length === 0 ? false : arr;
   });
   const skipAudiencePhase = audienceRule.every((p) => p === false);
