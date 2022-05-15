@@ -2,7 +2,7 @@ import { DEFAULT_CREATE_USER, Plugin, User } from "../core";
 import { nanoid } from "nanoid";
 
 type AnonymousPluginOptions = {
-  createUser: (id: string) => User;
+  createUser?: (id: string) => User;
   persist?: boolean;
 };
 
