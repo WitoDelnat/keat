@@ -30,7 +30,7 @@ export type Config = Record<string, BiVariateRule | MultiVariateRule>;
 export type KeatInit<TFeatures extends RawFeatures> = {
   features: TFeatures;
   config?: Config;
-  plugins: Plugin[];
+  plugins?: Plugin[];
 };
 
 /* * * * * * * * * * * * *

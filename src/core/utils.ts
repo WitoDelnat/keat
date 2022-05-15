@@ -9,8 +9,8 @@ export const booleanFlag = [true, false];
  * @example
  * fromEnv(process.env.ENABLE_UI_TO)
  *
- * `ENABLE_UI_TO=everyone` // 'everyone'
- * `ENABLE_UI_TO=developers, 5` // `['developers', 5]`
+ * `ENABLE_UI_TO=true` // enabled
+ * `ENABLE_UI_TO=developers,5` // `['developers', 5]`
  */
 export function fromEnv(value?: string) {
   if (!value) return undefined;
