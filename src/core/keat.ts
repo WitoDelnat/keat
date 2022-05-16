@@ -25,22 +25,53 @@ export class Keat<TFeatures extends RawFeatures> {
   #features: TFeatures;
   #config!: NormalizedConfig;
   #plugins: Plugin[];
-  #initialized: Promise<void>;
+  #ready: Promise<void>;
+  #initialized = false;
 
   constructor(init: KeatInit<TFeatures>) {
     this.#features = init.features;
     this.#plugins = init.plugins ?? [];
-    this.#setConfig(init.config ?? {});
-    this.#initialized = this.#initialize();
+    this.#ready = this.#initialize(init.config ?? {});
   }
 
-  async #initialize(): Promise<void> {
+  /**
+   * Goal:
+   * - Without remote config, Keat is immediately ready without an async tick.
+   * - With remote config, it must work properly without awaiting ready.
+   * - With remote config, it should be awaitable to avoid feature flash.
+   * - Background processes can keep updating config post-initialization.
+   *
+   * 1. Execute all sync plugins.
+   * 2. Set final sync configuration.
+   * -- Keat works now with default config
+   * 3. Await all async plugins.
+   * 4. Set final async configuration only if modified
+   * -- Ready. Keat works now with remote config
+   * 5. Background plugin can keep using setConfig.
+   */
+  async #initialize(config: Config): Promise<void> {
+    const promises: Promise<void>[] = [];
     for (const plugin of this.#plugins) {
-      await plugin.onPluginInit?.(
-        { features: this.#features },
-        { setConfig: (newConfig) => this.#setConfig(newConfig) }
+      const result = plugin.onPluginInit?.(
+        { features: this.#features, config },
+        {
+          setConfig: (newConfig) => {
+            if (this.#initialized) {
+              this.#setConfig(newConfig);
+            } else {
+              config = newConfig;
+            }
+          },
+        }
       );
+      if (isPromise(result)) promises.push(result);
     }
+
+    const syncConfig = config;
+    this.#setConfig(config);
+    await Promise.all(promises);
+    if (config !== syncConfig) this.#setConfig(config);
+    this.#initialized = true;
   }
 
   #setConfig(value: Config) {
@@ -55,7 +86,7 @@ export class Keat<TFeatures extends RawFeatures> {
   }
 
   get ready(): Promise<void> {
-    return this.#initialized;
+    return this.#ready;
   }
 
   eval<TFeature extends keyof TFeatures>(
@@ -102,3 +133,6 @@ export class Keat<TFeatures extends RawFeatures> {
     return index === -1 ? variants[variants.length - 1] : variants[index];
   }
 }
+
+const isPromise = (v: unknown): v is Promise<void> =>
+  typeof v === "object" && typeof (v as any).then === "function";
