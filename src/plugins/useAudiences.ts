@@ -1,7 +1,7 @@
 import { NormalizedRule, Plugin, User } from "../core";
 
 type AudiencesPluginOptions = Record<string, AudienceFn>;
-type AudienceFn = (user: User) => boolean;
+type AudienceFn = (user?: User) => boolean | undefined;
 
 export const useAudiences = (options: AudiencesPluginOptions): Plugin => {
   const audiences = options;
@@ -28,7 +28,13 @@ export const useAudiences = (options: AudiencesPluginOptions): Plugin => {
       for (const [index, value] of rule.entries()) {
         if (value === true) return setResult(variates[index]);
         if (value === false) continue;
-        const match = value.some((a) => audiences[a]?.(user));
+        const match = value.some((a) => {
+          try {
+            return audiences[a]?.(user);
+          } catch {
+            return false;
+          }
+        });
         if (match) return setResult(variates[index]);
       }
     },

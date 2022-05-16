@@ -24,6 +24,7 @@ export type OnPluginInitHook = (
 
 export type OnPluginInitCtx = {
   features: Record<string, any>;
+  config?: Config;
 };
 
 export type OnPluginInitApi = {

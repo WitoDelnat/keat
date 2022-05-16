@@ -8,6 +8,13 @@ import type {
   User,
 } from "./types";
 
+/**
+ * Type utility which extracts all features.
+ *
+ * @example `type Feature = ExtractFeatures<typeof keat>;`
+ */
+export type ExtractFeatures<K> = K extends Keat<infer K> ? keyof K : never;
+
 export class Keat<TFeatures extends RawFeatures> {
   static create<TFeatures extends RawFeatures>(
     init: KeatInit<TFeatures>
@@ -55,7 +62,6 @@ export class Keat<TFeatures extends RawFeatures> {
     feature: TFeature,
     user?: User
   ): TFeatures[TFeature][number] {
-    let usr = user;
     let result: unknown;
     let afterEval: AfterEvalHook[] = [];
 
@@ -71,7 +77,7 @@ export class Keat<TFeatures extends RawFeatures> {
             result = newResult;
           },
           setUser: (newUser) => {
-            usr = newUser as User;
+            user = newUser as User;
           },
         }
       );
@@ -93,6 +99,6 @@ export class Keat<TFeatures extends RawFeatures> {
     if (!variants) return undefined;
     const rule = this.#config[feature as string];
     const index = rule?.findIndex((v) => v === true) ?? -1;
-    return index === -1 ? variants[rule.length - 1] : variants[index];
+    return index === -1 ? variants[variants.length - 1] : variants[index];
   }
 }

@@ -11,7 +11,7 @@ type HashFn = (userId: string, feature: string) => number; // number between 0-1
 const DEFAULT_SEED = 1042019;
 const DEFAULT_HASH: HashFn = (userId, feature) => {
   const seed = murmurHash(feature, DEFAULT_SEED);
-  return murmurHash(userId, seed);
+  return (murmurHash(userId, seed) % 100) + 1;
 };
 
 export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
