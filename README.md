@@ -1,4 +1,6 @@
-# [beta] Feature flags with Keat
+# [beta] Keat
+
+Progressive and type-safe feature flags.
 
 **Problem:** "I want to increase my deployment frequency, reduce stress of releases and/or gather the preferences of my users."
 
@@ -6,8 +8,8 @@
 
 ## Keat Key Features
 
-- Supports progressive rollouts and targeted audiences.
-- Supports bi- and multivariates of any type.
+- Progressive rollouts and targeted audiences.
+- Bi- and multivariates of any type.
 - Remote configuration with no vendor lock-in.
 - Lightweight core with tree shakeable plugins.
 - Agnostic to the frontend framework.
@@ -28,7 +30,7 @@ Afterwards you enable a feature's variate through Keat's **configuration** and e
 All of this comes with amazing TypeScript support. `keat.eval` knows your feature names and automatically infers the return type. This helps reduce the technical debt commonly associated with feature flags.
 
 ```typescript
-import { Keat, booleanFlag } from "keat/core";
+import { Keat, booleanFlag, useRollouts } from "keat/core";
 
 const keat = Keat.create({
   features: {
@@ -37,14 +39,15 @@ const keat = Keat.create({
     foo: [5, "a"],
     bar: ["b", 3, { hello: "world" }],
   } as const,
+  plugins: [useRollouts()],
   config: {
     redesign: true,
-    sortAlgorithm: [false, true, false],
+    sortAlgorithm: [20, 30, 50],
   },
 });
 
 keat.eval("redesign"); // returns `true`.
-keat.eval("sortAlgorithm"); // returns `'heapsort'`.
+keat.eval("sortAlgorithm"); // returns `'quicksort'` for 20%, `'heapsort'` for 30% and `'insertionSort'` half of the time.
 keat.eval("foo"); // fallback to last variate `'a'`.
 keat.eval("bar"); // fallback to last variate `{ hello: "world" }`.
 ```
@@ -52,11 +55,13 @@ keat.eval("bar"); // fallback to last variate `{ hello: "world" }`.
 ## Examples
 
 Checkout these realistic examples to see whether Keat fits your needs.
-You can read the full documentation here and please don't hesitate to reach out to me if something is missing - Keat becomes better together!
+Please don't hesitate to reach out to me if something is missing - Keat becomes better together!
 
 ### SaaS application
 
 Example for a web application where you want to allow your developers to see features as they are still being developed, can show them in an early preview and progressively roll them out to reduce stress of failure.
+
+The **remote configuration** should simply return a JSON object of the same format of `config`. You could serve it from your API, cloud storage, Cloudflare CDN or even real-time through WebSockets and server-sent events.
 
 ```typescript
 import { Keat, booleanFlag } from "keat/core";
@@ -91,14 +96,19 @@ keat.eval("sortAlgorithm", user);
 
 Example of how you could get the benefits of feature flags despite having no stable identity for visitors.
 
+The **configuration** can also be embedded at build time.
+Environment variables favour operational simplicity over propagation speed.
+By starting small, you will get all the benefits of feature flags without having to reach for your wallet
+
 ```typescript
 import { Keat, booleanFlag, fromEnv } from "keat/core";
 import { useAnonymous, useAudiences, useRollouts } from "keat/plugins";
 
 const keat = Keat.create({
   features: {
-    advancedSearch: booleanFlag,
+    search: booleanFlag,
     design: ["halloween", "default"],
+    sortAlgorithm: ["quicksort", "heapsort"],
   } as const,
   plugins: [
     useAnonymous({ persist: true }),
@@ -118,14 +128,19 @@ const keat = Keat.create({
     useRollouts(),
   ],
   config: {
-    advancedSearch: fromEnv(process.env.ENABLE_ADVANCED_SEARCH),
+    search: [30], // enabled for 30% of visitors.
     design: ["halloweenPeriod", "preview"], // enabled during Halloween and for preview.
+    sortAlgorithm: fromEnv(process.env.ENABLE_SORT_ALGORITHM) ?? false,
   },
 });
 
 // User is automatically added with random identifier which is persisted across session.
 keat.eval("advancedSearch");
 ```
+
+## Documentation
+
+Coming soon
 
 ## License
 
