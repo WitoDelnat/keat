@@ -1,5 +1,12 @@
+import {
+  booleanFlag,
+  Keat,
+  useAnonymous,
+  useAudiences,
+  useRemoteConfig,
+  useRollouts,
+} from 'keat';
 import React, { ReactNode } from 'react';
-import { ExtractFeatures, Keat } from 'keat';
 
 declare module 'keat' {
   interface CustomTypes {
@@ -11,33 +18,33 @@ declare module 'keat' {
   }
 }
 
+type ExtractFeatures<K> = K extends Keat<infer K> ? keyof K : never;
 type Feature = ExtractFeatures<typeof keat>;
 
 export const keat = Keat.create({
-  identifier: 'id',
-  audiences: {
-    preview: (user) => user?.earlyPreview ?? false,
-    staff: (user) => user?.email.includes('@example.com') ?? false,
-  },
   features: {
-    chatbot: 5,
-    redesign: ['preview', 'staff'],
-    search: 'everyone',
+    chatbot: booleanFlag,
+    redesign: booleanFlag,
+    search: booleanFlag,
   },
-  remoteConfig: {
-    kind: 'keat',
-    origin: 'http://localhost:8081',
-    application: 'demo',
-    onError: (err) => console.error(err.message),
+  plugins: [
+    useRemoteConfig('http://localhost:8000/features.json'),
+    useAnonymous(),
+    useAudiences({
+      preview: (user) => user?.earlyPreview ?? false,
+      staff: (user) => user?.email.endsWith('@example.io') ?? false,
+    }),
+    useRollouts(),
+  ],
+  config: {
+    chatbot: 80,
+    redesign: ['preview', 'staff'],
+    search: true,
   },
 });
 
 export function useFeatureFlag({ name }: { name: Feature }) {
-  return keat.isEnabled(name, {
-    id: 'demo-id',
-    email: 'demo@example.com',
-    earlyPreview: false,
-  });
+  return keat.eval(name);
 }
 
 type Props = {
