@@ -28,11 +28,13 @@ export type IdentityFn = (user: User) => string;
 export type Rule = boolean | string | number | (string | number)[];
 export type BiVariateRule = Rule;
 export type MultiVariateRule = Rule[];
-export type Config = Record<string, BiVariateRule | MultiVariateRule>;
+export type Config<TFeatures extends string = string> = Partial<
+  Record<TFeatures, BiVariateRule | MultiVariateRule>
+>;
 
 export type KeatInit<TFeatures extends RawFeatures> = {
   features: TFeatures;
-  config?: Config;
+  config?: Config<keyof TFeatures & string>;
   plugins?: Plugin[];
 };
 
