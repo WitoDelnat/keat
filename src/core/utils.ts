@@ -20,7 +20,7 @@ export function fromEnv(value?: string) {
     .map((v) => {
       if (v === "true") return true;
       const parsed = parseInt(v);
-      return parsed === NaN ? v : parsed;
+      return isNaN(parsed) ? v : parsed;
     });
 }
 

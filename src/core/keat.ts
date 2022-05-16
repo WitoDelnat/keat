@@ -76,10 +76,12 @@ export class Keat<TFeatures extends RawFeatures> {
 
   #setConfig(value: Config) {
     this.#config = Object.fromEntries(
-      Object.entries(value).map(([feature, rule]) => {
-        const isMultiVariate = this.#features[feature].length > 2;
-        return [feature, normalizeVariateRule(rule, isMultiVariate)];
-      })
+      Object.entries(value)
+        .filter(([_, rule]) => rule !== undefined)
+        .map(([feature, rule]) => {
+          const isMultiVariate = this.#features[feature].length > 2;
+          return [feature, normalizeVariateRule(rule!, isMultiVariate)];
+        })
     );
 
     this.#plugins.forEach((p) => p.onConfigChange?.(this.#config));

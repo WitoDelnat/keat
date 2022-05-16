@@ -29,7 +29,7 @@ export type Rule = boolean | string | number | (string | number)[];
 export type BiVariateRule = Rule;
 export type MultiVariateRule = Rule[];
 export type Config<TFeatures extends string = string> = Partial<
-  Record<TFeatures, BiVariateRule | MultiVariateRule>
+  Record<TFeatures, BiVariateRule | MultiVariateRule | undefined>
 >;
 
 export type KeatInit<TFeatures extends RawFeatures> = {
