@@ -73,10 +73,10 @@ export class Keat<TFeatures extends RawFeatures> {
       console.warn(msg);
     }
     const configId = useLatest ? this.#configId : 0;
-    return this.#doEvaluate(feature as string, user, configId);
+    return this.evaluate(feature as string, user, configId);
   };
 
-  #doEvaluate(feature: string, user: User | undefined, configId: number): any {
+  evaluate(feature: string, user: User | undefined, configId: number): any {
     const variates = this.#features[feature] as any[];
     if (!variates) return undefined;
     const config = configId === 0 ? this.#fallback : this.#latest;
