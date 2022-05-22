@@ -1,3 +1,5 @@
 {
-  "redesign": true
+  "redesign": true,
+  "search": true,
+  "chatbot": true
 }

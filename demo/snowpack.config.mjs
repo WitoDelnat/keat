@@ -1,5 +1,8 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 export default {
+  env: {
+    ENABLE_SEARCH: 'staff,50',
+  },
   workspaceRoot: '..',
   mount: {
     public: { url: '/', static: true },

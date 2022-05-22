@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { FeatureFlag } from './features';
+import { FeatureBoundary, useKeat } from './features';
 
 interface AppProps {}
 
 function App({}: AppProps) {
+  const { loading } = useKeat();
   const [count, setCount] = useState(0);
+  console.log('loading', loading);
 
   useEffect(() => {
     const timer = setTimeout(() => setCount(count + 1), 1000);
@@ -22,17 +24,27 @@ function App({}: AppProps) {
         </p>
 
         <div>
-          <FeatureFlag name="search">
-            <p>'search' is enabled</p>
-          </FeatureFlag>
+          <FeatureBoundary name="search" display="swap">
+            <p>OK 'search' is enabled</p>
+          </FeatureBoundary>
 
-          <FeatureFlag name="chatbot">
+          <FeatureBoundary
+            name="redesign"
+            display="fallback"
+            invisible={<p>redesign invisible</p>}
+            fallback={<p>'redesign' is disabled</p>}
+          >
+            <p>OK 'redesign' is enabled</p>
+          </FeatureBoundary>
+
+          <FeatureBoundary
+            name="chatbot"
+            display="optional"
+            invisible={<p>chatbot invisible</p>}
+            fallback={<p>OK 'chatbot' is disabled</p>}
+          >
             <p>'chatbot' is enabled</p>
-          </FeatureFlag>
-
-          <FeatureFlag name="redesign">
-            <p>'redesign' is enabled</p>
-          </FeatureFlag>
+          </FeatureBoundary>
         </div>
       </header>
     </div>

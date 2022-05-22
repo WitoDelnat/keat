@@ -1244,10 +1244,10 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-keat@0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/keat/-/keat-0.7.0.tgz#a3437c2ad7c9303f9bc5891ae3a9d219736d4902"
-  integrity sha512-ye5DGjviWw4iLq1a0EcGT3mmbOMBuvjcVXIgOIEHMM/rIfXb1W/p0b92qOsGYdLa1zwcB5d/7zsZtIsy8g4uLA==
+keat@0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/keat/-/keat-0.7.1.tgz#a5d6e9fdf9721535df6effd8f674937946bfaa3e"
+  integrity sha512-s3dzD9ioLQMViiLGllJ5YLnpXI8oP5EyZDQfcoCej8LZE/RSsDxkiatD6f/dHytmIfEQcxqLHHyEIZd/f2W7oA==
   dependencies:
     nanoid "3.3.4"
 

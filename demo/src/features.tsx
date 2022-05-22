@@ -1,12 +1,11 @@
 import {
   booleanFlag,
-  Keat,
+  KeatReact,
   useAnonymous,
   useAudiences,
   useRemoteConfig,
   useRollouts,
 } from 'keat';
-import React, { ReactNode } from 'react';
 
 declare module 'keat' {
   interface CustomTypes {
@@ -18,10 +17,7 @@ declare module 'keat' {
   }
 }
 
-type ExtractFeatures<K> = K extends Keat<infer K> ? keyof K : never;
-type Feature = ExtractFeatures<typeof keat>;
-
-export const keat = Keat.create({
+export const { useKeat, FeatureBoundary } = KeatReact.create({
   features: {
     chatbot: booleanFlag,
     redesign: booleanFlag,
@@ -37,23 +33,8 @@ export const keat = Keat.create({
     useRollouts(),
   ],
   config: {
-    chatbot: 80,
-    redesign: ['preview', 'staff'],
-    search: true,
+    chatbot: false,
+    redesign: false,
+    search: false,
   },
 });
-
-export function useFeatureFlag({ name }: { name: Feature }) {
-  return keat.eval(name);
-}
-
-type Props = {
-  name: Feature;
-  children: ReactNode;
-};
-
-export function FeatureFlag({ name, children }: Props) {
-  const isEnabled = useFeatureFlag({ name });
-  console.log('feature flag', name, isEnabled);
-  return isEnabled ? <>{children}</> : null;
-}
