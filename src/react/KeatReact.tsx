@@ -1,5 +1,5 @@
-import React, { ReactNode, useEffect, useState } from "react";
-import { FeatureDisplay, Keat, KeatInit, RawFeatures } from "../core";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import { FeatureDisplay, Keat, KeatInit, RawFeatures, User } from "../core";
 
 export class KeatReact {
   static create<TFeatures extends RawFeatures>(init: KeatInit<TFeatures>) {
@@ -9,11 +9,19 @@ export class KeatReact {
       useKeat(display?: FeatureDisplay) {
         const [loading, setLoading] = useState(true);
 
+        const setUser = useCallback((user: User) => {
+          keat.user = user;
+        }, []);
+
         useEffect(() => {
           keat.ready(display).then(() => setLoading(false));
         }, [setLoading]);
 
-        return { variation: keat.variation, loading };
+        return {
+          variation: keat.variation,
+          loading,
+          setUser,
+        };
       },
       FeatureBoundary<TFeature extends keyof TFeatures>({
         display,

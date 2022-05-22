@@ -23,6 +23,8 @@ export class Keat<TFeatures extends RawFeatures> {
     return new Keat(init);
   }
 
+  user: User | undefined = undefined;
+
   #features: TFeatures;
   #fallback: Config | undefined;
   #latest: Config | undefined;
@@ -81,6 +83,7 @@ export class Keat<TFeatures extends RawFeatures> {
     const rule = normalize(config?.[feature], variates.length > 2);
     if (!rule) return variates[variates.length - 1];
 
+    user = user ?? this.user;
     let result: unknown;
     let afterEval: AfterEvalHook[] = [];
 
