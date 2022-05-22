@@ -25,7 +25,8 @@ export class Keat<TFeatures extends RawFeatures> {
 
   #features: TFeatures;
   #fallback: Config | undefined;
-  #remote: Config | undefined;
+  #latest: Config | undefined;
+  #configId: number = 0;
   #plugins: Plugin[];
   #display: Display;
   #defaultDisplay: FeatureDisplay;
@@ -33,7 +34,7 @@ export class Keat<TFeatures extends RawFeatures> {
   constructor(init: KeatInit<TFeatures>) {
     this.#features = init.features;
     this.#fallback = init.config;
-    this.#remote = init.config;
+    this.#latest = init.config;
     this.#defaultDisplay = init.display ?? "swap";
     this.#plugins = init.plugins ?? [];
     this.#display = new Display(this.#initialize(init.config));
@@ -44,7 +45,12 @@ export class Keat<TFeatures extends RawFeatures> {
       this.#plugins.map((plugin) => {
         return plugin.onPluginInit?.(
           { features: this.#features, config },
-          { setConfig: (newConfig) => (this.#remote = newConfig) }
+          {
+            setConfig: (newConfig) => {
+              this.#configId += 1;
+              this.#latest = newConfig;
+            },
+          }
         );
       })
     );
@@ -59,18 +65,19 @@ export class Keat<TFeatures extends RawFeatures> {
     user?: User,
     display: FeatureDisplay = this.#defaultDisplay
   ): TFeatures[TFeature][number] => {
-    const result = this.#display.evaluate(display);
-    if (!result) {
+    const useLatest = this.#display.useLatest(display);
+    if (useLatest === undefined) {
       const msg = `[keat] Using fallback because '${display}' is not ready. You should await keat.ready to avoid unexpected behavior.`;
       console.warn(msg);
     }
-    const config = result === "remote" ? this.#remote : this.#fallback;
-    return this.#doEvaluate(feature as string, user, config);
+    const configId = useLatest ? this.#configId : 0;
+    return this.#doEvaluate(feature as string, user, configId);
   };
 
-  #doEvaluate(feature: string, user?: User, config?: Config): any {
+  #doEvaluate(feature: string, user: User | undefined, configId: number): any {
     const variates = this.#features[feature] as any[];
     if (!variates) return undefined;
+    const config = configId === 0 ? this.#fallback : this.#latest;
     const rule = normalize(config?.[feature], variates.length > 2);
     if (!rule) return variates[variates.length - 1];
 
@@ -79,7 +86,7 @@ export class Keat<TFeatures extends RawFeatures> {
 
     this.#plugins.forEach((plugin) => {
       const callback = plugin.onEval?.(
-        { feature, rule, variates, user, result },
+        { feature, rule, variates, user, result, configId },
         {
           setResult: (newResult) => {
             result = newResult;

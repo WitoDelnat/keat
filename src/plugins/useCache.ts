@@ -4,11 +4,11 @@ type CachePluginOptions = {
   createCacheKey?: CacheFn;
 };
 
-type CacheFn = (feature: string, user?: User) => string;
+type CacheFn = (configId: number, feature: string, user?: User) => string;
 
-const DEFAULT_CREATE_CACHE_KEY: CacheFn = (feature, user) => {
+const DEFAULT_CREATE_CACHE_KEY: CacheFn = (configId, feature, user) => {
   const userId = DEFAULT_GET_USER_ID(user);
-  return `${feature}-${userId}`;
+  return `${configId}-${feature}-${userId}`;
 };
 
 export const useCache = (options?: CachePluginOptions): Plugin => {
@@ -16,8 +16,8 @@ export const useCache = (options?: CachePluginOptions): Plugin => {
   const cacheFn = options?.createCacheKey ?? DEFAULT_CREATE_CACHE_KEY;
 
   return {
-    onEval: ({ feature, user }, { setResult }) => {
-      const key = cacheFn(feature, user);
+    onEval: ({ configId, feature, user }, { setResult }) => {
+      const key = cacheFn(configId, feature, user);
       const cachedResult = cache.get(key);
 
       if (cachedResult !== undefined) {

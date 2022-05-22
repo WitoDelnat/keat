@@ -2,7 +2,7 @@ import { FeatureDisplay } from "./types";
 
 export class Display {
   #run: Record<FeatureDisplay, Promise<void>>;
-  #result: Record<FeatureDisplay, "remote" | "fallback" | undefined> = {
+  #useLatest: Record<FeatureDisplay, boolean | undefined> = {
     block: undefined,
     fallback: undefined,
     optional: undefined,
@@ -28,8 +28,8 @@ export class Display {
     return this.#run[display];
   }
 
-  evaluate(display: FeatureDisplay): "remote" | "fallback" | undefined {
-    return this.#result[display];
+  useLatest(display: FeatureDisplay): boolean | undefined {
+    return this.#useLatest[display];
   }
 
   #init() {
@@ -41,42 +41,42 @@ export class Display {
 
   #initBlock() {
     this.#initializing.then(() => {
-      this.#result.block = "remote";
+      this.#useLatest.block = true;
     });
     this.#delay.then(() => {
-      if (this.#result.block) return;
-      this.#result.block = "fallback";
+      if (this.#useLatest.block) return;
+      this.#useLatest.block = false;
     });
   }
 
   #initSwap() {
     this.#initializing.then(() => {
-      this.#result.swap = "remote";
+      this.#useLatest.swap = true;
     });
-    this.#result.swap = "fallback";
+    this.#useLatest.swap = false;
   }
 
   #initFallback() {
     let swapDeadlineMissed = false;
     this.#initializing.then(() => {
       if (swapDeadlineMissed) return;
-      this.#result.fallback = "remote";
+      this.#useLatest.fallback = true;
     });
     this.#delay.then(() => (swapDeadlineMissed = true));
     this.#delayShort.then(() => {
-      if (this.#result.fallback) return;
-      this.#result.fallback = "fallback";
+      if (this.#useLatest.fallback) return;
+      this.#useLatest.fallback = false;
     });
   }
 
   #initOptional() {
     this.#initializing.then(() => {
-      if (this.#result.optional) return;
-      this.#result.optional = "remote";
+      if (this.#useLatest.optional) return;
+      this.#useLatest.optional = true;
     });
     this.#delayShort.then(() => {
-      if (this.#result.optional) return;
-      this.#result.optional = "fallback";
+      if (this.#useLatest.optional) return;
+      this.#useLatest.optional = false;
     });
   }
 }

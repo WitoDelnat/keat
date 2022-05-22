@@ -37,6 +37,7 @@ export type OnEvalCtx = {
   variates: any[];
   rule: NormalizedRule;
   user: User | undefined;
+  configId: number;
   result: unknown | undefined;
 };
 
