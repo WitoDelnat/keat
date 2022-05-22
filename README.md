@@ -8,9 +8,9 @@ An easy way to increase your deployment frequency and reduce stress of releases.
 
 - 🚀 Progressive rollouts and 🎯 targeted audiences.
 - 🧪 Bi- and multivariates of any type.
-- 🛠 Remote configuration with no vendor lock-in.
+- 🛠 Remote configuration without vendor lock-in.
 - 🌳 Lightweight core with tree shakeable plugins.
-- 💡 Framework agnostic with React adaptor.
+- 💡 Framework agnostic with React adaptor included.
 - 💙 Amazing TypeScript support.
 
 ## Installation
@@ -121,7 +121,7 @@ const keat = Keat.create({
     useRollouts(),
   ],
   config: {
-    search: [30], // enabled for 30% of visitors.
+    search: 30, // enabled for 30% of visitors.
     design: ["halloweenPeriod", "preview"], // enabled during Halloween and for preview.
     sortAlgorithm: fromEnv(process.env.ENABLE_SORT_ALGORITHM) ?? false,
   },
@@ -135,9 +135,9 @@ keat.variation("advancedSearch");
 
 React application with hooks and components included through `KeatReact`.
 
-Your **remote configuration** might be slow for a variety of reasons (e.g. viewer has slow 3G).
-Keat's feature display allows you to optimize individual boundaries instead of blocking your whole application.
-It will feel oddly familiar for those who have worked with `font-display` ([Playground](https://font-display.glitch.me/), [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)).
+Your remote configuration might be slow for a variety of reasons (e.g. viewer has slow 3G).
+Keat's **feature display** allows you to optimize individual boundaries instead of blocking your whole application.
+It will feel familiar for you who have worked with `font-display` ([Playground](https://font-display.glitch.me/), [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)).
 
 ```jsx
 import React from "react";
@@ -160,11 +160,7 @@ export function App() {
     <div>
       <h1>Keat</h1>
 
-      <FeatureBoundary
-        name="redesign"
-        display="optional"
-        fallback={<p>Your old design</p>}
-      >
+      <FeatureBoundary name="redesign" fallback={<p>Your old design</p>}>
         <p>Your new design</p>
       </FeatureBoundary>
 
