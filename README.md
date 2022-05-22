@@ -10,7 +10,7 @@ An easy way to increase your deployment frequency and reduce stress of releases.
 - 🧪 Bi- and multivariates of any type.
 - 🛠 Remote configuration with no vendor lock-in.
 - 🌳 Lightweight core with tree shakeable plugins.
-- 📺 Agnostic to the frontend framework.
+- 💡 Framework agnostic with React adaptor.
 - 💙 Amazing TypeScript support.
 
 ## Installation
@@ -25,7 +25,7 @@ First you define your **features** and their **variates**. You are not limited t
 
 Afterwards you enable a feature's variate through Keat's **configuration** and extend its possibilities with **plugins** for progressive rollouts, targeted audiences, remote configuration and much more.
 
-All of this comes with amazing TypeScript support - `keat.eval` knows your feature names and automatically infers the return type.
+All of this comes with amazing TypeScript support - `keat.variation` knows your feature names and automatically infers the return type.
 
 ```typescript
 import { Keat, booleanFlag, useRollouts } from "keat/core";
@@ -43,9 +43,9 @@ const keat = Keat.create({
   },
 });
 
-keat.eval("search"); // returns `true`.
-keat.eval("redesign"); // fallback to last variate `false`.
-keat.eval("sortAlgorithm"); // returns `'quicksort'` for 20%, `'heapsort'` for 30% and `'insertionSort'` half of the time.
+keat.variation("search"); // returns `true`.
+keat.variation("redesign"); // fallback to last variate `false`.
+keat.variation("sortAlgorithm"); // returns `'quicksort'` for 20%, `'heapsort'` for 30% and `'insertionSort'` half of the time.
 ```
 
 ## Examples
@@ -82,7 +82,7 @@ const keat = Keat.create({
 
 // Consider using your access token with custom claims such as 'preview'.
 const user = { sub: "abc", email: "dev@example.io", preview: true };
-keat.eval("sortAlgorithm", user);
+keat.variation("sortAlgorithm", user);
 ```
 
 ### Public landing page
@@ -128,7 +128,58 @@ const keat = Keat.create({
 });
 
 // User is automatically added with random identifier which is persisted across session.
-keat.eval("advancedSearch");
+keat.variation("advancedSearch");
+```
+
+### React
+
+React application with hooks and components included through `KeatReact`.
+
+Your **remote configuration** might be slow for a variety of reasons (e.g. viewer has slow 3G).
+Keat's feature display allows you to optimize individual boundaries instead of blocking your whole application.
+It will feel oddly familiar for those who have worked with `font-display` ([Playground](https://font-display.glitch.me/), [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)).
+
+```jsx
+import React from "react";
+import { KeatReact, booleanFlag, useRemoteConfig } from "keat";
+import { Search, SearchSkeleton, SortedList } from "./components";
+
+const { useKeat, FeatureBoundary } = KeatReact.create({
+  features: {
+    redesign: booleanFlag,
+    search: booleanFlag,
+    sortAlgorithm: ["quicksort", "heapsort"],
+  } as const,
+  plugins: [useRemoteConfig("https://example.io/slowConfig")],
+});
+
+export function App() {
+  const { variation } = useKeat();
+
+  return (
+    <div>
+      <h1>Keat</h1>
+
+      <FeatureBoundary
+        name="redesign"
+        display="optional"
+        fallback={<p>Your old design</p>}
+      >
+        <p>Your new design</p>
+      </FeatureBoundary>
+
+      <FeatureBoundary
+        name="search"
+        display="block"
+        invisible={<SearchSkeleton />}
+      >
+        <Search />
+      </FeatureBoundary>
+
+      <SortedList data={[1, 3, 4]} algorithm={variation("sortAlgorithm")} />
+    </div>
+  );
+}
 ```
 
 ## Documentation
