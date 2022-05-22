@@ -23,4 +23,4 @@ const keat = Keat.create({
 
 // User is access token with custom `preview` claim.
 const user = { sub: "abc", email: "dev@example.io", preview: true };
-keat.eval("sortAlgorithm", user);
+keat.variation("sortAlgorithm", user);

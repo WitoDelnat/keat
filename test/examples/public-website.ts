@@ -30,4 +30,4 @@ const keat = Keat.create({
 });
 
 // User is automatically added and persisted across session.
-keat.eval("advancedSearch");
+keat.variation("advancedSearch");

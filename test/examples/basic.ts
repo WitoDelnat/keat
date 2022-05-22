@@ -12,6 +12,6 @@ const keat = Keat.create({
   },
 });
 
-keat.eval("test"); // returns `true`.
-keat.eval("redesign"); // returns `false` as fallback.
-keat.eval("sortAlgorithm"); // returns 'quicksort'
+keat.variation("test"); // returns `true`.
+keat.variation("redesign"); // returns `false` as fallback.
+keat.variation("sortAlgorithm"); // returns 'quicksort'

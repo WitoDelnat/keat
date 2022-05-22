@@ -1,15 +1,11 @@
-import { Config, NormalizedConfig, User } from ".";
+import { Config, User } from ".";
+import { NormalizedRule } from "./types";
 
 export type Plugin = {
   /**
    * Invoked when a plugin is initialized.
    */
   onPluginInit?: OnPluginInitHook;
-
-  /**
-   * Invoked when the configuration changed.
-   */
-  onConfigChange?: OnConfigChangeHook;
 
   /**
    * Invoked when a flag is evaluated.
@@ -31,8 +27,6 @@ export type OnPluginInitApi = {
   setConfig: (newConfig: Config) => void;
 };
 
-export type OnConfigChangeHook = (config: NormalizedConfig) => void;
-
 export type OnEvalHook = (
   ctx: OnEvalCtx,
   api: OnEvalApi
@@ -40,6 +34,8 @@ export type OnEvalHook = (
 
 export type OnEvalCtx = {
   feature: string;
+  variates: any[];
+  rule: NormalizedRule;
   user: User | undefined;
   result: unknown | undefined;
 };

@@ -16,9 +16,6 @@ export const useCache = (options?: CachePluginOptions): Plugin => {
   const cacheFn = options?.createCacheKey ?? DEFAULT_CREATE_CACHE_KEY;
 
   return {
-    onConfigChange() {
-      cache.clear();
-    },
     onEval: ({ feature, user }, { setResult }) => {
       const key = cacheFn(feature, user);
       const cachedResult = cache.get(key);

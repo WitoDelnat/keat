@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeVariateRule } from "../src/core/rules";
-
-const normalize = normalizeVariateRule;
+import { normalize } from "../src/core/rules";
 
 describe("normalize", () => {
   it("should work for a varia of cases", () => {

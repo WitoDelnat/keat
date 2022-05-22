@@ -26,5 +26,13 @@ const keat = Keat.create({
   ],
 });
 
-const res1 = keat.eval("test", { email: "wito.delnat@gmail.com", id: "test" }); // returns boolean
-const res2 = keat.eval("algo"); // returns 'basic' | 'heuristic' | 'brute'
+(async function main() {
+  const user = { email: "wito.delnat@gmail.com", id: "test" };
+  const res1 = keat.variation("test", user); // returns boolean
+  const res2 = keat.variation("algo"); // returns 'basic' | 'heuristic' | 'brute'
+  console.log("test", res1, res2);
+
+  await keat.ready("fallback");
+  const res3 = keat.variation("algo", undefined, "fallback");
+  console.log("testb", res3);
+})();

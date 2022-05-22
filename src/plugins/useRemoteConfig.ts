@@ -1,3 +1,4 @@
+import { pause } from "../core/display";
 import { Plugin } from "../core/plugin";
 
 type RemoteConfigPluginOptions = {

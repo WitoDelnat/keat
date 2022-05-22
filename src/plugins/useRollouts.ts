@@ -1,4 +1,4 @@
-import { DEFAULT_GET_USER_ID, NormalizedRule, User } from "../core";
+import { DEFAULT_GET_USER_ID, User } from "../core";
 import { Plugin } from "../core/plugin";
 
 type RolloutsPluginOptions = {
@@ -18,30 +18,19 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
   const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
   let featureMap: Record<string, unknown[]> = {};
-  let rollouts: Record<string, Array<number | undefined> | undefined>;
 
   return {
     onPluginInit({ features }) {
       featureMap = features;
     },
-    onConfigChange(config) {
-      rollouts = Object.fromEntries(
-        Object.entries(config).map(([feature, rule]) => {
-          return [feature, preprocessRollout(rule)];
-        })
-      );
-    },
-    onEval({ user, feature, result }, { setResult }) {
+    onEval({ feature, rule, variates, user, result }, { setResult }) {
       if (result || !user) return;
-      const variates = featureMap[feature];
-      const rollout = rollouts[feature];
-      if (!variates || !rollout) return;
 
       const userId = userFn(user);
       const percentage = hashFn(userId, feature);
       let sum = 0;
-      for (const [index, value] of rollout.entries()) {
-        if (value === undefined) continue;
+      for (const [index, value] of rule.entries()) {
+        if (typeof value !== "string") continue;
         sum += value;
         if (percentage <= sum) {
           const result = variates[index];
@@ -51,16 +40,6 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
     },
   };
 };
-
-function preprocessRollout(rule: NormalizedRule[]) {
-  const rolloutRule = rule.map((p) => {
-    if (typeof p === "boolean") return undefined;
-    const arr = p.filter((v): v is number => typeof v === "number");
-    return arr[arr.length - 1] ?? undefined;
-  });
-  const skipRolloutPhase = rolloutRule.every((p) => p === undefined);
-  return skipRolloutPhase ? undefined : rolloutRule;
-}
 
 /**
  * Fast, non-cryptographic hash function.

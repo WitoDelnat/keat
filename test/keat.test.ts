@@ -23,17 +23,17 @@ describe("keat", () => {
     });
     await keat.ready;
 
-    const subP1 = keat.eval("feature1", { id: "p" });
-    const subS1 = keat.eval("feature1", { id: "s" });
-    const subR1 = keat.eval("feature1", { id: "r" });
+    const subP1 = keat.variation("feature1", { id: "p" });
+    const subS1 = keat.variation("feature1", { id: "s" });
+    const subR1 = keat.variation("feature1", { id: "r" });
 
     expect(subP1).toBe(true);
     expect(subS1).toBe(true);
     expect(subR1).toBe(true);
 
-    const subP2 = keat.eval("feature2", { id: "p" });
-    const subS2 = keat.eval("feature2", { id: "s" });
-    const subR2 = keat.eval("feature2", { id: "r" });
+    const subP2 = keat.variation("feature2", { id: "p" });
+    const subS2 = keat.variation("feature2", { id: "s" });
+    const subR2 = keat.variation("feature2", { id: "r" });
 
     expect(subP2).toBe("advanced");
     expect(subS2).toBe("experimental");

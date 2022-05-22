@@ -1,28 +1,30 @@
 import type {
   BiVariateRule,
+  Elem,
   MultiVariateRule,
+  NormalizedElem,
   NormalizedRule,
-  Rule,
 } from "./types";
 
-export function normalizeVariateRule(
-  rule: BiVariateRule | MultiVariateRule,
+export function normalize(
+  rule: BiVariateRule | MultiVariateRule | undefined,
   isMultiVariate: boolean
-): NormalizedRule[] {
+): NormalizedRule | undefined {
   try {
+    if (!rule) return undefined;
     // Assume user configured correctly.
     // Schema validation is difficult due to overlapping cases.
     // example: ["staff", 50]
     return isMultiVariate
-      ? (rule as MultiVariateRule).map(normalizeRule)
-      : [normalizeRule(rule as BiVariateRule)];
+      ? (rule as MultiVariateRule).map(normalizeElem)
+      : [normalizeElem(rule as BiVariateRule)];
   } catch (err) {
     console.warn("[keat] misconfigured rule", rule, isMultiVariate);
     return [];
   }
 }
 
-function normalizeRule(rule: Rule): NormalizedRule {
-  if (typeof rule === "string" || typeof rule === "number") return [rule];
-  return rule;
+function normalizeElem(elem: Elem): NormalizedElem {
+  if (typeof elem === "string" || typeof elem === "number") return [elem];
+  return elem;
 }

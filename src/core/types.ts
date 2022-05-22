@@ -25,9 +25,10 @@ export type User = CustomTypes extends { user: infer T }
  * API
  * * * * * * * * * * * * */
 export type IdentityFn = (user: User) => string;
-export type Rule = boolean | string | number | (string | number)[];
-export type BiVariateRule = Rule;
-export type MultiVariateRule = Rule[];
+export type Elem = boolean | string | number | (string | number)[];
+export type BiVariateRule = Elem;
+export type MultiVariateRule = Elem[];
+export type FeatureDisplay = "block" | "swap" | "fallback" | "optional";
 export type Config<TFeatures extends string = string> = Partial<
   Record<TFeatures, BiVariateRule | MultiVariateRule | undefined>
 >;
@@ -36,11 +37,13 @@ export type KeatInit<TFeatures extends RawFeatures> = {
   features: TFeatures;
   config?: Config<keyof TFeatures & string>;
   plugins?: Plugin[];
+  display?: FeatureDisplay;
 };
 
 /* * * * * * * * * * * * *
  * Internal types
  * * * * * * * * * * * * */
 export type NormalizedConfig = Record<string, NormalizedRule[]>;
-export type NormalizedRule = boolean | (string | number)[];
+export type NormalizedRule = Array<NormalizedElem>;
+export type NormalizedElem = boolean | (string | number)[];
 export type RawFeatures = Record<string, readonly any[]>;
