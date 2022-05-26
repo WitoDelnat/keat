@@ -3,7 +3,6 @@ import {
   KeatReact,
   useAnonymous,
   useAudiences,
-  useRemoteConfig,
   useRollouts,
 } from 'keat';
 
@@ -24,7 +23,6 @@ export const { useKeat, FeatureBoundary } = KeatReact.create({
     search: booleanFlag,
   },
   plugins: [
-    useRemoteConfig('http://localhost:8000/features.json', { interval: 5 }),
     useAnonymous(),
     useAudiences({
       preview: (user) => user?.earlyPreview ?? false,
@@ -34,7 +32,7 @@ export const { useKeat, FeatureBoundary } = KeatReact.create({
   ],
   config: {
     chatbot: false,
-    redesign: false,
+    redesign: true,
     search: false,
   },
 });

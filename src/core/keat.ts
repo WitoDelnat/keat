@@ -39,10 +39,10 @@ export class Keat<TFeatures extends RawFeatures> {
     this.#latest = init.config;
     this.#defaultDisplay = init.display ?? "swap";
     this.#plugins = init.plugins ?? [];
-    this.#display = new Display(this.#initialize(init.config));
+    this.#display = new Display(this.initialize(init.config));
   }
 
-  #initialize = async (config: Config = {}): Promise<void> => {
+  private initialize = async (config: Config = {}): Promise<void> => {
     await Promise.all(
       this.#plugins.map((plugin) => {
         return plugin.onPluginInit?.(

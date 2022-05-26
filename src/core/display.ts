@@ -21,7 +21,10 @@ export class Display {
       optional: Promise.race([initializing, this.#delayShort]),
       swap: Promise.resolve(),
     };
-    this.#init();
+    this.initBlock();
+    this.initSwap();
+    this.initFallback();
+    this.initOptional();
   }
 
   ready(display: FeatureDisplay): Promise<void> {
@@ -32,14 +35,7 @@ export class Display {
     return this.#useLatest[display];
   }
 
-  #init() {
-    this.#initBlock();
-    this.#initSwap();
-    this.#initFallback();
-    this.#initOptional();
-  }
-
-  #initBlock() {
+  private initBlock() {
     this.#initializing.then(() => {
       this.#useLatest.block = true;
     });
@@ -49,14 +45,14 @@ export class Display {
     });
   }
 
-  #initSwap() {
+  private initSwap() {
     this.#initializing.then(() => {
       this.#useLatest.swap = true;
     });
     this.#useLatest.swap = false;
   }
 
-  #initFallback() {
+  private initFallback() {
     let swapDeadlineMissed = false;
     this.#initializing.then(() => {
       if (swapDeadlineMissed) return;
@@ -69,7 +65,7 @@ export class Display {
     });
   }
 
-  #initOptional() {
+  private initOptional() {
     this.#initializing.then(() => {
       if (this.#useLatest.optional) return;
       this.#useLatest.optional = true;
