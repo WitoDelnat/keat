@@ -1,102 +1,57 @@
-import { Display } from "./display";
-import { AfterEvalHook, Plugin } from "./plugin";
+import { load } from "./display";
+import { AfterEvalHook } from "./plugin";
 import { normalize } from "./rules";
-import type {
-  Config,
-  FeatureDisplay,
-  KeatInit,
-  RawFeatures,
-  User,
-} from "./types";
+import type { Display, KeatApi, KeatInit, AnyFeatures, User } from "./types";
 
-/**
- * Type utility which extracts all features.
- *
- * @example `type Feature = ExtractFeatures<typeof keat>;`
- */
-export type ExtractFeatures<K> = K extends Keat<infer K> ? keyof K : never;
+export type ExtractFeatures<K> = K extends KeatApi<infer K> ? keyof K : never;
 
-export class Keat<TFeatures extends RawFeatures> {
-  static create<TFeatures extends RawFeatures>(
-    init: KeatInit<TFeatures>
-  ): Keat<TFeatures> {
-    return new Keat(init);
-  }
+export function keat<TFeatures extends AnyFeatures>({
+  features,
+  config,
+  display = "swap",
+  plugins = [],
+}: KeatInit<TFeatures>) {
+  let defaultDisplay = display;
+  let defaultUser: User | undefined = undefined;
+  let latestId = 0;
+  let latest = config;
 
-  user: User | undefined = undefined;
-
-  #features: TFeatures;
-  #fallback: Config | undefined;
-  #latest: Config | undefined;
-  #configId: number = 0;
-  #plugins: Plugin[];
-  #display: Display;
-  #defaultDisplay: FeatureDisplay;
-
-  constructor(init: KeatInit<TFeatures>) {
-    this.#features = init.features;
-    this.#fallback = init.config;
-    this.#latest = init.config;
-    this.#defaultDisplay = init.display ?? "swap";
-    this.#plugins = init.plugins ?? [];
-    this.#display = new Display(this.initialize(init.config));
-  }
-
-  private initialize = async (config: Config = {}): Promise<void> => {
-    await Promise.all(
-      this.#plugins.map((plugin) => {
-        return plugin.onPluginInit?.(
-          { features: this.#features, config },
+  const loader = load(
+    Promise.allSettled(
+      plugins.map((plugin) =>
+        plugin.onPluginInit?.(
+          { features, config },
           {
             setConfig: (newConfig) => {
-              this.#configId += 1;
-              this.#latest = newConfig;
+              latestId += 1;
+              latest = newConfig;
             },
           }
-        );
-      })
-    );
-  };
+        )
+      )
+    ).then(() => undefined)
+  );
 
-  ready = (display: FeatureDisplay = this.#defaultDisplay): Promise<void> => {
-    return this.#display.ready(display);
-  };
-
-  variation = <TFeature extends keyof TFeatures>(
-    feature: TFeature,
-    user?: User,
-    display: FeatureDisplay = this.#defaultDisplay
-  ): TFeatures[TFeature][number] => {
-    const useLatest = this.#display.useLatest(display);
-    if (useLatest === undefined) {
-      const msg = `[keat] Using fallback because '${display}' is not ready. You should await keat.ready to avoid unexpected behavior.`;
-      console.warn(msg);
-    }
-    const configId = useLatest ? this.#configId : 0;
-    return this.evaluate(feature as string, user, configId);
-  };
-
-  evaluate(feature: string, user: User | undefined, configId: number): any {
-    const variates = this.#features[feature] as any[];
+  const evaluate = (
+    feature: string,
+    user: User | undefined,
+    configId: number
+  ): any => {
+    const variates = features[feature] as any[];
     if (!variates) return undefined;
-    const config = configId === 0 ? this.#fallback : this.#latest;
-    const rule = normalize(config?.[feature], variates.length > 2);
+    const conf = configId === 0 ? config : latest;
+    const rule = normalize(conf?.[feature], variates.length > 2);
     if (!rule) return variates[variates.length - 1];
 
-    user = user ?? this.user;
     let result: unknown;
-    let afterEval: AfterEvalHook[] = [];
+    const afterEval: AfterEvalHook[] = [];
 
-    this.#plugins.forEach((plugin) => {
+    plugins.forEach((plugin) => {
       const callback = plugin.onEval?.(
         { feature, rule, variates, user, result, configId },
         {
-          setResult: (newResult) => {
-            result = newResult;
-          },
-          setUser: (newUser) => {
-            user = newUser as User;
-          },
+          setResult: (newResult) => (result = newResult),
+          setUser: (newUser) => (user = newUser as User),
         }
       );
       if (callback) afterEval.push(callback);
@@ -109,5 +64,19 @@ export class Keat<TFeatures extends RawFeatures> {
 
     afterEval.forEach((cb) => cb({ result }));
     return result;
-  }
+  };
+
+  return {
+    ready: (display: Display = defaultDisplay) => loader.ready(display),
+    setUser: (user?: User) => (defaultUser = user),
+    setDisplay: (display: Display) => (defaultDisplay = display),
+    variation: <TFeature extends keyof TFeatures>(
+      feature: TFeature,
+      user: User | undefined = defaultUser,
+      display: Display = defaultDisplay
+    ): TFeatures[TFeature][number] => {
+      const useLatest = loader.useLatest(display);
+      return evaluate(feature as string, user, useLatest ? latestId : 0);
+    },
+  };
 }

@@ -11,7 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "pretty": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "removeComments": false,

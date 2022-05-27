@@ -28,16 +28,27 @@ export type IdentityFn = (user: User) => string;
 export type Elem = boolean | string | number | (string | number)[];
 export type BiVariateRule = Elem;
 export type MultiVariateRule = Elem[];
-export type FeatureDisplay = "block" | "swap" | "fallback" | "optional";
+export type Display = "block" | "swap" | "fallback" | "optional";
 export type Config<TFeatures extends string = string> = Partial<
   Record<TFeatures, BiVariateRule | MultiVariateRule | undefined>
 >;
 
-export type KeatInit<TFeatures extends RawFeatures> = {
+export type KeatInit<TFeatures extends AnyFeatures> = {
   features: TFeatures;
   config?: Config<keyof TFeatures & string>;
   plugins?: Plugin[];
-  display?: FeatureDisplay;
+  display?: Display;
+};
+
+export type KeatApi<TFeatures extends AnyFeatures> = {
+  ready(display?: Display): Promise<void>;
+  setUser(user?: User): void;
+  setDisplay(display: Display): void;
+  variation<TFeature extends keyof TFeatures>(
+    feature: TFeature,
+    user?: User,
+    display?: Display
+  ): TFeatures[TFeature][number];
 };
 
 /* * * * * * * * * * * * *
@@ -46,4 +57,4 @@ export type KeatInit<TFeatures extends RawFeatures> = {
 export type NormalizedConfig = Record<string, NormalizedRule[]>;
 export type NormalizedRule = Array<NormalizedElem>;
 export type NormalizedElem = boolean | (string | number)[];
-export type RawFeatures = Record<string, readonly any[]>;
+export type AnyFeatures = Record<string, readonly any[]>;

@@ -1,80 +1,51 @@
-import { FeatureDisplay } from "./types";
+import { Display } from "./types";
 
-export class Display {
-  #run: Record<FeatureDisplay, Promise<void>>;
-  #useLatest: Record<FeatureDisplay, boolean | undefined> = {
+export function load(initialize: Promise<void>) {
+  const init = initialize;
+  const delayLong = pause(3000);
+  const delay = pause(100);
+
+  const loading: Record<Display, Promise<void>> = {
+    block: Promise.race([init, delayLong]),
+    fallback: Promise.race([init, delay]),
+    optional: Promise.race([init, delay]),
+    swap: Promise.resolve(),
+  };
+  const result: Record<Display, boolean | undefined> = {
     block: undefined,
     fallback: undefined,
     optional: undefined,
     swap: undefined,
   };
 
-  #initializing;
-  #delay = pause(3000);
-  #delayShort = pause(100);
+  // block
+  delayLong.then(() => (result["block"] = result["block"] ?? false));
+  init.then(() => (result["block"] = true));
 
-  constructor(initializing: Promise<void>) {
-    this.#initializing = initializing;
-    this.#run = {
-      block: Promise.race([initializing, this.#delay]),
-      fallback: Promise.race([initializing, this.#delayShort]),
-      optional: Promise.race([initializing, this.#delayShort]),
-      swap: Promise.resolve(),
-    };
-    this.initBlock();
-    this.initSwap();
-    this.initFallback();
-    this.initOptional();
-  }
+  // swap
+  result["swap"] = false;
+  init.then(() => (result["swap"] = true));
 
-  ready(display: FeatureDisplay): Promise<void> {
-    return this.#run[display];
-  }
+  // fallback
+  let canSwap = true;
+  delayLong.then(() => (canSwap = false));
+  delay.then(() => (result["fallback"] = result["fallback"] ?? false));
+  init.then(() => (result["fallback"] = canSwap));
 
-  useLatest(display: FeatureDisplay): boolean | undefined {
-    return this.#useLatest[display];
-  }
+  // optional
+  init.then(() => (result["optional"] = result["optional"] === undefined));
+  delay.then(() => (result["optional"] = result["optional"] !== undefined));
 
-  private initBlock() {
-    this.#initializing.then(() => {
-      this.#useLatest.block = true;
-    });
-    this.#delay.then(() => {
-      if (this.#useLatest.block) return;
-      this.#useLatest.block = false;
-    });
-  }
-
-  private initSwap() {
-    this.#initializing.then(() => {
-      this.#useLatest.swap = true;
-    });
-    this.#useLatest.swap = false;
-  }
-
-  private initFallback() {
-    let swapDeadlineMissed = false;
-    this.#initializing.then(() => {
-      if (swapDeadlineMissed) return;
-      this.#useLatest.fallback = true;
-    });
-    this.#delay.then(() => (swapDeadlineMissed = true));
-    this.#delayShort.then(() => {
-      if (this.#useLatest.fallback) return;
-      this.#useLatest.fallback = false;
-    });
-  }
-
-  private initOptional() {
-    this.#initializing.then(() => {
-      if (this.#useLatest.optional) return;
-      this.#useLatest.optional = true;
-    });
-    this.#delayShort.then(() => {
-      if (this.#useLatest.optional) return;
-      this.#useLatest.optional = false;
-    });
-  }
+  return {
+    ready: (display: Display): Promise<void> => loading[display],
+    useLatest: (display: Display): boolean => {
+      if (result[display] === undefined) {
+        const msg = `[keat] Using fallback because '${display}' is not ready. You should await keat.ready to avoid unexpected behavior.`;
+        console.warn(msg);
+      }
+      return result[display] ?? false;
+    },
+  };
 }
 
 function pause(ms: number): Promise<void> {
