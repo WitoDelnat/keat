@@ -1,10 +1,9 @@
 import { Plugin, User } from "../core";
-import { normalize } from "../core/rules";
 
 type AudiencesPluginOptions = Record<string, AudienceFn>;
 type AudienceFn = (user?: User) => boolean | undefined;
 
-export const useAudiences = (options: AudiencesPluginOptions): Plugin => {
+export const audiences = (options: AudiencesPluginOptions): Plugin => {
   const audiences = options;
   let featureMap: Record<string, unknown[]> = {};
 

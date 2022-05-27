@@ -14,7 +14,7 @@ const DEFAULT_HASH: HashFn = (userId, feature) => {
   return (murmurHash(userId, seed) % 100) + 1;
 };
 
-export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
+export const rollouts = (options?: RolloutsPluginOptions): Plugin => {
   const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
   let featureMap: Record<string, unknown[]> = {};
@@ -30,7 +30,7 @@ export const useRollouts = (options?: RolloutsPluginOptions): Plugin => {
       const percentage = hashFn(userId, feature);
       let sum = 0;
       for (const [index, value] of rule.entries()) {
-        if (typeof value !== "string") continue;
+        if (typeof value !== "number") continue;
         sum += value;
         if (percentage <= sum) {
           const result = variates[index];

@@ -6,7 +6,7 @@ type AnonymousPluginOptions = {
   persist?: boolean;
 };
 
-export const useAnonymous = (options?: AnonymousPluginOptions): Plugin => {
+export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
   const createUser = options?.createUser ?? DEFAULT_CREATE_USER;
   let anonymousUser: unknown;
 

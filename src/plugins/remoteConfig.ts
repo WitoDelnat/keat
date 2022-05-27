@@ -10,7 +10,7 @@ const DEFAULT_OPTIONS = {
   retries: 3,
 };
 
-export const useRemoteConfig = (
+export const remoteConfig = (
   url: string,
   rawOptions?: RemoteConfigPluginOptions
 ): Plugin => {

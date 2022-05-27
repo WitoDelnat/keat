@@ -11,7 +11,7 @@ const DEFAULT_CREATE_CACHE_KEY: CacheFn = (configId, feature, user) => {
   return `${configId}-${feature}-${userId}`;
 };
 
-export const useCache = (options?: CachePluginOptions): Plugin => {
+export const cache = (options?: CachePluginOptions): Plugin => {
   const cache = new Map();
   const cacheFn = options?.createCacheKey ?? DEFAULT_CREATE_CACHE_KEY;
 

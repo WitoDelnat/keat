@@ -10,9 +10,7 @@ const DEFAULT_OPTIONS = {
   retries: 3,
 };
 
-export const useCustomConfig = (
-  rawOptions: CustomConfigPluginOptions
-): Plugin => {
+export const customConfig = (rawOptions: CustomConfigPluginOptions): Plugin => {
   const options = { ...DEFAULT_OPTIONS, ...rawOptions };
 
   return {
