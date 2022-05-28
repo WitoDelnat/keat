@@ -227,7 +227,7 @@
   dependencies:
     "@chakra-ui/utils" "2.0.1"
 
-"@chakra-ui/icons@^2.0.1":
+"@chakra-ui/icons@2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@chakra-ui/icons/-/icons-2.0.1.tgz#bd6d2038c73a3e68b15118a398052d19477a9431"
   integrity sha512-pG4ySp2L0VIS+YQcxK/9sMXhhkaaQQnw++dcp+DrBZ/Q2iG5i48Ps5s0ddf7CQ91ylfCaIkCfz9rJB8jlZurJw==
@@ -757,7 +757,7 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@faker-js/faker@^7.1.0":
+"@faker-js/faker@7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.1.0.tgz#019eeb2c20030e475a1bd05df1cc7b7e72c039d5"
   integrity sha512-G+EvE29QUd9/6GTrwA/TK2AiN79W4ZG6kyJqj2RAqUqEd8A8ICnjA3Rj3F2IaaA+sq6WJzs4lh8GJJRDG1UH7A==
@@ -2036,8 +2036,10 @@ json5@^1.0.1:
     array-includes "^3.1.4"
     object.assign "^4.1.2"
 
-"keat@file:.yalc/keat":
-  version "0.8.4"
+keat@0.8.5:
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/keat/-/keat-0.8.5.tgz#91defbad0868f59e2418d80fb6f84d9ac7ccde6b"
+  integrity sha512-hkhxkgj7aoKCGWey0XEhiGJikr5npLc3ip6tkju3w/EUJ91MTr4G8FzoJ5wISD5VSu5jY3bkadlWZTlw5PIzrw==
   dependencies:
     nanoid "3.3.4"
     react "18.1.0"
@@ -2508,7 +2510,7 @@ rimraf@^3.0.2:
   dependencies:
     glob "^7.1.3"
 
-rooks@^5.11.2:
+rooks@5.11.2:
   version "5.11.2"
   resolved "https://registry.yarnpkg.com/rooks/-/rooks-5.11.2.tgz#f7ba3a758c512c7cc807af38615f3052439578b8"
   integrity sha512-kOVYjNW/0Emq9NN3DbmC41xcltK25gVV2PMGw+Et9vC5UiIKrwWYRYmMid2/WRGQ0oodOeksCkrqGwJcV2buuQ==
