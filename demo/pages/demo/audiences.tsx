@@ -14,7 +14,7 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
-import { faker } from "@faker-js/faker";
+import { randEmail } from "@ngneat/falso";
 import { audiences, booleanFlag, keatReact } from "keat";
 import { NextPage } from "next";
 import { useMemo, useState } from "react";
@@ -32,7 +32,7 @@ export const { useKeat } = keatReact({
 
 const AudiencesDemo: NextPage = () => {
   const { variation } = useKeat();
-  const [customerEmail, setCustomerEmail] = useState(faker.internet.email());
+  const [customerEmail, setCustomerEmail] = useState(randEmail());
   const [staffEmail, setStaffEmail] = useState("jef@example.io");
 
   const customer = useMemo(() => {

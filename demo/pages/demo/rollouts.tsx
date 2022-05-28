@@ -11,7 +11,7 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
-import { faker } from "@faker-js/faker";
+import { randEmail } from "@ngneat/falso";
 import { booleanFlag, keatReact, rollouts } from "keat";
 import { NextPage } from "next";
 import { useMemo } from "react";
@@ -30,7 +30,7 @@ const RolloutsDemo: NextPage = () => {
 
   const users = useMemo(() => {
     return Array.from(Array(COUNT).keys()).map((i) => {
-      const email = faker.internet.email();
+      const email = randEmail();
       const user = { email };
       const enabled = variation("demo", user);
       return { key: i, email, enabled };
