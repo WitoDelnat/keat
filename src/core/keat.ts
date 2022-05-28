@@ -46,7 +46,7 @@ export function keat<TFeatures extends AnyFeatures>({
     let result: unknown;
     const afterEval: AfterEvalHook[] = [];
 
-    plugins.forEach((plugin) => {
+    for (const plugin of plugins) {
       const callback = plugin.onEval?.(
         { feature, rule, variates, user, result, configId },
         {
@@ -54,10 +54,11 @@ export function keat<TFeatures extends AnyFeatures>({
           setUser: (newUser) => (user = newUser as User),
         }
       );
-      if (callback) afterEval.push(callback);
-    });
+      if (typeof callback === "function") afterEval.push(callback);
+      if (result !== undefined) break;
+    }
 
-    if (!result) {
+    if (result === undefined) {
       const index = rule?.findIndex((v) => v === true) ?? -1;
       result = index === -1 ? variates[variates.length - 1] : variates[index];
     }

@@ -14,7 +14,7 @@ export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
     onPluginInit() {
       let anonymousId;
 
-      if (options?.persist) {
+      if (options?.persist && hasLocalStorage()) {
         anonymousId = localStorage.getItem("__keat_aid");
         if (!anonymousId) {
           anonymousId = nanoid();
@@ -33,3 +33,7 @@ export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
     },
   };
 };
+
+function hasLocalStorage() {
+  return typeof window !== "undefined" && window.localStorage;
+}

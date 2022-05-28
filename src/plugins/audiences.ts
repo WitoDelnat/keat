@@ -11,8 +11,8 @@ export const audiences = (options: AudiencesPluginOptions): Plugin => {
     onPluginInit({ features }) {
       featureMap = features;
     },
-    onEval({ variates, rule, user, result }, { setResult }) {
-      if (result || !user) return;
+    onEval({ variates, rule, user }, { setResult }) {
+      if (!user) return;
 
       for (const [index, value] of rule.entries()) {
         if (typeof value === "boolean") continue;

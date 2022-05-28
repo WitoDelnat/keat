@@ -12,11 +12,16 @@ const DEFAULT_CREATE_CACHE_KEY: CacheFn = (configId, feature, user) => {
 };
 
 export const cache = (options?: CachePluginOptions): Plugin => {
-  const cache = new Map();
+  const fallbackCache = new Map();
+  const latestCache = new Map();
   const cacheFn = options?.createCacheKey ?? DEFAULT_CREATE_CACHE_KEY;
+  let lastConfigId = -1;
 
   return {
     onEval: ({ configId, feature, user }, { setResult }) => {
+      const cache = configId === 0 ? fallbackCache : latestCache;
+      if (configId !== 0 && lastConfigId !== configId) cache.clear();
+
       const key = cacheFn(configId, feature, user);
       const cachedResult = cache.get(key);
 
@@ -25,7 +30,8 @@ export const cache = (options?: CachePluginOptions): Plugin => {
       }
 
       return ({ result }) => {
-        if (user) cache.set(key, result);
+        if (cachedResult === undefined) cache.set(key, result);
+        if (configId !== 0) lastConfigId = configId;
       };
     },
   };

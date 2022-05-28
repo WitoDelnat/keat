@@ -17,21 +17,18 @@ const DEFAULT_HASH: HashFn = (userId, feature) => {
 export const rollouts = (options?: RolloutsPluginOptions): Plugin => {
   const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
-  let featureMap: Record<string, unknown[]> = {};
 
   return {
-    onPluginInit({ features }) {
-      featureMap = features;
-    },
-    onEval({ feature, rule, variates, user, result }, { setResult }) {
-      if (result || !user) return;
+    onEval({ feature, rule, variates, user }, { setResult }) {
+      if (!user) return;
 
       const userId = userFn(user);
       const percentage = hashFn(userId, feature);
       let sum = 0;
       for (const [index, value] of rule.entries()) {
-        if (typeof value !== "number") continue;
-        sum += value;
+        if (typeof value === "boolean") continue;
+        const pct = value.find((v): v is number => typeof v === "number") ?? 0;
+        sum += pct;
         if (percentage <= sum) {
           const result = variates[index];
           return setResult(result);
