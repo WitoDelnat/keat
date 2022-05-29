@@ -6,6 +6,7 @@
   "module": "lib/index.js",
   "typings": "lib/index.d.ts",
   "license": "MIT",
+  "sideEffects": false,
   "author": {
     "name": "Wito Delnat",
     "url": "https://github.com/WitoDelnat"
