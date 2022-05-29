@@ -1,6 +1,6 @@
 {
   "name": "keat",
-  "version": "0.8.5",
+  "version": "1.0.0-rc.0",
   "type": "module",
   "source": "src/index.ts",
   "module": "lib/index.js",
