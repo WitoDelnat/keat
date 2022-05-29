@@ -1,19 +1,19 @@
-import { booleanFlag, Keat } from "../../src/core";
-import { useAudiences, useRemoteConfig, useRollouts } from "../../src/plugins";
+import { booleanFlag, keat } from "../../src/core";
+import { audiences, remoteConfig, rollouts } from "../../src/plugins";
 
-const keat = Keat.create({
+const { variation } = keat({
   features: {
     test: booleanFlag,
     redesign: booleanFlag,
     sortAlgorithm: ["quicksort", "heapsort"],
   } as const,
   plugins: [
-    useRemoteConfig("https://example.io/config"),
-    useAudiences({
+    remoteConfig("https://example.io/config"),
+    audiences({
       staff: (user) => user.email?.endsWith("example.io"),
       preview: (user) => user.preview,
     }),
-    useRollouts(),
+    rollouts(),
   ],
   config: {
     redesign: ["staff", 5], // enabled for staff and 5% of users.
@@ -23,4 +23,4 @@ const keat = Keat.create({
 
 // User is access token with custom `preview` claim.
 const user = { sub: "abc", email: "dev@example.io", preview: true };
-keat.variation("sortAlgorithm", user);
+variation("sortAlgorithm", user);

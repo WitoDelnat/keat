@@ -20,14 +20,14 @@ import NavBar from "../../components/NavBar";
 const COUNT = 500_000;
 
 export const { useKeat: useCachedKeat } = keatReact({
-  features: { demo: booleanFlag },
   plugins: [anonymous(), cache(), rollouts()],
+  features: { demo: booleanFlag },
   config: { demo: 50 },
 });
 
 export const { useKeat: useUncachedKeat } = keatReact({
-  features: { demo: booleanFlag },
   plugins: [anonymous(), rollouts()],
+  features: { demo: booleanFlag },
   config: { demo: 50 },
 });
 

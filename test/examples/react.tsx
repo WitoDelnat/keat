@@ -1,14 +1,14 @@
 import React from "react";
-import { booleanFlag, KeatReact, useRemoteConfig } from "keat";
+import { booleanFlag, keatReact, remoteConfig } from "../../src";
 import { Search, SearchSkeleton, SortedList } from "./components";
 
-const { useKeat, FeatureBoundary } = KeatReact.create({
+const { useKeat, FeatureBoundary } = keatReact({
   features: {
     redesign: booleanFlag,
     search: booleanFlag,
     sortAlgorithm: ["quicksort", "heapsort"],
   } as const,
-  plugins: [useRemoteConfig("https://example.io/config")],
+  plugins: [remoteConfig("https://example.io/config")],
 });
 
 export function App() {

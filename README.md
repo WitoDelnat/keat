@@ -1,11 +1,11 @@
-# [beta] Keat
+# Keat
 
 Progressive and type-safe feature flags.
 
 An easy way to increase your deployment frequency and reduce stress of releases.
 
 <p align="center">
-  <img height="350" src="./docs/img/keat-intro.png">
+  <img width="385" src="./docs/img/keat-intro.png">
 </p>
 
 ## Key Features
@@ -30,9 +30,9 @@ npm install keat
 After installing Keat, you can create your first **features** and their **variates**.
 
 ```typescript
-import { KeatReact, booleanFlag } from "keat";
+import { keat, booleanFlag } from "keat";
 
-const { variation } = Keat.create({
+const { variation } = keat({
   features: {
     recommendations: [true, false],
     sortAlgorithm: ["quicksort", "heapsort", "insertionSort"],
@@ -47,9 +47,9 @@ Without configuration features will fall back to their last variate.
 This is not really useful so let's continue by adding **configuration** with a rule for each feature.
 
 ```typescript
-import { KeatReact, booleanFlag } from "keat";
+import { keat, booleanFlag } from "keat";
 
-const { variation } = Keat.create({
+const { variation } = keat({
   features: {
     recommendations: [true, false],
     sortAlgorithm: ["quicksort", "heapsort", "insertionSort"],
@@ -71,15 +71,16 @@ By using **plugins** you can supercharge Keat to evaluate rules in various ways.
 Let's add some build-in plugins to allow progressive rollouts and targeted audiences.
 
 ```typescript
-import { KeatReact, booleanFlag } from "keat";
+import { keat, booleanFlag } from "keat";
+import { remoteConfig, audiences, rollouts } from "keat/plugins";
 
-const { variation } = Keat.create({
+const { variation } = keat({
   plugins: [
-    useRemoteConfig("http://example.io/config", { interval: 300 }),
-    useAudiences({
+    remoteConfig("http://example.io/config", { interval: 300 }),
+    audiences({
       staff: (user) => user.email?.endsWith("example.io"),
     }),
-    useRollouts(),
+    rollouts(),
   ],
   features: {
     recommendations: [true, false],
@@ -117,15 +118,16 @@ The binary nature of bi-variates means that the first index is sufficient for ev
 Besides that the binary bi-variate `[true, false]` is so common that we alias it.
 
 ```tsx
-import { KeatReact, booleanFlag } from "keat";
+import { keat, booleanFlag } from "keat";
+import { remoteConfig, audiences, rollouts } from "keat/plugins";
 
-const { variation } = Keat.create({
+const { variation } = keat({
   plugins: [
-    useRemoteConfig("http://example.io/config", { interval: 300 }),
-    useAudiences({
+    remoteConfig("http://example.io/config", { interval: 300 }),
+    audiences({
       staff: (user) => user.email?.endsWith("example.io"),
     }),
-    useRollouts(),
+    rollouts(),
   ],
   features: {
     recommendations: booleanFlag, // alias for [true, false]
@@ -155,13 +157,13 @@ Environment variables favour operational simplicity over propagation speed.
 You can get all the benefits of feature flags without the burden of infrastructure or having to reach for your wallet.
 
 ```typescript
-import { Keat, booleanFlag, fromEnv } from "keat/core";
-import { useAnonymous, useAudiences, useRollouts } from "keat/plugins";
+import { keat, booleanFlag, fromEnv } from "keat";
+import { anonymous, audiences, rollouts } from "keat/plugins";
 
-const keat = Keat.create({
+const keat = keat({
   plugins: [
-    useAnonymous({ persist: true }),
-    useAudiences({
+    anonymous({ persist: true }),
+    audiences({
       preview: () => {
         const queryString = window.location.search;
         const params = new URLSearchParams(queryString);
@@ -174,7 +176,7 @@ const keat = Keat.create({
         return start < now && now < end;
       },
     }),
-    useRollouts(),
+    rollouts(),
   ],
   features: {
     search: booleanFlag,
@@ -202,17 +204,17 @@ With **feature display** you can optimize individual boundaries instead of block
 It will feel familiar if you've worked with `font-display` before ([Playground](https://font-display.glitch.me/), [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)).
 
 ```tsx
-import { Keat, booleanFlag } from "keat/core";
-import { useAudiences, useRemoteConfig, useRollouts } from "keat/plugins";
+import { keatReact, booleanFlag } from "keat";
+import { audiences, remoteConfig, rollouts } from "keat/plugins";
 
-const { useKeat, FeatureBoundary } = KeatReact.create({
+const { useKeat, FeatureBoundary } = keatReact({
   plugins: [
-    useRemoteConfig("https://example.io/slowConfig", { interval: 300 }),
-    useAudiences({
+    remoteConfig("https://example.io/slowConfig", { interval: 300 }),
+    audiences({
       staff: (user) => user.email?.endsWith("example.io"),
       preview: (user) => user.preview,
     }),
-    useRollouts(),
+    rollouts(),
   ],
   features: {
     search: booleanFlag,
@@ -250,11 +252,11 @@ export function App() {
 
 ### Build-in plugins
 
-- **useRollout** allows you to rollout your features to a percentage of users (Takes `number`).
-- **useAudiences** allows you to target audiences and evaluate it based on user characteristics (Takes `string`).
-- **useAnonymous** adds a generated, stable identity, which allows reliable rollout results.
-- **useCache** adds simple caching to your evaluations which improve performance.
-- **useRemoteconfig** fetches your configuration remotely, which allows decoupling deploy from release.
+- **rollout** allows you to rollout your features to a percentage of users (Takes `number`).
+- **audiences** allows you to target audiences and evaluate it based on user characteristics (Takes `string`).
+- **anonymous** adds a generated, stable identity, which allows reliable rollout results.
+- **cache** adds simple caching to your evaluations which improve performance.
+- **remoteconfig** fetches your configuration remotely, which allows decoupling deploy from release.
 
 ### Building your first plugin
 
@@ -264,15 +266,14 @@ into the lifecycle of Keat. Checkout [the common plugin interface on GitHub](htt
 Here is a simple example of a plugin that cycles to the next variate each second:
 
 ```typescript
-const useRandom: Plugin = () => {
+const random: Plugin = () => {
   let counter = 0;
 
   return {
     onPluginInit() {
       setInterval(() => counter++, 1000);
     },
-    onEval({ result, variates }, { setResult }) {
-      if (result) return;
+    onEval({ variates }, { setResult }) {
       setResult(variates[counter % variates.length]);
     },
   };

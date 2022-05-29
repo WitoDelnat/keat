@@ -1,6 +1,6 @@
-import { booleanFlag, Keat } from "../../src/core";
+import { booleanFlag, keat } from "../../src";
 
-const keat = Keat.create({
+const { variation } = keat({
   features: {
     test: booleanFlag,
     redesign: booleanFlag,
@@ -12,6 +12,6 @@ const keat = Keat.create({
   },
 });
 
-keat.variation("test"); // returns `true`.
-keat.variation("redesign"); // returns `false` as fallback.
-keat.variation("sortAlgorithm"); // returns 'quicksort'
+variation("test"); // returns `true`.
+variation("redesign"); // returns `false` as fallback.
+variation("sortAlgorithm"); // returns 'quicksort'

@@ -1,14 +1,14 @@
-import { Keat } from "../../src/core";
-import { useAudiences, useRollouts } from "../../src/plugins";
+import { keat } from "../../src";
+import { audiences, rollouts } from "../../src/plugins";
 
-const keat = Keat.create({
+export const { variation } = keat({
   features: {
     sortAlgorithm: ["quicksort", "insertionSort", "heapsort"],
     example: [1, 2, 3, 4, 5],
   } as const,
   plugins: [
-    useRollouts(),
-    useAudiences({
+    rollouts(),
+    audiences({
       /* .. */
     }),
   ],

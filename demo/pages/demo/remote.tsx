@@ -23,10 +23,10 @@ import NavBar from "../../components/NavBar";
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const createKeat = (ms: number) =>
   keatReact({
-    features: { demo: booleanFlag },
     plugins: [
       customConfig({ fetch: () => pause(ms).then(() => ({ demo: true })) }),
     ],
+    features: { demo: booleanFlag },
   });
 
 const RemoteDemo: NextPage = () => {

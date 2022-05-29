@@ -20,8 +20,8 @@ import NavBar from "../../components/NavBar";
 const COUNT = 1000;
 
 export const { useKeat } = keatReact({
-  features: { demo: booleanFlag },
   plugins: [rollouts()],
+  features: { demo: booleanFlag },
   config: { demo: 25 },
 });
 
