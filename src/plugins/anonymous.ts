@@ -1,5 +1,4 @@
 import { DEFAULT_CREATE_USER, Plugin, User } from "../core";
-import { nanoid } from "nanoid";
 
 type AnonymousPluginOptions = {
   createUser?: (id: string) => User;
@@ -17,11 +16,11 @@ export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
       if (options?.persist && hasLocalStorage()) {
         anonymousId = localStorage.getItem("__keat_aid");
         if (!anonymousId) {
-          anonymousId = nanoid();
+          anonymousId = crypto.randomUUID();
           localStorage.setItem("__keat_aid", anonymousId);
         }
       } else {
-        anonymousId = nanoid();
+        anonymousId = crypto.randomUUID();
       }
 
       anonymousUser = createUser(anonymousId);
