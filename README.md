@@ -8,6 +8,8 @@ An easy way to increase your deployment frequency and reduce stress of releases.
   <img width="385" src="./docs/img/keat-intro.png">
 </p>
 
+[The library has just been released so I'm looking for your advice!](https://github.com/WitoDelnat/keat/issues/4)
+
 ## Key Features
 
 - 🚀 Progressive rollouts and 🎯 targeted audiences.
@@ -17,7 +19,7 @@ An easy way to increase your deployment frequency and reduce stress of releases.
 - 💡 Framework agnostic with React adaptor included.
 - 💙 Amazing TypeScript support.
 
-You can find the introductory blog-post [here](https://www.witodelnat.eu/blog/2022/introducing-keat).
+You can also find the introductory blog-post [here](https://www.witodelnat.eu/blog/2022/introducing-keat).
 
 ## Getting started
 
@@ -27,7 +29,7 @@ Start by adding Keat to your codebase:
 npm install keat
 ```
 
-After installing Keat, you can create your first **features** and their **variates**.
+After installing Keat, you can define your first **features** and their **variates**.
 
 ```typescript
 import { keat, booleanFlag } from "keat";
@@ -47,7 +49,7 @@ Without configuration features will fall back to their last variate.
 This is not really useful so let's continue by adding **configuration** with a rule for each feature.
 
 ```typescript
-import { keat, booleanFlag } from "keat";
+import { keat } from "keat";
 
 const { variation } = keat({
   features: {
@@ -71,7 +73,7 @@ By using **plugins** you can supercharge Keat to evaluate rules in various ways.
 Let's add some build-in plugins to allow progressive rollouts and targeted audiences.
 
 ```typescript
-import { keat, booleanFlag } from "keat";
+import { keat } from "keat";
 import { remoteConfig, audiences, rollouts } from "keat/plugins";
 
 const { variation } = keat({
@@ -143,7 +145,7 @@ const { variation } = keat({
 
 variation("oops"); // Error - Argument of type '"oops"' is not assignable to parameter of type '"sortAlgorithm" | "recommendations"'.
 ReturnType<typeof variation("recommendations")> = boolean;
-ReturnType<typeof variation("sortAlgorithm")> = "quicksort" | "heapsort" | "insertionSort;
+ReturnType<typeof variation("sortAlgorithm")> = "quicksort" | "heapsort" | "insertionSort";
 ```
 
 ## Examples
@@ -185,7 +187,7 @@ const keat = keat({
   } as const,
   config: {
     search: fromEnv(process.env.TOGGLE_SEARCH), // TOGGLE_SEARCH=true
-    design: fromEnv(process.env.TOGGLE_DESIGN), // TOGGLE_DESIGN=halloween,preview
+    design: fromEnv(process.env.TOGGLE_DESIGN), // TOGGLE_DESIGN=halloweenPeriod,preview
     sortAlgorithm: [
       fromEnv(process.env.TOGGLE_QUICKSORT), // TOGGLE_QUICKSORT=60,
       fromEnv(process.env.TOGGLE_HEAPSORT), // TOGGLE_HEAPSORT=preview,5
@@ -256,9 +258,13 @@ export function App() {
 - **audiences** allows you to target audiences and evaluate it based on user characteristics (Takes `string`).
 - **anonymous** adds a generated, stable identity, which allows reliable rollout results.
 - **cache** adds simple caching to your evaluations which improve performance.
-- **remoteconfig** fetches your configuration remotely, which allows decoupling deploy from release.
+- **remoteConfig** fetches your configuration remotely, which allows decoupling deploy from release.
 
-### Building your first plugin
+### Evaluation order
+
+Keat loops over plugins in a FIFO order and once a result is set the evaluation short-circuits. This means that **order matters**. In practise, you should put plugins that modify the user in front and the `rollout` plugin last so other more targeted plugins get priority.
+
+### Custom plugins
 
 Plugins are plain old JavaScript objects with a simple interface that hooks
 into the lifecycle of Keat. Checkout [the common plugin interface on GitHub](https://github.com/WitoDelnat/keat/blob/main/src/core/plugin.ts) to get a full view on the available context and API.
@@ -266,7 +272,7 @@ into the lifecycle of Keat. Checkout [the common plugin interface on GitHub](htt
 Here is a simple example of a plugin that cycles to the next variate each second:
 
 ```typescript
-const random: Plugin = () => {
+const cycle: Plugin = () => {
   let counter = 0;
 
   return {
