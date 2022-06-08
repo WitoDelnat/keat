@@ -258,4 +258,8 @@ const NAV_ITEMS: Array<NavItem> = [
     label: "Variates",
     href: "/demo/variates",
   },
+  {
+    label: "Schedule",
+    href: "/demo/schedule",
+  },
 ];
