@@ -4,20 +4,16 @@ Progressive and type-safe feature flags.
 
 An easy way to increase your deployment frequency and reduce stress of releases.
 
-<p align="center">
-  <img width="385" src="./docs/img/keat-intro.png">
-</p>
-
-[The library has just been released so I'm looking for your advice!](https://github.com/WitoDelnat/keat/issues/4)
+[The library has just been released and I'm looking for your advice!](https://github.com/WitoDelnat/keat/issues/4)
 
 ## Key Features
 
-- 🚀 Progressive rollouts and 🎯 targeted audiences.
-- 🧪 Bi- and multivariates of any type.
+- 🚀 Progressive rollouts, 🎯 targeted audiences and 📅 scheduled features.
 - 🛠 Remote configuration without vendor lock-in.
-- 🌳 Lightweight core with tree shakeable plugins.
-- 💡 Framework agnostic with React adaptor included.
 - 💙 Amazing TypeScript support.
+- 💡 Framework agnostic with React adaptor included.
+- 🌳 Lightweight core with tree shakeable plugins.
+- 🧪 Bi- and multivariates of any type.
 
 You can also find the introductory blog-post [here](https://www.witodelnat.eu/blog/2022/introducing-keat).
 
@@ -29,101 +25,109 @@ Start by adding Keat to your codebase:
 npm install keat
 ```
 
-After installing Keat, you can define your first **features** and their **variates**.
+After installing Keat, you define your first **features** together with rules.
 
 ```typescript
-import { keat, booleanFlag } from "keat";
+import { keatCore } from "keat";
 
-const { variation } = keat({
+const { variation } = keatCore({
   features: {
-    recommendations: [true, false],
-    sortAlgorithm: ["quicksort", "heapsort", "insertionSort"],
+    recommendations: true,
   } as const,
-});
-
-variation("recommendations") === false;
-variation("sortAlgorithm") === "insertionSort";
-```
-
-Without configuration features will fall back to their last variate.
-This is not really useful so let's continue by adding **configuration** with a rule for each feature.
-
-```typescript
-import { keat } from "keat";
-
-const { variation } = keat({
-  features: {
-    recommendations: [true, false],
-    sortAlgorithm: ["quicksort", "heapsort", "insertionSort"],
-  } as const,
-  config: {
-    recommendations: [true, false],
-    sortAlgorithm: [false, true, false],
-  },
 });
 
 variation("recommendations") === true;
-variation("sortAlgorithm") === "heapsort";
 ```
 
-A rule essentially mirrors the array of variates for a given feature.
-When an index evaluates successful, the variate at that same index is returned.
+By default the rule can either be `true` or `false`, respectively to enable or disable it.
+This is not very useful so let's continue by adding **plugins** to supercharge Keat.
 
-By using **plugins** you can supercharge Keat to evaluate rules in various ways.
-Let's add some build-in plugins to allow progressive rollouts and targeted audiences.
+### Enable features for particular users
+
+Enabling features for particular users allows you to use trunk-based development, testing in production and preview releases for your adventurous users.
+
+To do this you use the `audience` plugin.
+This plugin takes each `string` of a rule and enables the feature when a matching function responds truthy.
 
 ```typescript
-import { keat } from "keat";
-import { remoteConfig, audiences, rollouts } from "keat/plugins";
+import { keatCore, audiences } from "keat";
 
-const { variation } = keat({
+const { variation } = keatCore({
+  features: {
+    recommendations: "staff",
+  } as const,
   plugins: [
-    remoteConfig("http://example.io/config", { interval: 300 }),
+    audiences({
+      staff: (user) => user.email?.endsWith("example.io"),
+    }),
+  ],
+});
+
+variation("recommendations", { email: "dev@example.io" }) === true;
+variation("recommendations", { email: "jef@gmail.com" }) === false;
+```
+
+### Enable features for a percentage of users
+
+Enabling features for a percentage of users allows canary and A/B testing.
+By releasing to small and gradually increasing amount of users you gain confidence in stability and scalability.
+
+To do this you use the `rollouts` plugin.
+This plugin takes the first `number` of a rule and enables the feature for a percentage of users equal to that amount.
+
+```typescript
+import { keatCore, audiences, rollouts } from "keat";
+
+const { variation } = keatCore({
+  features: {
+    recommendations: { or: ["staff", 25] },
+  } as const,
+  plugins: [
     audiences({
       staff: (user) => user.email?.endsWith("example.io"),
     }),
     rollouts(),
   ],
-  features: {
-    recommendations: [true, false],
-    sortAlgorithm: ["quicksort", "heapsort", "insertionSort"],
-  } as const,
-  config: {
-    search: [["staff", 5], false],
-    sortAlgorithm: [20, [30, "staff"], 50],
-  },
 });
 
-const developer = { email: "dev@example.io" };
-variation("recommendations", developer) === true;
-variation("sortAlgorithm", developer) === "heapsort";
-
-const customer = { email: "jef@gmail.com" };
-variation("recommendations", customer); // `true` and `false` respectively for 5% and 95% of users.
-variation("sortAlgorithm", customer); // "quicksort", "heapsort" and "insertionSort" respectively for 20%, 30% and 50% of users.
+variation("recommendations", { email: "dev@example.io" }) === true;
+variation("recommendations", { email: randomEmail() }); // `true` for 25% of users.
 ```
 
-You probably also noticed the remote configuration plugin.
-To use it your endpoint simply needs to provide a JSON object similar to `config`.
-You can now choose to omit the local one, although it remains handy as a fallback.
+You might wonder how multiple plugins relate to each other.
+Plugins are evaluated in FIFO order, so in this example the audiences are checked before the rollouts.
+The evaluation short-circuits whenever a plugin sets a result.
+When none is set the default behavior is used instead.
+
+### Toggle features remotely
+
+Toggling features is the bread and butter of any feature management tool.
+
+Keat uses **configuration** to toggle features.
+
+The format is a basic JSON object that maps the feature to its updated rule:
+
+```json
+{
+  "recommendations": { "or": ["staff", 50] }
+}
+```
 
 The plain format combined with custom plugins means possibilities are endless:
 
-- Serve from Cloud Object Storage or directly embed it within your GraphQL API.
-- Use CloudFlare at edge for best-in-class latency.
-- Open a WebSocket to stream changes in real-time.
+- Serve from Cloud Object Storage or embed it within your API.
+- Use CloudFlare at edge or tools like Firebase Remote configuration.
+- Open a WebSocket or use server-sent events to stream changes in real-time.
 
-### Shortcuts and TypeScript
+Or you can use the build-in `remoteConfig` to fetch it from an endpoint:
 
-Keat has some shortcuts and TypeScript support to improve the developer experience.
-The binary nature of bi-variates means that the first index is sufficient for evaluation.
-Besides that the binary bi-variate `[true, false]` is so common that we alias it.
+```typescript
+import { keatCore, remoteConfig, audiences, rollouts } from "keat";
 
-```tsx
-import { keat, booleanFlag } from "keat";
-import { remoteConfig, audiences, rollouts } from "keat/plugins";
-
-const { variation } = keat({
+const { variation } = keatCore({
+  features: {
+    recommendations: false,
+  } as const,
   plugins: [
     remoteConfig("http://example.io/config", { interval: 300 }),
     audiences({
@@ -131,21 +135,7 @@ const { variation } = keat({
     }),
     rollouts(),
   ],
-  features: {
-    recommendations: booleanFlag, // alias for [true, false]
-    search: booleanFlag,
-    sortAlgorithm: ["quicksort", "heapsort", "insertionSort"],
-  } as const, // this 'as const' allows TypeScript to strongly type everything
-  config: {
-    recommendations: ["staff", 5], // shorthand for [["staff", 5], false]
-    search: true, // shorthand for [true, false]
-    sortAlgorithm: [20, [30, "staff"], 50],
-  },
 });
-
-variation("oops"); // Error - Argument of type '"oops"' is not assignable to parameter of type '"sortAlgorithm" | "recommendations"'.
-ReturnType<typeof variation("recommendations")> = boolean;
-ReturnType<typeof variation("sortAlgorithm")> = "quicksort" | "heapsort" | "insertionSort";
 ```
 
 ## Examples
@@ -156,14 +146,30 @@ Website without login or stable identity where you can still preview and A/B tes
 
 Consider embedding **configuration** at build time since modern CI can rebuild it within a minute or two.
 Environment variables favour operational simplicity over propagation speed.
-You can get all the benefits of feature flags without the burden of infrastructure or having to reach for your wallet.
+You can get all the benefits of feature flags without the burden of infrastructure so nothing prevents you from getting started today!
 
 ```typescript
-import { keat, booleanFlag, fromEnv } from "keat";
-import { anonymous, audiences, rollouts } from "keat/plugins";
+import {
+  keatCore,
+  fromEnv,
+  localConfig,
+  anonymous,
+  audiences,
+  schedule,
+  rollouts,
+} from "keat";
+import featureJson from "./features.json";
 
-const keat = keat({
+export const keat = keatCore({
+  features: {
+    search: 30,
+    halloweenDesign: { OR: ["preview", "2022-10-20"] },
+  } as const,
   plugins: [
+    localConfig({
+      ...featureJson,
+      search: fromEnv(process.env["TOGGLE_SEARCH"]),
+    }),
     anonymous({ persist: true }),
     audiences({
       preview: () => {
@@ -171,30 +177,55 @@ const keat = keat({
         const params = new URLSearchParams(queryString);
         return params.has("preview");
       },
-      halloweenPeriod: () => {
-        const now = Date.now();
-        const start = new Date(2022, 10, 15).getTime();
-        const end = new Date(2022, 11, 2).getTime();
-        return start < now && now < end;
-      },
     }),
+    schedule(),
     rollouts(),
   ],
-  features: {
-    search: booleanFlag,
-    design: ["halloween", "default"],
-    sortAlgorithm: ["quicksort", "heapsort", "insertionSort"],
-  } as const,
-  config: {
-    search: fromEnv(process.env.TOGGLE_SEARCH), // TOGGLE_SEARCH=true
-    design: fromEnv(process.env.TOGGLE_DESIGN), // TOGGLE_DESIGN=halloweenPeriod,preview
-    sortAlgorithm: [
-      fromEnv(process.env.TOGGLE_QUICKSORT), // TOGGLE_QUICKSORT=60,
-      fromEnv(process.env.TOGGLE_HEAPSORT), // TOGGLE_HEAPSORT=preview,5
-      false,
-    ],
-  },
 });
+```
+
+### Microservice with NodeJs
+
+Keat works both in the browser and on NodeJs. Use it to measure performance optimizations, gradually migrate to a new integration or degrade your services when there is trouble on the horizon.
+
+Keat is not restricted traditional boolean flags. Use bi- or multi-variates of any type to be more expressive in your feature flags. Keat will also properly infer the return type of your variates so you get immediate feedback on your usage.
+
+```typescript
+import { keatCore, rollouts } from "keat";
+
+export const keat = keatCore({
+  features: {
+    enableJitCache: 50,
+    notificationService: {
+      variates: ["modern", "legacy"],
+      when: 5,
+    },
+    rateLimit: {
+      variates: [
+        {
+          level: "default",
+          average: 1000,
+          burst: 2000
+        },
+        {
+          level: "degraded",
+          average: 500,
+          burst: 800,
+        },
+        {
+          level: "disaster",
+          average: 100,
+          burst: 150,
+        },
+      ],
+      when: [false, true, false],
+    },
+  } as const,
+  plugins: [rollouts()],
+});
+
+keat.variation("notificationService", { id: requestId });
+ReturnType<typeof keat.variation("rateLimit")> = { level: string; average: number; burst: number};
 ```
 
 ### SaaS application with React
@@ -206,10 +237,16 @@ With **feature display** you can optimize individual boundaries instead of block
 It will feel familiar if you've worked with `font-display` before ([Playground](https://font-display.glitch.me/), [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)).
 
 ```tsx
-import { keatReact, booleanFlag } from "keat";
-import { audiences, remoteConfig, rollouts } from "keat/plugins";
+import { keatReact, audiences, remoteConfig, rollouts } from "keat";
 
 const { useKeat, FeatureBoundary } = keatReact({
+  features: {
+    search: false,
+    redesign: false,
+    sortAlgorithm: {
+      variates: ["quicksort", "insertionSort", "heapsort"],
+    },
+  } as const,
   plugins: [
     remoteConfig("https://example.io/slowConfig", { interval: 300 }),
     audiences({
@@ -218,11 +255,6 @@ const { useKeat, FeatureBoundary } = keatReact({
     }),
     rollouts(),
   ],
-  features: {
-    search: booleanFlag,
-    redesign: booleanFlag,
-    sortAlgorithm: ["quicksort", "heapsort"],
-  } as const,
 });
 
 export function App() {
@@ -254,15 +286,22 @@ export function App() {
 
 ### Build-in plugins
 
-- **rollout** allows you to rollout your features to a percentage of users (Takes `number`).
-- **audiences** allows you to target audiences and evaluate it based on user characteristics (Takes `string`).
-- **anonymous** adds a generated, stable identity, which allows reliable rollout results.
+Rules:
+
+- **audiences** takes all `strings` and enables the feature when its matching function responds truthy.
+- **rollouts** takes the first `number` and enables the feature for a percentage of users equal to that amount.
+- **schedule** takes all `string`-formatted dates and enables the feature when a date is in the past.
+
+Configurations:
+
+- **localConfig** fetches your configuration from a local JSON file or environment variables.
+- **remoteConfig** fetches your configuration from a remote endpoint, which allows decoupling deploy from release.
+- **customConfig** fetches your configuration with a customizable fetch.
+
+Miscellaneous:
+
 - **cache** adds simple caching to your evaluations which improve performance.
-- **remoteConfig** fetches your configuration remotely, which allows decoupling deploy from release.
-
-### Evaluation order
-
-Keat loops over plugins in a FIFO order and once a result is set the evaluation short-circuits. This means that **order matters**. In practise, you should put plugins that modify the user in front and the `rollout` plugin last so other more targeted plugins get priority.
+- **anonymous** adds a generated, stable identity, which allows reliable rollout results.
 
 ### Custom plugins
 

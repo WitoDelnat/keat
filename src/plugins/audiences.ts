@@ -1,7 +1,7 @@
 import { Plugin, takeStrings, User } from "../core";
 
 type AudiencesPluginOptions = Record<string, AudienceFn>;
-type AudienceFn = (user?: User) => boolean | undefined;
+type AudienceFn = (user: User) => boolean | undefined;
 
 export const audiences = (options: AudiencesPluginOptions): Plugin => {
   const audiences = options;
