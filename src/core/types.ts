@@ -43,7 +43,7 @@ export type Feature =
       when?: readonly Rule[];
     };
 
-export type Config = Record<string, Rule | Rule[]>;
+export type Config = Record<string, Rule | Rule[] | undefined>;
 
 export type KeatInit<TFeatures extends AnyFeatures> = {
   features: TFeatures;

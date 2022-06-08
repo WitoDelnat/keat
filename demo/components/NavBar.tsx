@@ -247,10 +247,6 @@ const NAV_ITEMS: Array<NavItem> = [
     href: "/demo/cache",
   },
   {
-    label: "Remote config",
-    href: "/demo/remote",
-  },
-  {
     label: "Anonymous",
     href: "/demo/anonymous",
   },
@@ -261,5 +257,13 @@ const NAV_ITEMS: Array<NavItem> = [
   {
     label: "Schedule",
     href: "/demo/schedule",
+  },
+  {
+    label: "Remote config",
+    href: "/demo/remoteConfig",
+  },
+  {
+    label: "Local config",
+    href: "/demo/localConfig",
   },
 ];
