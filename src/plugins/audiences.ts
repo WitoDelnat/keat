@@ -1,30 +1,26 @@
-import { Plugin, User } from "../core";
+import { Plugin, takeStrings, User } from "../core";
 
 type AudiencesPluginOptions = Record<string, AudienceFn>;
 type AudienceFn = (user?: User) => boolean | undefined;
 
 export const audiences = (options: AudiencesPluginOptions): Plugin => {
   const audiences = options;
-  let featureMap: Record<string, unknown[]> = {};
 
   return {
-    onPluginInit({ features }) {
-      featureMap = features;
-    },
-    onEval({ variates, rule, user }, { setResult }) {
+    onEval({ variates, rules, user }, { setResult }) {
       if (!user) return;
 
-      for (const [index, value] of rule.entries()) {
-        if (typeof value === "boolean") continue;
-        const match = value.some((a) => {
+      const index = rules.findIndex((rule) =>
+        takeStrings(rule).some((audience) => {
           try {
-            return audiences[a]?.(user);
+            return audiences[audience]?.(user);
           } catch {
             return false;
           }
-        });
-        if (match) return setResult(variates[index]);
-      }
+        })
+      );
+
+      if (index !== -1) setResult(variates[index]);
     },
   };
 };

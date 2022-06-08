@@ -12,7 +12,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { randEmail } from "@ngneat/falso";
-import { booleanFlag, keatReact, rollouts } from "keat";
+import { keatReact, rollouts } from "keat";
 import { NextPage } from "next";
 import { useMemo } from "react";
 import NavBar from "../../components/NavBar";
@@ -21,8 +21,7 @@ const COUNT = 1000;
 
 export const { useKeat } = keatReact({
   plugins: [rollouts()],
-  features: { demo: booleanFlag },
-  config: { demo: 25 },
+  features: { demo: 25 },
 });
 
 const RolloutsDemo: NextPage = () => {

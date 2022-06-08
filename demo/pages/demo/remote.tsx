@@ -14,7 +14,7 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
-import { booleanFlag, customConfig, keatReact } from "keat";
+import { customConfig, keatReact } from "keat";
 import { NextPage } from "next";
 import { useCallback, useState } from "react";
 import { useIntervalWhen } from "rooks";
@@ -26,7 +26,7 @@ const createKeat = (ms: number) =>
     plugins: [
       customConfig({ fetch: () => pause(ms).then(() => ({ demo: true })) }),
     ],
-    features: { demo: booleanFlag },
+    features: { demo: false },
   });
 
 const RemoteDemo: NextPage = () => {

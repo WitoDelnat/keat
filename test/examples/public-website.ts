@@ -1,10 +1,13 @@
-import { booleanFlag, keat } from "../../src/core";
+import { keatCore } from "../../src/core";
 import { anonymous, audiences, rollouts } from "../../src/plugins";
 
-const { variation } = keat({
+const { variation } = keatCore({
   features: {
-    advancedSearch: booleanFlag,
-    design: ["halloween", "default"],
+    advancedSearch: { OR: [15, "preview"] },
+    design: {
+      variates: ["halloween", "default"],
+      when: ["halloweenPeriod", "preview"],
+    },
   } as const,
   plugins: [
     anonymous({ persist: true }),
@@ -23,10 +26,6 @@ const { variation } = keat({
     }),
     rollouts(),
   ],
-  config: {
-    advancedSearch: [15, "preview"], // enabled for preview and 15% of users.
-    design: ["halloweenPeriod", "preview"], // enabled during Halloween and for preview.
-  },
 });
 
 // User is automatically added and persisted across session.

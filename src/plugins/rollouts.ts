@@ -1,4 +1,4 @@
-import { DEFAULT_GET_USER_ID, User } from "../core";
+import { DEFAULT_GET_USER_ID, takeNumbers, User } from "../core";
 import { Plugin } from "../core/plugin";
 
 type RolloutsPluginOptions = {
@@ -19,21 +19,19 @@ export const rollouts = (options?: RolloutsPluginOptions): Plugin => {
   const hashFn = options?.hash ?? DEFAULT_HASH;
 
   return {
-    onEval({ feature, rule, variates, user }, { setResult }) {
+    onEval({ feature, rules, variates, user }, { setResult }) {
       if (!user) return;
 
       const userId = userFn(user);
       const percentage = hashFn(userId, feature);
       let sum = 0;
-      for (const [index, value] of rule.entries()) {
-        if (typeof value === "boolean") continue;
-        const pct = value.find((v): v is number => typeof v === "number") ?? 0;
-        sum += pct;
-        if (percentage <= sum) {
-          const result = variates[index];
-          return setResult(result);
-        }
-      }
+
+      const index = rules.findIndex((rule) => {
+        sum += takeNumbers(rule)[0] ?? 0;
+        return percentage <= sum;
+      });
+
+      if (index !== -1) setResult(variates[index]);
     },
   };
 };

@@ -1,11 +1,14 @@
-import { booleanFlag, keat } from "../../src/core";
+import { keatCore } from "../../src/core";
 import { audiences, remoteConfig, rollouts } from "../../src/plugins";
 
-const { variation } = keat({
+const { variation } = keatCore({
   features: {
-    test: booleanFlag,
-    redesign: booleanFlag,
-    sortAlgorithm: ["quicksort", "heapsort"],
+    test: true,
+    redesign: { OR: ["staff", 5] },
+    sortAlgorithm: {
+      variates: ["quicksort", "heapsort"],
+      when: ["staff", "preview", 5],
+    },
   } as const,
   plugins: [
     remoteConfig("https://example.io/config"),
@@ -15,10 +18,6 @@ const { variation } = keat({
     }),
     rollouts(),
   ],
-  config: {
-    redesign: ["staff", 5], // enabled for staff and 5% of users.
-    sortAlgorithm: ["staff", "preview", 5], // 'quicksort' for staff, preview and 5% of users - otherwise 'heapsort'.
-  },
 });
 
 // User is access token with custom `preview` claim.

@@ -1,17 +1,18 @@
-import { booleanFlag, keat } from "../../src";
+import { ExtractFeatures, keatCore } from "../../src";
 
-const { variation } = keat({
+type Feature = ExtractFeatures<typeof keat>;
+
+const keat = keatCore({
   features: {
-    test: booleanFlag,
-    redesign: booleanFlag,
-    sortAlgorithm: ["quicksort", "heapsort"],
-  } as const,
-  config: {
     test: true,
-    sortAlgorithm: true,
-  },
+    redesign: true,
+    sortAlgorithm: {
+      variates: ["quicksort", "heapsort"],
+      when: true,
+    },
+  } as const,
 });
 
-variation("test"); // returns `true`.
-variation("redesign"); // returns `false` as fallback.
-variation("sortAlgorithm"); // returns 'quicksort'
+keat.variation("test"); // returns `true`.
+keat.variation("redesign"); // returns `false` as fallback.
+keat.variation("sortAlgorithm"); // returns 'quicksort'

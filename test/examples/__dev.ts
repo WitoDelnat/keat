@@ -1,27 +1,34 @@
-import { booleanFlag, keat } from "../../src";
-import { audiences, cache, remoteConfig, rollouts } from "../../src/plugins";
+import { keatCore } from "../../src";
+import { audiences, rollouts } from "../../src/plugins";
 
-const { variation, ready } = keat({
-  features: {
-    test: booleanFlag,
-    redesign: booleanFlag,
-    algo: ["heuristic", "brute", "basic"],
-  } as const,
-  config: {
-    test: true,
-    algo: [15, ["staff", 20], true],
-  },
+const { variation, ready } = keatCore({
   plugins: [
-    remoteConfig("https://example.com/config"),
-    cache(),
     audiences({
       staff: (user) => user.company.endsWith("@company.io"),
     }),
     rollouts(),
   ],
+  features: {
+    bar: "staff",
+    test: {
+      when: true,
+    },
+    redesign: {
+      when: { OR: ["staff", 25] },
+    },
+    foo: {
+      variates: ["a", "b"],
+      when: { OR: [1, 2] },
+    },
+    algo: {
+      variates: ["heuristic", "brute", "basic"],
+      when: [false, true, false],
+    },
+  } as const,
 });
 
 (async function main() {
+  const bar = variation("bar");
   const user = { email: "wito.delnat@gmail.com", id: "test" };
   const res1 = variation("test", user); // returns boolean
   const res2 = variation("algo"); // returns 'basic' | 'heuristic' | 'brute'

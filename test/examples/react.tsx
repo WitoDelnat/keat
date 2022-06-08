@@ -1,15 +1,21 @@
 import React from "react";
-import { booleanFlag, keatReact, remoteConfig } from "../../src";
+import { ExtractFeatures, keatReact, remoteConfig } from "../../src";
 import { Search, SearchSkeleton, SortedList } from "./components";
 
-const { useKeat, FeatureBoundary } = keatReact({
+type Feature = ExtractFeatures<typeof keat>;
+
+const keat = keatReact({
   features: {
-    redesign: booleanFlag,
-    search: booleanFlag,
-    sortAlgorithm: ["quicksort", "heapsort"],
+    redesign: true,
+    search: true,
+    sortAlgorithm: {
+      variates: ["quicksort", "heapsort"],
+    },
   } as const,
   plugins: [remoteConfig("https://example.io/config")],
 });
+
+const { useKeat, FeatureBoundary } = keat;
 
 export function App() {
   const { variation } = useKeat();

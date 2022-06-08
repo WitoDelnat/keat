@@ -12,7 +12,7 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
-import { anonymous, booleanFlag, cache, keatReact, rollouts } from "keat";
+import { anonymous, cache, keatReact, rollouts } from "keat";
 import { NextPage } from "next";
 import { useCallback, useState } from "react";
 import NavBar from "../../components/NavBar";
@@ -21,14 +21,12 @@ const COUNT = 500_000;
 
 export const { useKeat: useCachedKeat } = keatReact({
   plugins: [anonymous(), cache(), rollouts()],
-  features: { demo: booleanFlag },
-  config: { demo: 50 },
+  features: { demo: 50 },
 });
 
 export const { useKeat: useUncachedKeat } = keatReact({
   plugins: [anonymous(), rollouts()],
-  features: { demo: booleanFlag },
-  config: { demo: 50 },
+  features: { demo: 50 },
 });
 
 const CacheDemo: NextPage = () => {

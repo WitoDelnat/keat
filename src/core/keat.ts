@@ -1,30 +1,37 @@
 import { load } from "./display";
-import { AfterEvalHook } from "./plugin";
-import { normalize } from "./rules";
-import type { Display, KeatApi, KeatInit, AnyFeatures, User } from "./types";
+import type { AfterEvalHook } from "./plugin";
+import type {
+  AnyFeatures,
+  Config,
+  Display,
+  KeatApi,
+  KeatInit,
+  Rule,
+  User,
+} from "./types";
+import { mutable } from "./utils";
 
 export type ExtractFeatures<K> = K extends KeatApi<infer K> ? keyof K : never;
 
-export function keat<TFeatures extends AnyFeatures>({
+export function keatCore<TFeatures extends AnyFeatures>({
   features,
-  config,
   display = "swap",
   plugins = [],
-}: KeatInit<TFeatures>) {
+}: KeatInit<TFeatures>): KeatApi<TFeatures> {
   let defaultDisplay = display;
   let defaultUser: User | undefined = undefined;
-  let latestId = 0;
-  let latest = config;
+  let configId = 0;
+  let config: Config = {};
 
   const loader = load(
     Promise.allSettled(
       plugins.map((plugin) =>
         plugin.onPluginInit?.(
-          { features, config },
+          { features },
           {
             setConfig: (newConfig) => {
-              latestId += 1;
-              latest = newConfig;
+              configId += 1;
+              config = newConfig;
             },
           }
         )
@@ -32,23 +39,35 @@ export function keat<TFeatures extends AnyFeatures>({
     ).then(() => undefined)
   );
 
+  function getVariates(feature: string): any[] {
+    const feat = features[feature];
+    return typeof feat === "object" && "variates" in feat
+      ? mutable(feat.variates) ?? [true, false]
+      : [true, false];
+  }
+
+  const getRules = (feature: string, configId: number): Rule[] | undefined => {
+    const feat = features[feature];
+    const remote = config[feature];
+    const local = isRule(feat) ? feat : (feat["when"] as Rule | Rule[]);
+    return configId === 0 ? normalize(local) : normalize(remote ?? local);
+  };
+
   const evaluate = (
     feature: string,
     user: User | undefined,
     configId: number
   ): any => {
-    const variates = features[feature] as any[];
-    if (!variates) return undefined;
-    const conf = configId === 0 ? config : latest;
-    const rule = normalize(conf?.[feature], variates.length > 2);
-    if (!rule) return variates[variates.length - 1];
+    const variates = getVariates(feature);
+    const rules = getRules(feature, configId);
+    if (!rules) return variates[variates.length - 1];
 
     let result: unknown;
     const afterEval: AfterEvalHook[] = [];
 
     for (const plugin of plugins) {
       const callback = plugin.onEval?.(
-        { feature, rule, variates, user, result, configId },
+        { feature, rules, variates, user, result, configId },
         {
           setResult: (newResult) => (result = newResult),
           setUser: (newUser) => (user = newUser as User),
@@ -59,7 +78,7 @@ export function keat<TFeatures extends AnyFeatures>({
     }
 
     if (result === undefined) {
-      const index = rule?.findIndex((v) => v === true) ?? -1;
+      const index = rules.findIndex((v) => v === true) ?? -1;
       result = index === -1 ? variates[variates.length - 1] : variates[index];
     }
 
@@ -75,9 +94,22 @@ export function keat<TFeatures extends AnyFeatures>({
       feature: TFeature,
       user: User | undefined = defaultUser,
       display: Display = defaultDisplay
-    ): TFeatures[TFeature][number] => {
+    ) => {
       const useLatest = loader.useLatest(display);
-      return evaluate(feature as string, user, useLatest ? latestId : 0);
+      return evaluate(feature as string, user, useLatest ? configId : 0);
     },
   };
+}
+
+function normalize(rule: Rule | Rule[] | undefined): Rule[] | undefined {
+  return Array.isArray(rule) ? rule : rule === undefined ? undefined : [rule];
+}
+
+function isRule(x: unknown): x is Rule {
+  return (
+    typeof x === "boolean" ||
+    typeof x === "string" ||
+    typeof x === "number" ||
+    (typeof x === "object" && x !== null && "OR" in x)
+  );
 }

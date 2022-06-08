@@ -12,15 +12,14 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
-import { anonymous, booleanFlag, keatReact, rollouts } from "keat";
+import { anonymous, keatReact, rollouts } from "keat";
 import { NextPage } from "next";
 import { useLocalstorageState } from "rooks";
 import NavBar from "../../components/NavBar";
 
 export const { useKeat } = keatReact({
-  plugins: [anonymous(), rollouts()],
-  features: { demo: booleanFlag },
-  config: { demo: 50 },
+  plugins: [anonymous({ persist: true }), rollouts()],
+  features: { demo: 50 },
 });
 
 const AnonymousDemo: NextPage = () => {

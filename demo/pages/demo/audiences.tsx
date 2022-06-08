@@ -15,7 +15,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { randEmail } from "@ngneat/falso";
-import { audiences, booleanFlag, keatReact } from "keat";
+import { audiences, keatReact } from "keat";
 import { NextPage } from "next";
 import { useMemo, useState } from "react";
 import NavBar from "../../components/NavBar";
@@ -26,8 +26,7 @@ export const { useKeat } = keatReact({
       staff: (user) => user?.email.endsWith("@example.io"),
     }),
   ],
-  features: { demo: booleanFlag },
-  config: { demo: "staff" },
+  features: { demo: "staff" },
 });
 
 const AudiencesDemo: NextPage = () => {

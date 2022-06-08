@@ -1,13 +1,29 @@
 import React, { ReactNode, useEffect } from "react";
-import { AnyFeatures, Display, keat, KeatInit } from "../core";
+import { AnyFeatures, Display, KeatApi, keatCore, KeatInit } from "../core";
+
+type KeatReactApi<TFeatures extends AnyFeatures> = KeatApi<TFeatures> & {
+  useKeat(display?: Display): {
+    loading: boolean;
+    variation: KeatApi<TFeatures>["variation"];
+    setUser: KeatApi<TFeatures>["setUser"];
+  };
+  FeatureBoundary<TFeature extends keyof TFeatures>(args: {
+    name: TFeature;
+    invisible?: ReactNode;
+    children?: ReactNode;
+    fallback?: ReactNode;
+    display?: Display;
+  }): JSX.Element;
+};
 
 export function keatReact<TFeatures extends AnyFeatures>(
   init: KeatInit<TFeatures>
-) {
-  const keatInstance = keat(init);
+): KeatReactApi<TFeatures> {
+  const keatInstance = keatCore(init);
 
   return {
-    useKeat(display?: Display) {
+    ...keatInstance,
+    useKeat(display) {
       const [loading, setLoading] = React.useState(true);
 
       useEffect(() => {
@@ -20,18 +36,12 @@ export function keatReact<TFeatures extends AnyFeatures>(
         setUser: keatInstance.setUser,
       };
     },
-    FeatureBoundary<TFeature extends keyof TFeatures>({
+    FeatureBoundary({
       display,
       name,
       invisible = null,
       fallback = null,
       children,
-    }: {
-      name: TFeature;
-      invisible?: ReactNode;
-      children?: ReactNode;
-      fallback?: ReactNode;
-      display?: Display;
     }) {
       const [loading, setLoading] = React.useState(true);
 

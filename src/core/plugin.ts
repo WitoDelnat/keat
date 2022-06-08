@@ -1,5 +1,5 @@
 import { Config, User } from ".";
-import { NormalizedRule } from "./types";
+import { Rule } from "./types";
 
 export type Plugin = {
   /**
@@ -35,7 +35,7 @@ export type OnEvalHook = (
 export type OnEvalCtx = {
   feature: string;
   variates: any[];
-  rule: NormalizedRule;
+  rules: Rule[];
   user: User | undefined;
   configId: number;
   result: unknown | undefined;
