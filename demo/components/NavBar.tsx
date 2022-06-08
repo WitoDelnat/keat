@@ -254,4 +254,8 @@ const NAV_ITEMS: Array<NavItem> = [
     label: "Anonymous",
     href: "/demo/anonymous",
   },
+  {
+    label: "Variates",
+    href: "/demo/variates",
+  },
 ];
