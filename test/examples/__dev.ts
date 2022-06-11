@@ -24,7 +24,7 @@ const { variation, ready } = keatCore({
       variates: ["heuristic", "brute", "basic"],
       when: [false, true, false],
     },
-  } as const,
+  },
 });
 
 (async function main() {

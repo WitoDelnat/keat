@@ -33,7 +33,7 @@ import { keatCore } from "keat";
 const { variation } = keatCore({
   features: {
     recommendations: true,
-  } as const,
+  },
 });
 
 variation("recommendations") === true;
@@ -55,7 +55,7 @@ import { keatCore, audiences } from "keat";
 const { variation } = keatCore({
   features: {
     recommendations: "staff",
-  } as const,
+  },
   plugins: [
     audiences({
       staff: (user) => user.email?.endsWith("example.io"),
@@ -83,7 +83,7 @@ import { keatCore, audiences, rollouts } from "keat";
 const { variation } = keatCore({
   features: {
     recommendations: { OR: ["staff", 25] },
-  } as const,
+  },
   plugins: [
     audiences({
       staff: (user) => user.email?.endsWith("example.io"),
@@ -129,7 +129,7 @@ import { keatCore, remoteConfig, audiences, rollouts } from "keat";
 const { variation } = keatCore({
   features: {
     recommendations: false,
-  } as const,
+  },
   plugins: [
     remoteConfig("http://example.io/config", { interval: 300 }),
     audiences({
@@ -166,7 +166,7 @@ export const keat = keatCore({
   features: {
     search: 30,
     halloweenDesign: { OR: ["preview", "2022-10-20"] },
-  } as const,
+  },
   plugins: [
     localConfig({
       ...featureJson,
@@ -222,12 +222,13 @@ export const keat = keatCore({
       ],
       when: [false, true, false],
     },
-  } as const,
+  } as const, // tip: use `as const` to get narrow return types
   plugins: [rollouts()],
 });
 
 keat.variation("notificationService");
 ReturnType<typeof keat.variation("rateLimit")> = { level: string; average: number; burst: number};
+ReturnType<typeof keat.variation("notificationService")> = "modern" | "legacy"; // or `string` without `as const`
 ```
 
 ### SaaS application with React
