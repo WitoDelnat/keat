@@ -8,14 +8,12 @@ An easy way to increase your deployment frequency and reduce stress of releases.
 
 ## Key Features
 
-- 🚀 Progressive rollouts, 🎯 targeted audiences and 📅 scheduled features.
+- 🚀 Progressive rollouts, 🎯 targeted audiences and 📅 scheduled launches.
 - 🛠 Remote configuration without vendor lock-in.
 - 💙 Amazing TypeScript support.
 - 💡 Framework agnostic with React adaptor included.
 - 🌳 Lightweight core with tree shakeable plugins.
 - 🧪 Bi- and multivariates of any type.
-
-You can also find the introductory blog-post [here](https://www.witodelnat.eu/blog/2022/introducing-keat).
 
 ## Getting started
 
@@ -25,7 +23,7 @@ Start by adding Keat to your codebase:
 npm install keat
 ```
 
-After installing Keat, you define your first **features** together with rules.
+After installing Keat, you can define your first **feature** together with its **rule**.
 
 ```typescript
 import { keatCore } from "keat";
@@ -44,7 +42,7 @@ This is not very useful so let's continue by adding **plugins** to supercharge K
 
 ### Enable features for particular users
 
-Enabling features for particular users allows you to use trunk-based development, testing in production and preview releases for your adventurous users.
+Enabling features for particular users allows you to test in production and preview releases to your adventurous users.
 
 To do this you use the `audience` plugin.
 This plugin takes each `string` of a rule and enables the feature when a matching function responds truthy.
@@ -70,12 +68,10 @@ variation("recommendations", { email: "jef@gmail.com" }) === false;
 ### Enable features for a percentage of users
 
 Enabling features for a percentage of users allows canary and A/B testing.
-By releasing to small and gradually increasing amount of users you gain confidence in stability and scalability.
+By releasing to a small and gradually increasing amount of users you gain the confidence you need.
 
 To do this you use the `rollouts` plugin.
-This plugin takes the first `number` of a rule and enables the feature for a percentage of users equal to that amount.
-
-Rollouts will murmurhash both feature name and user identifier under the hood. This gives sticky behavior across sessions for the same user, yet with different users for each feature.
+This plugin takes the first `number` of a rule and enables the feature for a percentage of users equal to that amount. Under the hood a murmurhash will ensure sticky behavior across sessions for the same user.
 
 ```typescript
 import { keatCore, audiences, rollouts } from "keat";
@@ -96,10 +92,10 @@ variation("recommendations", { email: "dev@example.io" }) === true;
 variation("recommendations", { email: randomEmail() }); // `true` for 25% of users.
 ```
 
-You might wonder how multiple plugins relate to each other.
+You might also wonder how multiple plugins relate to each other.
 Plugins are evaluated in FIFO order, so in this example the audiences are checked before the rollouts.
-The evaluation short-circuits whenever a plugin sets a result.
-When none is set the default behavior is used instead.
+The evaluation short-circuits whenever a plugin sets a result,
+and when none is set the default behavior is used instead.
 
 ### Toggle features remotely
 
@@ -148,18 +144,10 @@ Website without login or stable identity where you can still preview and A/B tes
 
 Consider embedding **configuration** at build time since modern CI can rebuild it within a minute or two.
 Environment variables favour operational simplicity over propagation speed.
-You can get all the benefits of feature flags without the burden of infrastructure so nothing prevents you from getting started today!
+You can get all the benefits of feature flags without the burden of infrastructure.
 
 ```typescript
-import {
-  keatCore,
-  fromEnv,
-  localConfig,
-  anonymous,
-  audiences,
-  schedule,
-  rollouts,
-} from "keat";
+import { keatCore, localConfig, …, rollouts } from "keat";
 import featureJson from "./features.json";
 
 export const keat = keatCore({
@@ -180,7 +168,7 @@ export const keat = keatCore({
         return params.has("preview");
       },
     }),
-    schedule(),
+    schedule(), // takes all ISO 8601 date strings and enables the feature when the date is in the past.
     rollouts(),
   ],
 });
@@ -190,7 +178,7 @@ export const keat = keatCore({
 
 Keat works both in the browser and on NodeJs. Use it to measure performance optimizations, gradually migrate to a new integration or degrade your services when there is trouble on the horizon.
 
-Keat is not restricted traditional boolean flags. Use bi- or multi-variates of any type to be more expressive in your feature flags. Keat will also properly infer the return type of your variates so you get immediate feedback on your usage.
+Keat is not restricted traditional boolean flags. Use **bi- or multi-variates of any type** to be more expressive in your feature flags. Keat will also properly infer the return type of your variates so you get immediate feedback on your usage.
 
 ```typescript
 import { keatCore, rollouts } from "keat";
@@ -222,7 +210,7 @@ export const keat = keatCore({
       ],
       when: [false, true, false],
     },
-  } as const, // tip: use `as const` to get narrow return types
+  } as const, // tip: use `as const` to narrow the return types
   plugins: [rollouts()],
 });
 
@@ -293,7 +281,7 @@ Rules:
 
 - **audiences** takes all `strings` and enables the feature when its matching function responds truthy.
 - **rollouts** takes the first `number` and enables the feature for a percentage of users equal to that amount.
-- **schedule** takes all `string`-formatted dates and enables the feature when a date is in the past.
+- **schedule** takes all `ISO 8601 date strings` and enables the feature when the date is in the past.
 
 Configurations:
 
