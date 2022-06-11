@@ -20,12 +20,11 @@ export const rollouts = (options?: RolloutsPluginOptions): Plugin => {
 
   return {
     onEval({ feature, rules, variates, user }, { setResult }) {
-      if (!user) return;
+      const percentage = user
+        ? hashFn(userFn(user), feature)
+        : Math.floor(Math.random() * 101);
 
-      const userId = userFn(user);
-      const percentage = hashFn(userId, feature);
       let sum = 0;
-
       const index = rules.findIndex((rule) => {
         sum += takeNumbers(rule)[0] ?? 0;
         return percentage <= sum;
