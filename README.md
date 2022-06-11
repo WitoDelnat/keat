@@ -75,12 +75,14 @@ By releasing to small and gradually increasing amount of users you gain confiden
 To do this you use the `rollouts` plugin.
 This plugin takes the first `number` of a rule and enables the feature for a percentage of users equal to that amount.
 
+Rollouts will murmurhash both feature name and user identifier under the hood. This gives sticky behavior across sessions for the same user, yet with different users for each feature.
+
 ```typescript
 import { keatCore, audiences, rollouts } from "keat";
 
 const { variation } = keatCore({
   features: {
-    recommendations: { or: ["staff", 25] },
+    recommendations: { OR: ["staff", 25] },
   } as const,
   plugins: [
     audiences({
@@ -109,7 +111,7 @@ The format is a basic JSON object that maps the feature to its updated rule:
 
 ```json
 {
-  "recommendations": { "or": ["staff", 50] }
+  "recommendations": { "OR": ["staff", 50] }
 }
 ```
 
@@ -224,7 +226,7 @@ export const keat = keatCore({
   plugins: [rollouts()],
 });
 
-keat.variation("notificationService", { id: requestId });
+keat.variation("notificationService");
 ReturnType<typeof keat.variation("rateLimit")> = { level: string; average: number; burst: number};
 ```
 
