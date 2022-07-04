@@ -1,5 +1,5 @@
 export * from "./anonymous";
-export * from "./audiences";
+export * from "./audience";
 export * from "./cache";
 export * from "./customConfig";
 export * from "./launchDay";

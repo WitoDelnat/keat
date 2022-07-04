@@ -1,5 +1,6 @@
+import { useReducer } from "react";
 import { keatCore } from "../../src";
-import { audiences, rollouts } from "../../src/plugins";
+import { audience, rollouts } from "../../src/plugins";
 
 export const { variation } = keatCore({
   features: {
@@ -12,10 +13,5 @@ export const { variation } = keatCore({
       when: ["staff", { OR: ["preview", 5] }, false, 20],
     },
   } as const,
-  plugins: [
-    rollouts(),
-    audiences({
-      /* .. */
-    }),
-  ],
+  plugins: [rollouts(), audience("test", (user) => user.id === 1)],
 });

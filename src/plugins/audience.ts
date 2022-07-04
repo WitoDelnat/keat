@@ -1,19 +1,17 @@
 import { Plugin, takeStrings, User } from "../core";
 
-type AudiencesPluginOptions = Record<string, AudienceFn>;
 type AudienceFn = (user: User) => boolean | undefined;
 
-export const audiences = (options: AudiencesPluginOptions): Plugin => {
-  const audiences = options;
-
+export const audience = (name: string, fn: AudienceFn): Plugin => {
   return {
     onEval({ variates, rules, user }, { setResult }) {
       if (!user) return;
 
       const index = rules.findIndex((rule) =>
-        takeStrings(rule).some((audience) => {
+        takeStrings(rule).some((r) => {
+          if (r !== name) return false;
           try {
-            return audiences[audience]?.(user);
+            return fn(user);
           } catch {
             return false;
           }

@@ -1,5 +1,5 @@
 import { keatCore } from "../../src/core";
-import { anonymous, audiences, rollouts } from "../../src/plugins";
+import { anonymous, audience, queryParam, rollouts } from "../../src/plugins";
 
 const { variation } = keatCore({
   features: {
@@ -11,18 +11,12 @@ const { variation } = keatCore({
   } as const,
   plugins: [
     anonymous({ persist: true }),
-    audiences({
-      preview: () => {
-        const queryString = window.location.search;
-        const params = new URLSearchParams(queryString);
-        return params.has("preview");
-      },
-      halloweenPeriod: () => {
-        const now = Date.now();
-        const start = new Date(2022, 10, 15).getTime();
-        const end = new Date(2022, 11, 2).getTime();
-        return start < now && now < end;
-      },
+    queryParam("preview"),
+    audience("halloweenPeriod", () => {
+      const now = Date.now();
+      const start = new Date(2022, 10, 15).getTime();
+      const end = new Date(2022, 11, 2).getTime();
+      return start < now && now < end;
     }),
     rollouts(),
   ],

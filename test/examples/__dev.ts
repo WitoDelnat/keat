@@ -1,11 +1,9 @@
 import { keatCore } from "../../src";
-import { audiences, rollouts } from "../../src/plugins";
+import { audience, rollouts } from "../../src/plugins";
 
 const { variation, ready } = keatCore({
   plugins: [
-    audiences({
-      staff: (user) => user.company.endsWith("@company.io"),
-    }),
+    audience("staff", (user) => user.company.endsWith("@company.io")),
     rollouts(),
   ],
   features: {
