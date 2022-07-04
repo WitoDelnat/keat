@@ -45,20 +45,16 @@ This is not very useful so let's continue by adding **plugins** to supercharge K
 Enabling features for particular users allows you to test in production and preview releases to your adventurous users.
 
 To do this you use the `audience` plugin.
-This plugin takes each `string` of a rule and enables the feature when a matching function responds truthy.
+This plugin looks whether the rule contains its name and enables the feature when its function evaluates truthy.
 
 ```typescript
-import { keatCore, audiences } from "keat";
+import { keatCore, audience } from "keat";
 
 const { variation } = keatCore({
   features: {
     recommendations: "staff",
   },
-  plugins: [
-    audiences({
-      staff: (user) => user.email?.endsWith("example.io"),
-    }),
-  ],
+  plugins: [audience("staff", (user) => user.email?.endsWith("example.io"))],
 });
 
 variation("recommendations", { email: "dev@example.io" }) === true;
@@ -74,16 +70,14 @@ To do this you use the `rollouts` plugin.
 This plugin takes the first `number` of a rule and enables the feature for a percentage of users equal to that amount. Under the hood a murmurhash will ensure sticky behavior across sessions for the same user.
 
 ```typescript
-import { keatCore, audiences, rollouts } from "keat";
+import { keatCore, audience, rollouts } from "keat";
 
 const { variation } = keatCore({
   features: {
     recommendations: { OR: ["staff", 25] },
   },
   plugins: [
-    audiences({
-      staff: (user) => user.email?.endsWith("example.io"),
-    }),
+    audience("staff", (user) => user.email?.endsWith("example.io")),
     rollouts(),
   ],
 });
@@ -120,7 +114,7 @@ The plain format combined with custom plugins means possibilities are endless:
 Or you can use the build-in `remoteConfig` to fetch it from an endpoint:
 
 ```typescript
-import { keatCore, remoteConfig, audiences, rollouts } from "keat";
+import { keatCore, remoteConfig, audience, rollouts } from "keat";
 
 const { variation } = keatCore({
   features: {
@@ -128,9 +122,7 @@ const { variation } = keatCore({
   },
   plugins: [
     remoteConfig("http://example.io/config", { interval: 300 }),
-    audiences({
-      staff: (user) => user.email?.endsWith("example.io"),
-    }),
+    audience("staff", (user) => user.email?.endsWith("example.io")),
     rollouts(),
   ],
 });
@@ -161,14 +153,8 @@ export const keat = keatCore({
       search: fromEnv(process.env["TOGGLE_SEARCH"]),
     }),
     anonymous({ persist: true }),
-    audiences({
-      preview: () => {
-        const queryString = window.location.search;
-        const params = new URLSearchParams(queryString);
-        return params.has("preview");
-      },
-    }),
-    schedule(), // takes all ISO 8601 date strings and enables the feature when the date is in the past.
+    queryParam("preview"), // takes "preview" and toggles when "preview" is in the URL's query parameters.
+    launchDay(), // takes all ISO 8601 date strings and toggles when the date is in the past.
     rollouts(),
   ],
 });
@@ -228,7 +214,7 @@ With **feature display** you can optimize individual boundaries instead of block
 It will feel familiar if you've worked with `font-display` before ([Playground](https://font-display.glitch.me/), [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)).
 
 ```tsx
-import { keatReact, audiences, remoteConfig, rollouts } from "keat";
+import { keatReact, audience, remoteConfig, rollouts } from "keat";
 
 const { useKeat, FeatureBoundary } = keatReact({
   features: {
@@ -240,10 +226,8 @@ const { useKeat, FeatureBoundary } = keatReact({
   } as const,
   plugins: [
     remoteConfig("https://example.io/slowConfig", { interval: 300 }),
-    audiences({
-      staff: (user) => user.email?.endsWith("example.io"),
-      preview: (user) => user.preview,
-    }),
+    audience("staff", (user) => user.email?.endsWith("example.io")),
+    audience("preview", (user) => user.settings.previewEnabled),
     rollouts(),
   ],
 });
@@ -279,9 +263,10 @@ export function App() {
 
 Rules:
 
-- **audiences** takes all `strings` and enables the feature when its matching function responds truthy.
+- **audience** checks whether the rule contains its name and enables the feature when its function responds truthy.
+- **queryParam** checks whether the rule contains its name and enables the feature depending on the URLs query parameter.
 - **rollouts** takes the first `number` and enables the feature for a percentage of users equal to that amount.
-- **schedule** takes all `ISO 8601 date strings` and enables the feature when the date is in the past.
+- **launchDay** takes all `ISO 8601 date strings` and enables the feature when the date is in the past.
 
 Configurations:
 
