@@ -7,6 +7,7 @@ type KeatReactApi<TFeatures extends AnyFeatures> = KeatApi<TFeatures> & {
     variation: KeatApi<TFeatures>["variation"];
     setUser: KeatApi<TFeatures>["setUser"];
   };
+  useVariation(display?: Display): KeatApi<TFeatures>["variation"];
   FeatureBoundary<TFeature extends keyof TFeatures>(args: {
     name: TFeature;
     invisible?: ReactNode;
@@ -35,6 +36,9 @@ export function keatReact<TFeatures extends AnyFeatures>(
         variation: keatInstance.variation,
         setUser: keatInstance.setUser,
       };
+    },
+    useVariation() {
+      return keatInstance.variation;
     },
     FeatureBoundary({
       display,

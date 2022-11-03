@@ -1,5 +1,10 @@
 import { keatCore } from "../../src/core";
-import { audiences, remoteConfig, rollouts } from "../../src/plugins";
+import {
+  audience,
+  keatRelease,
+  remoteConfig,
+  rollouts,
+} from "../../src/plugins";
 
 const { variation } = keatCore({
   features: {
@@ -12,10 +17,9 @@ const { variation } = keatCore({
   } as const,
   plugins: [
     remoteConfig("https://example.io/config"),
-    audiences({
-      staff: (user) => user.email?.endsWith("example.io"),
-      preview: (user) => user.preview,
-    }),
+    audience("staff", (user) => user.email?.endsWith("example.io")),
+    audience("preview", (user) => user.preview),
+    keatRelease("test"),
     rollouts(),
   ],
 });

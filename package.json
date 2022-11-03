@@ -40,7 +40,15 @@
     "vitest": "0.12.6"
   },
   "peerDependencies": {
-    "react": ">=16",
-    "react-dom": ">=16"
+    "react": "^18.0 || ^17.0 || ^16.0",
+    "react-dom": "^18.0 || ^17.0 || ^16.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   }
 }
