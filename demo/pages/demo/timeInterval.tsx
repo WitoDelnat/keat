@@ -11,27 +11,27 @@ import {
   Tr,
   VStack,
 } from "@chakra-ui/react";
-import { keatReact, schedule } from "keat";
+import { keatReact, timeInterval } from "keat";
 import { NextPage } from "next";
 import NavBar from "../../components/NavBar";
 
-const DATE = "2022-05-07";
+const DATE = "2022-11-15T21:05/2022-11-15T21:10";
 
-export const { useKeat } = keatReact({
-  plugins: [schedule()],
-  features: { demo: DATE } as const,
+export const { useKeat, useVariation } = keatReact({
+  features: { demo: DATE },
+  plugins: [timeInterval()],
 });
 
 const ScheduleDemo: NextPage = () => {
-  const { variation } = useKeat();
+  const variation = useVariation();
 
   return (
     <VStack width="100%" alignItems="start" spacing="6">
       <NavBar />
 
       <VStack padding="6" alignItems="start" width="100%" spacing="6">
-        <Heading>Schedule</Heading>
-        <Text>Enable a feature once a certain date has passed.</Text>
+        <Heading>Time interval</Heading>
+        <Text>Enable a feature when it is in a given time interval.</Text>
       </VStack>
 
       <TableContainer width="100%">
