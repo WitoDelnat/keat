@@ -24,8 +24,8 @@ export const queryParam = (
   { key, value }: Options = {}
 ): Plugin => {
   return {
-    onEval({ variates, rules, user }, { setResult }) {
-      if (!user || typeof window === "undefined") return;
+    onEval({ variates, rules }, { setResult }) {
+      if (typeof window === "undefined") return;
 
       const index = rules.findIndex((rule) =>
         takeStrings(rule).some((r) => {
