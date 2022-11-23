@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useReducer } from "react";
 import { AnyFeatures, Display, KeatApi, keatCore, KeatInit } from "../core";
 
 type KeatReactApi<TFeatures extends AnyFeatures> = KeatApi<TFeatures> & {
@@ -48,10 +48,16 @@ export function keatReact<TFeatures extends AnyFeatures>(
       children,
     }) {
       const [loading, setLoading] = React.useState(true);
+      const [_, forceUpdate] = useReducer((x) => x + 1, 0);
 
       useEffect(() => {
         keatInstance.ready(display).then(() => setLoading(false));
       }, [setLoading]);
+
+      useEffect(() => {
+        const unsubscribe = keatInstance.onChange(forceUpdate);
+        return () => unsubscribe();
+      }, []);
 
       if (loading) {
         return <>{invisible}</>;

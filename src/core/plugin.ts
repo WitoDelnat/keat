@@ -25,6 +25,7 @@ export type OnPluginInitCtx = {
 
 export type OnPluginInitApi = {
   setConfig: (newConfig: Config) => void;
+  onChange: () => void;
 };
 
 export type OnEvalHook = (

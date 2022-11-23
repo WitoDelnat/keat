@@ -16,28 +16,41 @@ type Options = {
   value?: string;
 
   /**
-   * Whether the local storage item should only
-   * retried at initialisation.
+   * Whether the local storage is polled for updated.
    *
-   * @default false
+   * The default polling time every 2 seconds.
+   * You can change it by setting a number (in ms).
    */
-  once?: boolean;
+  poll?: boolean | number;
 };
 
 export const localStorage = (
   name: string,
-  { key, value, once = false }: Options = {}
+  { key, value, poll = false }: Options = {}
 ): Plugin => {
-  const item = once ?? window.localStorage.getItem(key ?? name);
+  const k = key ?? name;
+  let item = window.localStorage.getItem(k);
+
   return {
+    onPluginInit(_, { onChange }) {
+      const pollInterval =
+        poll === true ? 2000 : typeof poll === "number" && poll > 0 ? poll : 0;
+      if (hasSetInterval() && pollInterval > 0) {
+        setInterval(() => {
+          const newItem = window.localStorage.getItem(k);
+          const hasChanged = item !== newItem;
+          item = newItem;
+          if (hasChanged) onChange();
+        }, pollInterval);
+      }
+    },
     onEval({ variates, rules }, { setResult }) {
       if (typeof window === "undefined") return;
 
       const index = rules.findIndex((rule) =>
         takeStrings(rule).some((r) => {
           if (r !== name) return false;
-          const i = once ? item : window.localStorage.getItem(key ?? name);
-          return value ? i === value : Boolean(i);
+          return value ? item === value : Boolean(item);
         })
       );
 
@@ -45,3 +58,7 @@ export const localStorage = (
     },
   };
 };
+
+function hasSetInterval() {
+  return typeof window !== "undefined" && window.setInterval;
+}

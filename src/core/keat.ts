@@ -13,11 +13,15 @@ import { mutable } from "./utils";
 
 export type ExtractFeatures<K> = K extends KeatApi<infer K> ? keyof K : never;
 
+export type Listener = () => void;
+export type Unsubscribe = () => void;
+
 export function keatCore<TFeatures extends AnyFeatures>({
   features,
   display = "swap",
   plugins = [],
 }: KeatInit<TFeatures>): KeatApi<TFeatures> {
+  let listeners: Listener[] = [];
   let defaultDisplay = display;
   let defaultUser: User | undefined = undefined;
   let configId = 0;
@@ -32,6 +36,9 @@ export function keatCore<TFeatures extends AnyFeatures>({
             setConfig: (newConfig) => {
               configId += 1;
               config = newConfig;
+            },
+            onChange: () => {
+              listeners.forEach((l) => l());
             },
           }
         )
@@ -97,6 +104,12 @@ export function keatCore<TFeatures extends AnyFeatures>({
     ) => {
       const useLatest = loader.useLatest(display);
       return evaluate(feature as string, user, useLatest ? configId : 0);
+    },
+    onChange: (listener: Listener): Unsubscribe => {
+      listeners.push(listener);
+      return () => {
+        listeners = listeners.filter((l) => l === listener);
+      };
     },
   };
 }

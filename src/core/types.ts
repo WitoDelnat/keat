@@ -1,3 +1,4 @@
+import { Listener, Unsubscribe } from "./keat";
 import type { Plugin } from "./plugin";
 
 /**
@@ -64,6 +65,7 @@ export type KeatApi<TFeatures extends AnyFeatures> = {
       ? TFeatures[TFeature]["variates"][number]
       : boolean
     : boolean;
+  onChange(listener: Listener): Unsubscribe;
 };
 
 /* * * * * * * * * * * * *
