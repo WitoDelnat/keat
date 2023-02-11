@@ -6,6 +6,8 @@ export const localConfig = (config: Config): Plugin => {
     onPluginInit: async (_ctx, { setConfig }) => {
       setConfig(config);
     },
+    matcher: (literal) => literal,
+    evaluate: () => false,
   };
 };
 

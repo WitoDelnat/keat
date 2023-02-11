@@ -1,4 +1,9 @@
-import { Plugin, takeStrings } from "../core";
+import {
+  createNopPlugin as createNoopPlugin,
+  createPlugin,
+  isString,
+  Plugin,
+} from "../core";
 
 type Options = {
   /**
@@ -28,14 +33,19 @@ export const localStorage = (
   name: string,
   { key, value, poll = false }: Options = {}
 ): Plugin => {
-  const k = key ?? name;
-  let item = window.localStorage.getItem(k);
+  const hasLocalStorage = typeof window !== "undefined" && window.localStorage;
+  const hasSetInterval = typeof window !== "undefined" && window.setInterval;
+  if (!hasLocalStorage || !hasSetInterval) return createNoopPlugin();
 
-  return {
+  const pollInterval =
+    poll === true ? 2000 : typeof poll === "number" && poll > 0 ? poll : 0;
+  const k = key ?? name;
+  let item: any;
+
+  return createPlugin({
     onPluginInit(_, { onChange }) {
-      const pollInterval =
-        poll === true ? 2000 : typeof poll === "number" && poll > 0 ? poll : 0;
-      if (hasSetInterval() && pollInterval > 0) {
+      item = window.localStorage.getItem(k);
+      if (pollInterval > 0) {
         setInterval(() => {
           const newItem = window.localStorage.getItem(k);
           const hasChanged = item !== newItem;
@@ -44,21 +54,10 @@ export const localStorage = (
         }, pollInterval);
       }
     },
-    onEval({ variates, rules }, { setResult }) {
-      if (typeof window === "undefined") return;
-
-      const index = rules.findIndex((rule) =>
-        takeStrings(rule).some((r) => {
-          if (r !== name) return false;
-          return value ? item === value : Boolean(item);
-        })
-      );
-
-      if (index !== -1) setResult(variates[index]);
+    matcher: isString,
+    evaluate({ literal }) {
+      if (literal !== name) return false;
+      return value ? item === value : Boolean(item);
     },
-  };
+  });
 };
-
-function hasSetInterval() {
-  return typeof window !== "undefined" && window.setInterval;
-}

@@ -1,5 +1,5 @@
-import { DEFAULT_GET_USER_ID, takeNumbers, User } from "../core";
-import { Plugin } from "../core/plugin";
+import { DEFAULT_GET_USER_ID, User } from "../core";
+import { createPlugin, isNumber, Plugin } from "../core/plugin";
 
 type RolloutsPluginOptions = {
   getUserId?: (user: User) => string;
@@ -18,21 +18,26 @@ export const rollouts = (options?: RolloutsPluginOptions): Plugin => {
   const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
 
-  return {
-    onEval({ feature, rules, variates, user }, { setResult }) {
+  // Threshold should accumulate over multi-variates
+  // e.g. variates: ["a", "b", "c"] and rules: [30,50,20]
+  // This has 30% chance to be "a" and 50% chance to be "b".
+  // For this to happen threshold has to be 80% for "b".
+  let threshold = 0;
+
+  return createPlugin({
+    matcher: isNumber,
+    onPreEvaluate() {
+      threshold = 0;
+    },
+    evaluate({ feature, user, literal }) {
       const percentage = user
         ? hashFn(userFn(user), feature)
         : Math.floor(Math.random() * 101);
 
-      let sum = 0;
-      const index = rules.findIndex((rule) => {
-        sum += takeNumbers(rule)[0] ?? 0;
-        return percentage <= sum;
-      });
-
-      if (index !== -1) setResult(variates[index]);
+      threshold = threshold + literal;
+      return percentage <= threshold;
     },
-  };
+  });
 };
 
 /**

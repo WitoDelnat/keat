@@ -27,11 +27,11 @@ export type User = CustomTypes extends { user: infer T }
  * * * * * * * * * * * * */
 export type IdentityFn = (user: User) => string;
 export type Display = "block" | "swap" | "fallback" | "optional";
+
+export type Literal = boolean | string | number;
 export type Rule =
-  | { OR: readonly (boolean | string | number)[] }
-  | boolean
-  | string
-  | number;
+  | { OR: readonly Rule[] }
+  | Literal;
 
 export type Feature =
   | Rule

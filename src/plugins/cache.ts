@@ -17,22 +17,28 @@ export const cache = (options?: CachePluginOptions): Plugin => {
   const cacheFn = options?.createCacheKey ?? DEFAULT_CREATE_CACHE_KEY;
   let lastConfigId = -1;
 
+  let cachedResult: number | undefined;
+
   return {
-    onEval: ({ configId, feature, user }, { setResult }) => {
+    onPreEvaluate({ configId }) {
+      cachedResult = undefined;
+      const cache = configId === 0 ? fallbackCache : latestCache;
+      if (configId !== 0 && lastConfigId !== configId) {
+        cache.clear();
+      }
+    },
+    matcher: (literal) => literal,
+    evaluate({ index, configId, feature, user }) {
       const cache = configId === 0 ? fallbackCache : latestCache;
       if (configId !== 0 && lastConfigId !== configId) cache.clear();
-
       const key = cacheFn(configId, feature, user);
-      const cachedResult = cache.get(key);
-
-      if (cachedResult !== undefined) {
-        setResult(cachedResult);
-      }
-
-      return ({ result }) => {
-        if (cachedResult === undefined) cache.set(key, result);
-        if (configId !== 0) lastConfigId = configId;
-      };
+      cachedResult = cache.get(key);
+      return index === cachedResult;
+    },
+    onPostEvaluate({ result, configId, feature, user }) {
+      const cache = configId === 0 ? fallbackCache : latestCache;
+      const key = cacheFn(configId, feature, user);
+      if (cachedResult !== undefined) cache.set(key, result);
     },
   };
 };

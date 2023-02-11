@@ -1,5 +1,5 @@
 import { Config } from "../core";
-import { Plugin } from "../core/plugin";
+import { createPlugin, Plugin } from "../core/plugin";
 
 type CustomConfigPluginOptions = {
   fetch: () => Promise<Config>;
@@ -13,7 +13,7 @@ const DEFAULT_OPTIONS = {
 export const customConfig = (rawOptions: CustomConfigPluginOptions): Plugin => {
   const options = { ...DEFAULT_OPTIONS, ...rawOptions };
 
-  return {
+  return createPlugin({
     onPluginInit: async (_ctx, { setConfig }) => {
       let timeout = 50;
       for (let i = 0; i < options.retries; i++) {
@@ -27,5 +27,7 @@ export const customConfig = (rawOptions: CustomConfigPluginOptions): Plugin => {
         }
       }
     },
-  };
+    matcher: (literal) => literal,
+    evaluate: () => false,
+  });
 };

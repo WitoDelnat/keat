@@ -1,4 +1,4 @@
-import { DEFAULT_CREATE_USER, Plugin, User } from "../core";
+import { createPlugin, DEFAULT_CREATE_USER, Plugin, User } from "../core";
 
 type AnonymousPluginOptions = {
   createUser?: (id: string) => User;
@@ -16,7 +16,7 @@ export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
   const createUser = options?.createUser ?? DEFAULT_CREATE_USER;
   let anonymousUser: unknown;
 
-  return {
+  return createPlugin({
     onPluginInit() {
       let anonymousId;
 
@@ -32,12 +32,14 @@ export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
 
       anonymousUser = createUser(anonymousId);
     },
-    onEval({ user }, { setUser }) {
+    onPreEvaluate({ user }, { setUser }) {
       if (!user) {
         setUser(anonymousUser);
       }
     },
-  };
+    matcher: (literal) => literal,
+    evaluate: () => false,
+  });
 };
 
 function hasLocalStorage() {

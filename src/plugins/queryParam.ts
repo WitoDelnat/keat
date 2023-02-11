@@ -1,4 +1,4 @@
-import { Plugin, takeStrings } from "../core";
+import { createPlugin, isString, Plugin, takeStrings } from "../core";
 
 type Options = {
   /**
@@ -16,29 +16,48 @@ type Options = {
   value?: string;
 };
 
-/**
- * Toggles features based on the URL's query parameter.
- */
+// /**
+//  * Toggles features based on the URL's query parameter.
+//  */
+// export const queryParam = (
+//   name: string,
+//   { key, value }: Options = {}
+// ): Plugin => {
+//   return {
+//     onEval({ variates, rules }, { setResult }) {
+//       if (typeof window === "undefined") return;
+
+//       const index = rules.findIndex((rule) =>
+//         takeStrings(rule).some((r) => {
+//           if (r !== name) return false;
+//           const queryString = window.location.search;
+//           const params = new URLSearchParams(queryString);
+//           return value
+//             ? params.get(key ?? name) === value
+//             : params.has(key ?? name);
+//         })
+//       );
+
+//       if (index !== -1) setResult(variates[index]);
+//     },
+//   };
+// };
+
 export const queryParam = (
   name: string,
   { key, value }: Options = {}
 ): Plugin => {
-  return {
-    onEval({ variates, rules }, { setResult }) {
-      if (typeof window === "undefined") return;
+  return createPlugin({
+    matcher: isString,
+    evaluate({ literal }) {
+      if (literal !== name || typeof window === "undefined") return false;
 
-      const index = rules.findIndex((rule) =>
-        takeStrings(rule).some((r) => {
-          if (r !== name) return false;
-          const queryString = window.location.search;
-          const params = new URLSearchParams(queryString);
-          return value
-            ? params.get(key ?? name) === value
-            : params.has(key ?? name);
-        })
-      );
+      const queryString = window.location.search;
+      const params = new URLSearchParams(queryString);
 
-      if (index !== -1) setResult(variates[index]);
+      return value
+        ? params.get(key ?? name) === value
+        : params.has(key ?? name);
     },
-  };
+  });
 };

@@ -1,4 +1,4 @@
-import { Plugin, takeStrings } from "../core";
+import { createPlugin, isString, Plugin } from "../core";
 
 const DAYS = [
   "sunday",
@@ -18,21 +18,16 @@ export const businessHours = (
   name: string,
   schedule: Schedule = DEFAULT_SCHEDULE
 ): Plugin => {
-  return {
-    onEval({ variates, rules }, { setResult }) {
-      const index = rules.findIndex((rule) =>
-        takeStrings(rule).some((s) => {
-          if (s !== name) return false;
-          const now = new Date();
-          const hour = new Date().getHours();
-          const periods = schedule[DAYS[now.getDay()]] ?? [];
-          return periods.some((p) => p.from <= hour && hour >= p.to);
-        })
-      );
-
-      if (index !== -1) setResult(variates[index]);
+  return createPlugin({
+    matcher: isString,
+    evaluate({ literal }) {
+      if (literal !== name) return false;
+      const now = new Date();
+      const hour = new Date().getHours();
+      const periods = schedule[DAYS[now.getDay()]] ?? [];
+      return periods.some((p) => p.from <= hour && hour >= p.to);
     },
-  };
+  });
 };
 
 const DEFAULT_SCHEDULE: Schedule = {

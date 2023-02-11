@@ -1,11 +1,18 @@
 import { load } from "./display";
-import type { AfterEvalHook } from "./plugin";
+import type {
+  EvalCtx,
+  OnEvalApi,
+  OnPluginInitApi,
+  onPostEvaluateHook,
+  Plugin,
+} from "./plugin";
 import type {
   AnyFeatures,
   Config,
   Display,
   KeatApi,
   KeatInit,
+  Literal,
   Rule,
   User,
 } from "./types";
@@ -27,23 +34,20 @@ export function keatCore<TFeatures extends AnyFeatures>({
   let configId = 0;
   let config: Config = {};
 
+  const initApi: OnPluginInitApi = {
+    setConfig: (newConfig) => {
+      configId += 1;
+      config = newConfig;
+    },
+    onChange: () => {
+      listeners.forEach((l) => l());
+    },
+  };
+
   const loader = load(
     Promise.allSettled(
-      plugins.map((plugin) =>
-        plugin.onPluginInit?.(
-          { features },
-          {
-            setConfig: (newConfig) => {
-              configId += 1;
-              config = newConfig;
-            },
-            onChange: () => {
-              listeners.forEach((l) => l());
-            },
-          }
-        )
-      )
-    ).then(() => undefined)
+      plugins.map((p) => p.onPluginInit?.({ features }, initApi))
+    )
   );
 
   function getVariates(feature: string): any[] {
@@ -70,18 +74,26 @@ export function keatCore<TFeatures extends AnyFeatures>({
     if (!rules) return variates[variates.length - 1];
 
     let result: unknown;
-    const afterEval: AfterEvalHook[] = [];
+    let ctx: EvalCtx = { feature, variates, rules, user, configId };
 
-    for (const plugin of plugins) {
-      const callback = plugin.onEval?.(
-        { feature, rules, variates, user, result, configId },
-        {
-          setResult: (newResult) => (result = newResult),
-          setUser: (newUser) => (user = newUser as User),
-        }
-      );
-      if (typeof callback === "function") afterEval.push(callback);
-      if (result !== undefined) break;
+    const preApi: OnEvalApi = {
+      setUser: (newUser) => {
+        ctx.user = newUser as User;
+      },
+    };
+
+    plugins.forEach((p) => p.onPreEvaluate?.(ctx, preApi));
+
+
+    for (let i = 0; i < variates.length; i++) {
+      const variate = variates[i];
+      const rule = rules[i];
+      const ok = evaluateVariate(ctx, plugins, rule);
+
+      if (ok) {
+        result = variate;
+        break;
+      }
     }
 
     if (result === undefined) {
@@ -89,7 +101,8 @@ export function keatCore<TFeatures extends AnyFeatures>({
       result = index === -1 ? variates[variates.length - 1] : variates[index];
     }
 
-    afterEval.forEach((cb) => cb({ result }));
+    plugins.forEach((p) => p.onPostEvaluate?.({ ...ctx, result }));
+
     return result;
   };
 
@@ -112,6 +125,24 @@ export function keatCore<TFeatures extends AnyFeatures>({
       };
     },
   };
+}
+
+function evaluateVariate(ctx: EvalCtx, plugins: Plugin[], rule: Rule): boolean {
+  return isLiteral(rule)
+    ? plugins.some((p) => {
+        const matchers = Array.isArray(p.matcher) ? p.matcher : [p.matcher];
+        for (const matcher of matchers) {
+          const literal = matcher(rule);
+          if (literal === null) continue;
+          return p.evaluate({ ...ctx, literal });
+        }
+      })
+    : rule.OR.some((r) => evaluateVariate(ctx, plugins, r));
+}
+
+function isLiteral(rule: Rule): rule is Literal {
+  const t = typeof rule;
+  return t === "string" || t === "number" || t === "boolean";
 }
 
 function normalize(rule: Rule | Rule[] | undefined): Rule[] | undefined {

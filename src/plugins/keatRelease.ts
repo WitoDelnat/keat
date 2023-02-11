@@ -24,6 +24,8 @@ export const keatRelease = (appId: string): Plugin => {
       const remoteConfig = await fetchConfig(url);
       setConfig(remoteConfig);
     },
+    matcher: (literal) => literal,
+    evaluate: () => false,
   };
 };
 

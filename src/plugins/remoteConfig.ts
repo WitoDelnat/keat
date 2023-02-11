@@ -57,6 +57,8 @@ export const remoteConfig = (
         backgroundTask(options.interval, setConfig);
       }
     },
+    matcher: (literal) => literal,
+    evaluate: () => false,
   };
 };
 

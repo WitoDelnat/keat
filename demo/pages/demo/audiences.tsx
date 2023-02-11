@@ -15,17 +15,13 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { randEmail } from "@ngneat/falso";
-import { audiences, keatReact } from "keat";
+import { audience, keatReact } from "keat";
 import { NextPage } from "next";
 import { useMemo, useState } from "react";
 import NavBar from "../../components/NavBar";
 
 export const { useKeat } = keatReact({
-  plugins: [
-    audiences({
-      staff: (user) => user?.email.endsWith("@example.io"),
-    }),
-  ],
+  plugins: [audience("staff", (user) => user?.email.endsWith("@example.io"))],
   features: { demo: "staff" },
 });
 

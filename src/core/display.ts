@@ -1,7 +1,6 @@
 import { Display } from "./types";
 
-export function load(initialize: Promise<void>) {
-  const init = initialize;
+export function load(init: PromiseLike<any>) {
   const delayLong = pause(3000);
   const delay = pause(100);
 
@@ -38,13 +37,7 @@ export function load(initialize: Promise<void>) {
 
   return {
     ready: (display: Display): Promise<void> => loading[display],
-    useLatest: (display: Display): boolean => {
-      if (result[display] === undefined) {
-        const msg = `[keat] Using fallback because '${display}' is not ready. You should await keat.ready to avoid unexpected behavior.`;
-        console.warn(msg);
-      }
-      return result[display] ?? false;
-    },
+    useLatest: (display: Display): boolean => result[display] ?? false,
   };
 }
 
