@@ -28,10 +28,19 @@ export type OnPluginInitApi = {
   onChange: () => void;
 };
 
+export type OnPluginIdentifyHook = (
+  ctx: OnPluginIdentifyCtx
+) => void | Promise<void>;
+
+export type OnPluginIdentifyCtx = {
+  user?: User;
+};
+
 export type onPreEvaluateHook = (ctx: EvalCtx, api: OnEvalApi) => void;
 
 export type EvalCtx = {
   feature: string;
+  variate?: any;
   variates: any[];
   rules: Rule[];
   user: User | undefined;
@@ -56,6 +65,11 @@ export type Plugin<M extends Matcher = Matcher> = {
    * Invoked when a plugin is initialized.
    */
   onPluginInit?: OnPluginInitHook;
+
+  /**
+   * Invoked when a user is identifier.
+   */
+  onIdentify?: OnPluginIdentifyHook;
 
   /**
    * Whether a literal matches this plugin.
@@ -92,6 +106,10 @@ export function createNopPlugin(): Plugin {
     evaluate: () => false,
   };
 }
+
+export const isAny: Matcher<any> = (literal) => {
+  return literal;
+};
 
 export const isBoolean: Matcher<boolean> = (literal) => {
   return typeof literal === "boolean" ? literal : null;

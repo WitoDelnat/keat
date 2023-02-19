@@ -74,7 +74,13 @@ export function keatCore<TFeatures extends AnyFeatures>({
     if (!rules) return variates[variates.length - 1];
 
     let result: unknown;
-    let ctx: EvalCtx = { feature, variates, rules, user, configId };
+    let ctx: EvalCtx = {
+      feature,
+      variates,
+      rules,
+      user,
+      configId,
+    };
 
     const preApi: OnEvalApi = {
       setUser: (newUser) => {
@@ -84,11 +90,10 @@ export function keatCore<TFeatures extends AnyFeatures>({
 
     plugins.forEach((p) => p.onPreEvaluate?.(ctx, preApi));
 
-
     for (let i = 0; i < variates.length; i++) {
       const variate = variates[i];
       const rule = rules[i];
-      const ok = evaluateVariate(ctx, plugins, rule);
+      const ok = evaluateVariate({ ...ctx, variate }, plugins, rule);
 
       if (ok) {
         result = variate;
@@ -108,7 +113,10 @@ export function keatCore<TFeatures extends AnyFeatures>({
 
   return {
     ready: (display: Display = defaultDisplay) => loader.ready(display),
-    setUser: (user?: User) => (defaultUser = user),
+    identify: (user?: User) => {
+      defaultUser = user;
+      plugins.forEach(p => p.onIdentify)
+    },
     setDisplay: (display: Display) => (defaultDisplay = display),
     variation: <TFeature extends keyof TFeatures>(
       feature: TFeature,

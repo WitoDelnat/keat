@@ -29,9 +29,7 @@ export type IdentityFn = (user: User) => string;
 export type Display = "block" | "swap" | "fallback" | "optional";
 
 export type Literal = boolean | string | number;
-export type Rule =
-  | { OR: readonly Rule[] }
-  | Literal;
+export type Rule = { OR: readonly Rule[] } | Literal;
 
 export type Feature =
   | Rule
@@ -54,7 +52,7 @@ export type KeatInit<TFeatures extends AnyFeatures> = {
 
 export type KeatApi<TFeatures extends AnyFeatures> = {
   ready(display?: Display): Promise<void>;
-  setUser(user?: User): void;
+  identify(user?: User): void;
   setDisplay(display: Display): void;
   variation<TFeature extends keyof TFeatures>(
     feature: TFeature,
