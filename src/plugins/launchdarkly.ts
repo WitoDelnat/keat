@@ -4,23 +4,24 @@ import {
   LDContext,
   LDFlagChangeset,
   LDFlagSet,
+  LDOptions,
 } from "launchdarkly-js-client-sdk";
 import { isAny, Plugin } from "../core/plugin";
 
-type LaunchDarklyPluginOptions = {
-  clientId: string;
-};
-
-export const remoteConfig = (options: LaunchDarklyPluginOptions): Plugin => {
+export const launchDarkly = (clientId: string, options?: LDOptions): Plugin => {
   let client: LDClient;
   let flags: LDFlagSet = {};
 
   return {
     onPluginInit: async (_ctx, { onChange }) => {
-      client = initialize(options.clientId, {
-        anonymous: true,
-        kind: "user",
-      });
+      client = initialize(
+        clientId,
+        {
+          anonymous: true,
+          kind: "user",
+        },
+        options
+      );
 
       return new Promise<void>((r) => {
         function cleanup() {
@@ -36,9 +37,9 @@ export const remoteConfig = (options: LaunchDarklyPluginOptions): Plugin => {
           flags = client.allFlags();
           r();
         }
+
         client.on("failed", handleFailure);
         client.on("ready", handleReady);
-
         client.on("change", (changes: LDFlagChangeset) => {
           for (const [flag, { current }] of Object.entries(changes)) {
             flags[flag] = current;

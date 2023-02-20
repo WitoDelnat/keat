@@ -1,11 +1,5 @@
 import { load } from "./display";
-import type {
-  EvalCtx,
-  OnEvalApi,
-  OnPluginInitApi,
-  onPostEvaluateHook,
-  Plugin,
-} from "./plugin";
+import type { EvalCtx, OnEvalApi, OnPluginInitApi, Plugin } from "./plugin";
 import type {
   AnyFeatures,
   Config,
@@ -20,7 +14,7 @@ import { mutable } from "./utils";
 
 export type ExtractFeatures<K> = K extends KeatApi<infer K> ? keyof K : never;
 
-export type Listener = () => void;
+export type Listener = (config?: Config) => void;
 export type Unsubscribe = () => void;
 
 export function keatCore<TFeatures extends AnyFeatures>({
@@ -40,7 +34,7 @@ export function keatCore<TFeatures extends AnyFeatures>({
       config = newConfig;
     },
     onChange: () => {
-      listeners.forEach((l) => l());
+      listeners.forEach((l) => l(config));
     },
   };
 
@@ -144,7 +138,7 @@ function evaluateVariate(
   plugins: Plugin[],
   rule: Rule | undefined
 ): boolean {
-  if (!rule) return false;
+  if (rule === undefined) return false;
   return isLiteral(rule)
     ? plugins.some((p) => {
         const matchers = Array.isArray(p.matcher) ? p.matcher : [p.matcher];

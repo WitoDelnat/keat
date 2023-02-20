@@ -51,7 +51,7 @@ function RemoteDemo() {
     ]);
   }, [setValue, setRows]);
 
-  useIntervalWhen(() => setValue(value + 10), 10);
+  useIntervalWhen(() => setValue(value + 50), 50);
   useIntervalWhen(() => setDisplayValue(displayValue + 250), 250);
 
   return (
