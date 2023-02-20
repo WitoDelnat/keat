@@ -53,6 +53,7 @@ export type KeatInit<TFeatures extends AnyFeatures> = {
 export type KeatApi<TFeatures extends AnyFeatures> = {
   ready(display?: Display): Promise<void>;
   identify(user?: User): void;
+  configure(config: Config): void;
   setDisplay(display: Display): void;
   variation<TFeature extends keyof TFeatures>(
     feature: TFeature,

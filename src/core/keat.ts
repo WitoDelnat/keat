@@ -113,9 +113,13 @@ export function keatCore<TFeatures extends AnyFeatures>({
 
   return {
     ready: (display: Display = defaultDisplay) => loader.ready(display),
+    configure: (newConfig: Config) => {
+      initApi.setConfig(newConfig);
+      initApi.onChange();
+    },
     identify: (user?: User) => {
       defaultUser = user;
-      plugins.forEach(p => p.onIdentify)
+      plugins.forEach((p) => p.onIdentify);
     },
     setDisplay: (display: Display) => (defaultDisplay = display),
     variation: <TFeature extends keyof TFeatures>(
@@ -135,7 +139,12 @@ export function keatCore<TFeatures extends AnyFeatures>({
   };
 }
 
-function evaluateVariate(ctx: EvalCtx, plugins: Plugin[], rule: Rule): boolean {
+function evaluateVariate(
+  ctx: EvalCtx,
+  plugins: Plugin[],
+  rule: Rule | undefined
+): boolean {
+  if (!rule) return false;
   return isLiteral(rule)
     ? plugins.some((p) => {
         const matchers = Array.isArray(p.matcher) ? p.matcher : [p.matcher];
