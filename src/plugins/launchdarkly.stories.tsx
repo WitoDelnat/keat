@@ -1,5 +1,6 @@
 import { PlayIcon, StopIcon } from "@radix-ui/react-icons";
 import {
+  Button,
   Center,
   Heading,
   HStack,
@@ -20,10 +21,12 @@ import { launchDarkly } from "./launchdarkly";
 
 type Props = {
   clientId: string;
+  userId: string;
+  userEmail: string;
 };
 
-function LaunchDarklyDemo({ clientId }: Props) {
-  const { FeatureBoundary } = useMemo(() => {
+function LaunchDarklyDemo({ clientId, userId, userEmail }: Props) {
+  const { FeatureBoundary, identify } = useMemo(() => {
     return keatReact({
       plugins: [launchDarkly(clientId)],
       features: { demo: false },
@@ -36,7 +39,15 @@ function LaunchDarklyDemo({ clientId }: Props) {
         <HStack>
           <Heading>LaunchDarkly</Heading>
         </HStack>
-        <Text>Use Keat's interface instead of LaunchDarkly.</Text>
+        <Text>Integrate your LaunchDarkly backend with Keat.</Text>
+
+        <Button
+          onClick={() => {
+            identify({ id: userId, email: userEmail });
+          }}
+        >
+          Identify
+        </Button>
       </VStack>
 
       <TableContainer width="100%">
@@ -52,7 +63,12 @@ function LaunchDarklyDemo({ clientId }: Props) {
             <Tr key="demo">
               <Td>Demo</Td>
               <Td>
-                <FeatureBoundary name="demo" fallback={<Fallback />}>
+                <FeatureBoundary
+                  name="demo"
+                  fallback={<Fallback />}
+                  invisible={<Invisible />}
+                  display="optional"
+                >
                   <Remote />
                 </FeatureBoundary>
               </Td>
@@ -115,4 +131,10 @@ const meta: Meta<typeof LaunchDarklyDemo> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    clientId: "your-client-id",
+    userId: "your-user-id",
+    userEmail: "your-user-email",
+  },
+};

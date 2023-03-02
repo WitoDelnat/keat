@@ -53,8 +53,7 @@ const Rollouts = ({ percentage }: Props) => {
       <VStack padding="6" alignItems="start" width="100%" spacing="6">
         <Heading>Rollouts</Heading>
         <Text>
-          Allows you to enable your features to a percentage of users. This demo
-          uses a rule of {percentage}%.
+          Allows you to enable your features to a percentage of users.
         </Text>
       </VStack>
 

@@ -1,27 +1,14 @@
-import {
-  initialize,
-  LDClient,
-  LDContext,
-  LDFlagChangeset,
-  LDFlagSet,
-  LDOptions,
-} from "launchdarkly-js-client-sdk";
-import { isAny, Plugin } from "../core/plugin";
+import { initialize, LDClient, LDOptions } from "launchdarkly-js-client-sdk";
+import { flagsToConfig } from "../core";
+import { isNone } from "../core/matchers";
+import { createPlugin } from "../core/plugin";
 
-export const launchDarkly = (clientId: string, options?: LDOptions): Plugin => {
+export const launchDarkly = (clientId: string, options?: LDOptions) => {
   let client: LDClient;
-  let flags: LDFlagSet = {};
 
-  return {
-    onPluginInit: async (_ctx, { onChange }) => {
-      client = initialize(
-        clientId,
-        {
-          anonymous: true,
-          kind: "user",
-        },
-        options
-      );
+  return createPlugin({
+    onPluginInit: async ({ variates }, { setConfig, onChange }) => {
+      client = initialize(clientId, { kind: "user", anonymous: true }, options);
 
       return new Promise<void>((r) => {
         function cleanup() {
@@ -34,31 +21,30 @@ export const launchDarkly = (clientId: string, options?: LDOptions): Plugin => {
         }
         function handleReady() {
           cleanup();
-          flags = client.allFlags();
+          const flags = client.allFlags();
+          const config = flagsToConfig(flags, variates);
+          setConfig(config);
           r();
         }
-
         client.on("failed", handleFailure);
-        client.on("ready", handleReady);
-        client.on("change", (changes: LDFlagChangeset) => {
-          for (const [flag, { current }] of Object.entries(changes)) {
-            flags[flag] = current;
-          }
+        client.on("ready", () => {
+          handleReady();
+        });
+        client.on("change", () => {
+          const flags = client.allFlags();
+          const config = flagsToConfig(flags, variates);
+          setConfig(config);
           onChange();
         });
       });
     },
-    onIdentify({ user }) {
-      const context: LDContext = {
+    async onIdentify({ user }) {
+      await client.identify({
         kind: "user",
         key: user?.id ?? user?.sub ?? user?.email,
         ...user,
-      };
-      client.identify(context);
+      });
     },
-    matcher: isAny,
-    evaluate({ feature, variate }) {
-      return flags[feature] === variate;
-    },
-  };
+    matcher: isNone,
+  });
 };

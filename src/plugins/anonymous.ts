@@ -1,4 +1,4 @@
-import { createPlugin, DEFAULT_CREATE_USER, Plugin, User } from "../core";
+import { createPlugin, DEFAULT_CREATE_USER, isNone, User } from "../core";
 
 type AnonymousPluginOptions = {
   createUser?: (id: string) => User;
@@ -11,7 +11,7 @@ const DEFAULT_CREATE_ID = () => {
   return id ?? Math.floor(Math.random() * 100000000).toString();
 };
 
-export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
+export const anonymous = (options?: AnonymousPluginOptions) => {
   const createId = options?.createId ?? DEFAULT_CREATE_ID;
   const createUser = options?.createUser ?? DEFAULT_CREATE_USER;
   let anonymousUser: unknown;
@@ -37,8 +37,7 @@ export const anonymous = (options?: AnonymousPluginOptions): Plugin => {
         setUser(anonymousUser);
       }
     },
-    matcher: (literal) => literal,
-    evaluate: () => false,
+    matcher: isNone,
   });
 };
 

@@ -1,16 +1,15 @@
 import { load } from "./display";
-import type { EvalCtx, OnEvalApi, OnPluginInitApi, Plugin } from "./plugin";
+import type { EvalCtx, OnEvalApi, Plugin } from "./plugin";
 import type {
   AnyFeatures,
   Config,
   Display,
   KeatApi,
   KeatInit,
-  Literal,
   Rule,
   User,
 } from "./types";
-import { mutable } from "./utils";
+import { getRules, getVariatesMap, isLiteral } from "./utils";
 
 export type ExtractFeatures<K> = K extends KeatApi<infer K> ? keyof K : never;
 
@@ -22,49 +21,47 @@ export function keatCore<TFeatures extends AnyFeatures>({
   display = "swap",
   plugins = [],
 }: KeatInit<TFeatures>): KeatApi<TFeatures> {
-  let listeners: Listener[] = [];
+  const names = Object.keys(features);
+  const variatesMap = getVariatesMap(features);
   let defaultDisplay = display;
   let defaultUser: User | undefined = undefined;
+
   let configId = 0;
   let config: Config = {};
-
-  const initApi: OnPluginInitApi = {
-    setConfig: (newConfig) => {
-      configId += 1;
-      config = newConfig;
-    },
-    onChange: () => {
-      listeners.forEach((l) => l(config));
-    },
+  const setConfig = (newConfig: Config) => {
+    configId += 1;
+    config = newConfig;
   };
 
-  const loader = load(
-    Promise.allSettled(
-      plugins.map((p) => p.onPluginInit?.({ features }, initApi))
+  let listeners: Listener[] = [];
+  const handleChange = () => {
+    listeners.forEach((l) => l(config));
+  };
+
+  const initPromise = Promise.allSettled(
+    plugins.map((p) =>
+      p.onPluginInit?.(
+        { features: names, variates: variatesMap },
+        {
+          setConfig,
+          onChange: handleChange,
+        }
+      )
     )
-  );
+  ).then(() => {
+    if (configId === 0) return;
+    handleChange();
+  });
 
-  function getVariates(feature: string): any[] {
-    const feat = features[feature];
-    return typeof feat === "object" && "variates" in feat
-      ? mutable(feat.variates) ?? [true, false]
-      : [true, false];
-  }
-
-  const getRules = (feature: string, configId: number): Rule[] | undefined => {
-    const feat = features[feature];
-    const remote = config[feature];
-    const local = isRule(feat) ? feat : (feat["when"] as Rule | Rule[]);
-    return configId === 0 ? normalize(local) : normalize(remote ?? local);
-  };
+  let loader = load(initPromise);
 
   const evaluate = (
     feature: string,
     user: User | undefined,
     configId: number
   ): any => {
-    const variates = getVariates(feature);
-    const rules = getRules(feature, configId);
+    const variates = variatesMap[feature];
+    const rules = getRules(features, config, feature, configId);
     if (!rules) return variates[variates.length - 1];
 
     let result: unknown;
@@ -108,12 +105,22 @@ export function keatCore<TFeatures extends AnyFeatures>({
   return {
     ready: (display: Display = defaultDisplay) => loader.ready(display),
     configure: (newConfig: Config) => {
-      initApi.setConfig(newConfig);
-      initApi.onChange();
+      setConfig(newConfig);
+      handleChange();
     },
-    identify: (user?: User) => {
+    identify: (user?: User, noReload?: boolean) => {
       defaultUser = user;
       plugins.forEach((p) => p.onIdentify);
+      if (noReload) return;
+      const currentId = configId;
+      loader = load(
+        Promise.allSettled(plugins.map((p) => p.onIdentify?.({ user }))).then(
+          () => {
+            if (configId === currentId) return;
+            handleChange();
+          }
+        )
+      );
     },
     setDisplay: (display: Display) => (defaultDisplay = display),
     variation: <TFeature extends keyof TFeatures>(
@@ -135,7 +142,7 @@ export function keatCore<TFeatures extends AnyFeatures>({
 
 function evaluateVariate(
   ctx: EvalCtx,
-  plugins: Plugin[],
+  plugins: Plugin<any>[],
   rule: Rule | undefined
 ): boolean {
   if (rule === undefined) return false;
@@ -145,26 +152,8 @@ function evaluateVariate(
         for (const matcher of matchers) {
           const literal = matcher(rule);
           if (literal === null) continue;
-          return p.evaluate({ ...ctx, literal });
+          return p.evaluate?.({ ...ctx, literal }) ?? false;
         }
       })
     : rule.OR.some((r) => evaluateVariate(ctx, plugins, r));
-}
-
-function isLiteral(rule: Rule): rule is Literal {
-  const t = typeof rule;
-  return t === "string" || t === "number" || t === "boolean";
-}
-
-function normalize(rule: Rule | Rule[] | undefined): Rule[] | undefined {
-  return Array.isArray(rule) ? rule : rule === undefined ? undefined : [rule];
-}
-
-function isRule(x: unknown): x is Rule {
-  return (
-    typeof x === "boolean" ||
-    typeof x === "string" ||
-    typeof x === "number" ||
-    (typeof x === "object" && x !== null && "OR" in x)
-  );
 }

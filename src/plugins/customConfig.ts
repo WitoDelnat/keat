@@ -1,5 +1,4 @@
-import { Config } from "../core";
-import { createPlugin, Plugin } from "../core/plugin";
+import { Config, createPlugin, isNone } from "../core";
 
 type CustomConfigPluginOptions = {
   fetch: () => Promise<Config>;
@@ -10,7 +9,7 @@ const DEFAULT_OPTIONS = {
   retries: 3,
 };
 
-export const customConfig = (rawOptions: CustomConfigPluginOptions): Plugin => {
+export const customConfig = (rawOptions: CustomConfigPluginOptions) => {
   const options = { ...DEFAULT_OPTIONS, ...rawOptions };
 
   return createPlugin({
@@ -27,7 +26,6 @@ export const customConfig = (rawOptions: CustomConfigPluginOptions): Plugin => {
         }
       }
     },
-    matcher: (literal) => literal,
-    evaluate: () => false,
+    matcher: isNone,
   });
 };

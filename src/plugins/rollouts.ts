@@ -1,5 +1,4 @@
-import { DEFAULT_GET_USER_ID, User } from "../core";
-import { createPlugin, isNumber, Plugin } from "../core/plugin";
+import { DEFAULT_GET_USER_ID, isNumber, User, createPlugin } from "../core";
 
 type RolloutsPluginOptions = {
   getUserId?: (user: User) => string;
@@ -14,7 +13,7 @@ const DEFAULT_HASH: HashFn = (userId, feature) => {
   return (murmurHash(userId, seed) % 100) + 1;
 };
 
-export const rollouts = (options?: RolloutsPluginOptions): Plugin => {
+export const rollouts = (options?: RolloutsPluginOptions) => {
   const userFn = options?.getUserId ?? DEFAULT_GET_USER_ID;
   const hashFn = options?.hash ?? DEFAULT_HASH;
 
