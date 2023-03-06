@@ -93,7 +93,7 @@ const Rollouts = ({ percentage }: Props) => {
  * Stories
  * * * * * * * * * * * * * */
 const meta: Meta<typeof Rollouts> = {
-  title: "Example/Rollouts",
+  title: "Plugins/Rollouts",
   component: Rollouts,
 };
 
