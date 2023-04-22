@@ -1,4 +1,4 @@
-import { createPlugin, isString, Plugin } from "../core";
+import { createPlugin, isString } from "../core";
 
 const DAYS = [
   "sunday",
@@ -10,14 +10,14 @@ const DAYS = [
   "saturday",
 ] as const;
 
-type Day = typeof DAYS[number];
+type Day = (typeof DAYS)[number];
 type Period = { from: number; to: number };
 type Schedule = Partial<Record<Day, Period[]>>;
 
 export const businessHours = (
   name: string,
   schedule: Schedule = DEFAULT_SCHEDULE
-): Plugin => {
+) => {
   return createPlugin({
     matcher: isString,
     evaluate({ literal }) {

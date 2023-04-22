@@ -46,7 +46,7 @@ export type Config = Record<string, Rule | Rule[] | undefined>;
 
 export type KeatInit<TFeatures extends AnyFeatures> = {
   features: TFeatures;
-  plugins?: Plugin[];
+  plugins?: Plugin<any>[];
   display?: Display;
 };
 

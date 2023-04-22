@@ -1,6 +1,6 @@
-import { createPlugin, isString, Plugin } from "../core";
+import { createPlugin, isString } from "../core";
 
-export const timeInterval = (): Plugin => {
+export const timeInterval = () => {
   return createPlugin({
     matcher: isString,
     evaluate({ literal }) {

@@ -4,8 +4,6 @@ Progressive and type-safe feature flags.
 
 An easy way to increase your deployment frequency and reduce stress of releases.
 
-[The library has just been released and I'm looking for your advice!](https://github.com/WitoDelnat/keat/issues/4)
-
 ## Key Features
 
 - 🚀 Progressive rollouts, 🎯 targeted audiences and 📅 scheduled launches.

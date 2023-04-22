@@ -1,14 +1,14 @@
 import { Config, Rule } from "../core";
-import { Plugin } from "../core/plugin";
+import { createPlugin } from "../core/plugin";
 
-export const localConfig = (config: Config): Plugin => {
-  return {
+export const localConfig = (config: Config) => {
+  return createPlugin({
     onPluginInit: async (_ctx, { setConfig }) => {
       setConfig(config);
     },
     matcher: (literal) => literal,
     evaluate: () => false,
-  };
+  });
 };
 
 export function fromEnv(value?: string): Rule | undefined {

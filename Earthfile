@@ -1,20 +1,20 @@
-FROM node:14-alpine
+FROM node:18-alpine
 WORKDIR /app
 
 install:
   COPY package.json ./
-  COPY yarn.lock ./
-  RUN yarn install
+  COPY package-lock.json ./
+  RUN npm install
   COPY . .
 
 test:
   FROM +install
-  RUN yarn typecheck
-  RUN yarn test
+  RUN npm run typecheck
+  RUN npm run test
 
 build:
   FROM +install
-  RUN yarn build
+  RUN npm run build
   SAVE ARTIFACT lib AS LOCAL ./lib
 
 publish:

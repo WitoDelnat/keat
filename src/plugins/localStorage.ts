@@ -32,7 +32,7 @@ type Options = {
 export const localStorage = (
   name: string,
   { key, value, poll = false }: Options = {}
-): Plugin => {
+) => {
   const hasLocalStorage = typeof window !== "undefined" && window.localStorage;
   const hasSetInterval = typeof window !== "undefined" && window.setInterval;
   if (!hasLocalStorage || !hasSetInterval) return createNoopPlugin();

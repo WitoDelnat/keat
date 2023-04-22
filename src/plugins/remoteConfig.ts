@@ -1,5 +1,5 @@
 import { Config } from "../core";
-import { Plugin } from "../core/plugin";
+import { createPlugin } from "../core/plugin";
 
 type RemoteConfigPluginOptions = {
   interval?: number;
@@ -13,7 +13,7 @@ const DEFAULT_OPTIONS = {
 export const remoteConfig = (
   url: string,
   rawOptions?: RemoteConfigPluginOptions
-): Plugin => {
+) => {
   const options = { ...DEFAULT_OPTIONS, ...rawOptions };
 
   const fetchConfig = async (url: string) => {
@@ -48,7 +48,7 @@ export const remoteConfig = (
     }
   };
 
-  return {
+  return createPlugin({
     onPluginInit: async (_ctx, { setConfig }) => {
       const remoteConfig = await fetchConfig(url);
       setConfig(remoteConfig);
@@ -59,7 +59,7 @@ export const remoteConfig = (
     },
     matcher: (literal) => literal,
     evaluate: () => false,
-  };
+  });
 };
 
 function pause(ms: number): Promise<void> {
