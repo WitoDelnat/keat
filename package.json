@@ -40,6 +40,7 @@
     "@chakra-ui/icons": "2.0.17",
     "@chakra-ui/react": "2.1.2",
     "@ngneat/falso": "5.3.0",
+    "@openfeature/js-sdk": "1.1.1",
     "@radix-ui/react-icons": "1.2.0",
     "@storybook/addon-essentials": "^7.0.6",
     "@storybook/addon-interactions": "^7.0.6",
@@ -65,6 +66,7 @@
     "vitest": "0.12.6"
   },
   "peerDependencies": {
+    "@openfeature/js-sdk": "^1.0",
     "launchdarkly-js-client-sdk": "^3.0",
     "posthog-js": "^1.25",
     "react": "^18.0 || ^17.0 || ^16.0",
@@ -81,6 +83,9 @@
       "optional": true
     },
     "posthog-js": {
+      "optional": true
+    },
+    "@openfeature/js-sdk": {
       "optional": true
     }
   }
