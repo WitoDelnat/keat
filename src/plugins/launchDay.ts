@@ -1,6 +1,6 @@
 import { createPlugin, isDate } from "../core";
 
-export const lauchDay = () => {
+export const launchDay = () => {
   createPlugin({
     matcher: isDate,
     evaluate({ literal }) {

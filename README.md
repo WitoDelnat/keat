@@ -282,20 +282,16 @@ Miscellaneous:
 Plugins are plain old JavaScript objects with a simple interface that hooks
 into the lifecycle of Keat. Checkout [the common plugin interface on GitHub](https://github.com/WitoDelnat/keat/blob/main/src/core/plugin.ts) to get a full view on the available context and API.
 
-Here is a simple example of a plugin that cycles to the next variate each second:
+Here is the code for the launch day plugin:
 
 ```typescript
-const cycle: Plugin = () => {
-  let counter = 0;
-
-  return {
-    onPluginInit() {
-      setInterval(() => counter++, 1000);
+export const launchDay = () => {
+  createPlugin({
+    matcher: isDate,
+    evaluate({ literal }) {
+      return literal.getTime() < Date.now();
     },
-    onEval({ variates }, { setResult }) {
-      setResult(variates[counter % variates.length]);
-    },
-  };
+  });
 };
 ```
 
