@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-rc.8](https://github.com/WitoDelnat/keat/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2023-05-23)
+
+
+### Bug Fixes
+
+* fix build ([e8f3604](https://github.com/WitoDelnat/keat/commit/e8f360484879cf55028ee169fa3eb39eb9da1405))
+
+
+### Miscellaneous Chores
+
+* release rc 8 ([ec91e47](https://github.com/WitoDelnat/keat/commit/ec91e4725c016374223659a2fe5ceb037ab9a91b))
+
 ## [1.0.0-rc.7](https://github.com/WitoDelnat/keat/compare/v1.0.0-rc.5...v1.0.0-rc.7) (2023-04-22)
 
 
