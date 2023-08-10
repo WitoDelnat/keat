@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-rc.8](https://github.com/WitoDelnat/keat/compare/v1.0.0-rc.8...v1.0.1-rc.8) (2023-08-10)
+
+
+### Bug Fixes
+
+* update Keat Release endpoint ([a797c3f](https://github.com/WitoDelnat/keat/commit/a797c3f2fd219995f528427f58185fa711535b9d))
+
 ## [1.0.0-rc.8](https://github.com/WitoDelnat/keat/compare/v1.0.0-rc.7...v1.0.0-rc.8) (2023-05-23)
 
 
