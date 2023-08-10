@@ -30,7 +30,7 @@ export function keatCore<TFeatures extends AnyFeatures>({
   let config: Config = {};
   const setConfig = (newConfig: Config) => {
     configId += 1;
-    config = newConfig;
+    config = newConfig ?? {};
   };
 
   let listeners: Listener[] = [];

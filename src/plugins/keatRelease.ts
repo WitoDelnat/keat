@@ -1,5 +1,5 @@
 import { isNone } from "../core";
-import { createPlugin, Plugin } from "../core/plugin";
+import { createPlugin } from "../core/plugin";
 
 export const keatRelease = (appId: string) => {
   const fetchConfig = async (url: string) => {
@@ -21,7 +21,7 @@ export const keatRelease = (appId: string) => {
 
   return createPlugin({
     onPluginInit: async (_ctx, { setConfig }) => {
-      const url = `https://sync.keat.cloud/${appId}`;
+      const url = `https://sync.keat.cloud/${appId}/flags`;
       const remoteConfig = await fetchConfig(url);
       setConfig(remoteConfig);
     },
