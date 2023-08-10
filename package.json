@@ -2,12 +2,10 @@
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {
-    "turborepo": "0.0.1"
-  },
   "devDependencies": {
-    "changeset": "0.2.6",
+    "@changesets/cli": "2.26.2",
     "graphql": "16.6.0",
+    "turborepo": "0.0.1",
     "typescript": "5.1.6"
   }
 }
