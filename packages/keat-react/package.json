@@ -1,0 +1,48 @@
+{
+  "name": "keat-react",
+  "version": "0.1.0",
+  "type": "module",
+  "source": "src/index.ts",
+  "module": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "license": "MIT",
+  "sideEffects": false,
+  "author": {
+    "name": "Wito Delnat",
+    "url": "https://github.com/WitoDelnat"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WitoDelnat/keat"
+  },
+  "keywords": [
+    "keat",
+    "feature flags",
+    "feature toggle",
+    "feature management",
+    "continuous delivery",
+    "release"
+  ],
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "build": "rimraf lib && tsc"
+  },
+  "dependencies": {
+    "keat": "*"
+  },
+  "devDependencies": {
+    "@types/react": "18.0.9",
+    "react": "18.1.0",
+    "react-dom": "18.1.0",
+    "rimraf": "3.0.2",
+    "tsconfig": "*",
+    "typescript": "4.9.5"
+  },
+  "peerDependencies": {
+    "react": "^18.0 || ^17.0 || ^16.0",
+    "react-dom": "^18.0 || ^17.0 || ^16.0"
+  }
+}

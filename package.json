@@ -1,87 +1,13 @@
 {
-  "name": "keat",
-  "version": "1.0.0-rc.8",
-  "type": "module",
-  "source": "src/index.ts",
-  "module": "lib/index.js",
-  "typings": "lib/index.d.ts",
-  "license": "MIT",
-  "sideEffects": false,
-  "author": {
-    "name": "Wito Delnat",
-    "url": "https://github.com/WitoDelnat"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/WitoDelnat/keat"
-  },
-  "keywords": [
-    "keat",
-    "feature flags",
-    "feature toggle",
-    "feature management",
-    "continuous delivery",
-    "release"
+  "workspaces": [
+    "packages/*"
   ],
-  "files": [
-    "lib"
-  ],
-  "scripts": {
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "build": "rimraf lib && tsc --build tsconfig.build.json",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+  "dependencies": {
+    "turborepo": "0.0.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.21.4",
-    "@babel/preset-react": "7.18.6",
-    "@babel/preset-typescript": "7.21.4",
-    "@chakra-ui/icons": "2.0.17",
-    "@chakra-ui/react": "2.1.2",
-    "@ngneat/falso": "5.3.0",
-    "@radix-ui/react-icons": "1.2.0",
-    "@storybook/addon-essentials": "^7.0.6",
-    "@storybook/addon-interactions": "^7.0.6",
-    "@storybook/addon-links": "^7.0.6",
-    "@storybook/blocks": "^7.0.6",
-    "@storybook/preset-typescript": "3.0.0",
-    "@storybook/react": "^7.0.6",
-    "@storybook/react-webpack5": "^7.0.6",
-    "@storybook/testing-library": "^0.1.0",
-    "@types/react": "18.0.9",
-    "fork-ts-checker-webpack-plugin": "7.3.0",
-    "framer-motion": "9.0.4",
-    "launchdarkly-js-client-sdk": "3.1.0",
-    "posthog-js": "1.50.2",
-    "prop-types": "^15.8.1",
-    "react": "18.1.0",
-    "react-dom": "18.1.0",
-    "rimraf": "3.0.2",
-    "rooks": "7.4.3",
-    "storybook": "7.0.6",
-    "ts-loader": "9.4.2",
-    "typescript": "4.9.5",
-    "vitest": "0.12.6"
-  },
-  "peerDependencies": {
-    "launchdarkly-js-client-sdk": "^3.0",
-    "posthog-js": "^1.25",
-    "react": "^18.0 || ^17.0 || ^16.0",
-    "react-dom": "^18.0 || ^17.0 || ^16.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "react-dom": {
-      "optional": true
-    },
-    "launchdarkly-js-client-sdk": {
-      "optional": true
-    },
-    "posthog-js": {
-      "optional": true
-    }
+    "changeset": "0.2.6",
+    "graphql": "16.6.0",
+    "typescript": "5.1.6"
   }
 }

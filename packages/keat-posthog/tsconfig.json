@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib",
+    "lib": ["ESNext", "DOM"],
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "pretty": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "removeComments": false,
+    "strict": true
+  },
+  "exclude": [
+    "node_modules",
+    "lib"
+  ],
+  "include": [
+    "src"
+  ]
+}

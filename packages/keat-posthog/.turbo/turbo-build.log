@@ -1,0 +1,4 @@
+
+> keat-posthig@0.1.0 build
+> rimraf lib && tsc
+
