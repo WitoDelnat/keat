@@ -5,6 +5,7 @@
   "source": "src/index.ts",
   "module": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "license": "MIT",
   "sideEffects": false,
   "author": {

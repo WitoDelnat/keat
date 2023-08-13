@@ -1,6 +1,8 @@
 import * as React from "react";
 import {AnyFeatures, Display, KeatApi, keatCore, KeatInit} from "keat";
 
+export * from "keat";
+
 type KeatReactApi<TFeatures extends AnyFeatures> = KeatApi<TFeatures> & {
   useKeat(display?: Display): {
     loading: boolean;
