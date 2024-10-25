@@ -1,15 +1,17 @@
 import './App.css'
+import 'keat-release/style.css'
 import { keat } from 'keat-react'
-import { audience } from 'keat'
 import { useCallback, useState } from 'react'
+import { KeatMenu } from 'keat-release'
 
-const { FeatureBoundary, useKeat } = keat({
+const { FeatureBoundary, useKeat } = keat('15f59783a070452ebb6d07de7976b4a3', {
     features: {
-        demo: 'staff',
+        demo: false,
+        chatbot: false,
     },
-    plugins: [
-        audience('staff', (u) => u.email.endsWith('@example.com'))
-    ],
+    audiences: {
+        staff: ['john@example.com'],
+    },
 })
 
 type Token = typeof EXAMPLE_ID_TOKEN
@@ -20,7 +22,7 @@ const EXAMPLE_ID_TOKEN = {
     aud: 'demo-client',
     exp: 1311281970,
     iat: 1311280970,
-    email: 'jane@example.com',
+    email: 'john@example.com',
 }
 
 const GMAIL_ID_TOKEN: Token = {
@@ -29,27 +31,32 @@ const GMAIL_ID_TOKEN: Token = {
     aud: 'demo-client',
     exp: 1311281970,
     iat: 1311280970,
-    email: 'john@gmail.com',
+    email: 'jane@gmail.com',
 }
 
 function App() {
-    const { setUser } = useKeat()
+    const { setContext } = useKeat()
     const [token, setToken] = useState<Token>()
 
     const identify = useCallback(
         (tkn: Token | undefined) => {
             setToken(tkn)
-            setUser(tkn)
+            setContext(tkn)
         },
-        [setUser]
+        [setContext]
     )
 
     return (
         <>
             <h1>Keat + Vite + React</h1>
+            <KeatMenu />
 
             <div className="card">
-                <FeatureBoundary name="demo" display="optional" fallback={<p>Demo disabled</p>}>
+                <FeatureBoundary
+                    name="demo"
+                    display="optional"
+                    fallback={<p>Demo disabled</p>}
+                >
                     <p>Demo enabled</p>
                 </FeatureBoundary>
 
@@ -64,7 +71,7 @@ function App() {
                             identify(EXAMPLE_ID_TOKEN)
                         }}
                     >
-                        Login as jane@example.com
+                        Login as john@example.com
                     </button>
 
                     <button
@@ -72,7 +79,7 @@ function App() {
                             identify(GMAIL_ID_TOKEN)
                         }}
                     >
-                        Login as john@gmail.com
+                        Login as jane@gmail.com
                     </button>
 
                     <button

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "outDir": "dist/cli",
+    "lib": ["ES2020"],
+    "module": "CommonJS",
+    "target": "es2022",
+    "moduleResolution": "NodeNext",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "pretty": true,
+    "skipLibCheck": true,
+    "removeComments": true,
+    "sourceMap": false,
+    "strict": true
+  },
+  "include": ["src/cli/**/*"],
+  "exclude": ["node_modules", "dist", "keat.config.ts"]
+}

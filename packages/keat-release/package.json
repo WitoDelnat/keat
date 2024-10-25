@@ -1,0 +1,52 @@
+{
+    "name": "keat-release",
+    "version": "0.1.0",
+    "type": "module",
+    "source": "src/KeatMenu.ts",
+    "module": "lib/KeatMenu.js",
+    "typings": "lib/KeatMenu.d.ts",
+    "types": "lib/KeatMenu.d.ts",
+    "license": "MIT",
+    "sideEffects": false,
+    "author": {
+        "name": "Wito Delnat",
+        "url": "https://github.com/WitoDelnat"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/WitoDelnat/keat"
+    },
+    "keywords": [
+        "keat",
+        "feature flags",
+        "feature toggle",
+        "feature management",
+        "continuous delivery",
+        "release"
+    ],
+    "files": [
+        "style.css",
+        "lib"
+    ],
+    "scripts": {
+        "lint": "tsc --noEmit",
+        "dev": "tsc --watch",
+        "build": "rimraf lib && tsc"
+    },
+    "dependencies": {
+        "cmdk": "1.0.0",
+        "keat-new": "*"
+    },
+    "devDependencies": {
+        "@types/react": "18.0.9",
+        "react": "18.1.0",
+        "react-dom": "18.1.0",
+        "rimraf": "3.0.2",
+        "tsconfig": "*",
+        "typescript": "4.9.5"
+    },
+    "peerDependencies": {
+        "react": "^18.0 || ^17.0 || ^16.0",
+        "react-dom": "^18.0 || ^17.0 || ^16.0"
+    }
+}

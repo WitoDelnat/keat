@@ -1,0 +1,43 @@
+{
+    "features": [
+        {
+            "name": "demo",
+            "kill": false,
+            "rule": [5]
+        }
+    ],
+    "audiences": [
+        {
+            "name": "staff",
+            "rule": ["wito.delnat@gmail.com", "bruno@kubeshop.io"]
+        },
+        {
+            "name": "canary",
+            "rule": ["wito.delnat@gmail.com", 5, "@canary"]
+        },
+        {
+            "name": "rollout",
+            "rule": "0/100",
+            "period": "$/$+P5D"
+        }
+    ]
+}
+
+// Enable for staff next wednesday
+// Rollout next thursday
+// $audience
+// Enable or $audience on
+
+// Rollout next week Friday -> rollout@2024-10-24
+
+// 0/100@2007-03-01/2008-05-11
+
+// Enable for staff today and rollout next Monday
+
+// keat release
+// ? Select a feature
+// Demo
+// Foo
+// ? Describe your rule
+//e.g. Enable
+// Enable for staff next Tuesday

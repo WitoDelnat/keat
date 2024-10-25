@@ -6,12 +6,12 @@ An easy way to increase your deployment frequency and reduce stress of releases.
 
 ## Key Features
 
-- 🚀 Progressive rollouts, 🎯 targeted audiences and 📅 scheduled launches.
-- 🛠 Remote configuration without vendor lock-in.
-- 💙 Amazing TypeScript support.
-- 💡 Framework agnostic with React adaptor included.
-- 🌳 Lightweight core with tree shakeable plugins.
-- 🧪 Bi- and multivariates of any type.
+-   🚀 Progressive rollouts, 🎯 targeted audiences and 📅 scheduled launches.
+-   🛠 Remote configuration without vendor lock-in.
+-   💙 Amazing TypeScript support.
+-   💡 Framework agnostic with React adaptor included.
+-   🌳 Lightweight core with tree shakeable plugins.
+-   🧪 Bi- and multivariates of any type.
 
 ## Getting started
 
@@ -24,42 +24,41 @@ npm install keat
 After installing Keat, you can define your first **feature** together with its **rule**.
 
 ```typescript
-import { keatCore } from "keat";
+import { keatCore, audience } from 'keat'
 
-const { variation } = keatCore({
-  features: {
-    recommendations: true,
-  },
-});
+const { variation } = keatCore(KEAT_RELEASE_KEY, {
+    audiences: {
+        devs: ['dev@example.io'],
+        'early-access': (user) => user.previewEnabled,
+    },
+    features: {
+        // Enable features with simple boolean toggles.
+        recommendations: true,
 
-variation("recommendations") === true;
+        // Enable features for particular users.
+        // Use an `audience` to test in production and give preview releases.
+        chatbot: 'staff',
+
+        // Enable features for a percentage of users.
+        // Use a `number` for canary releases and A/B experiments
+        'dashboard-redesign': 5,
+
+        // Mix and match rules
+        'ai-insights': { OR: ['staff', 50] },
+    },
+})
+
+variation('recommendations', { email: 'dev@example.io' }) === true
+variation('recommendations', { email: 'jef@gmail.com' }) === false
 ```
 
-By default the rule can either be `true` or `false`, respectively to enable or disable it.
-This is not very useful so let's continue by adding **plugins** to supercharge Keat.
+### Audiences and privacy
 
-### Enable features for particular users
+1. Define users in Keat Release
 
-Enabling features for particular users allows you to test in production and preview releases to your adventurous users.
+2. Vite plugin
 
-To do this you use the `audience` plugin.
-This plugin looks whether the rule contains its name and enables the feature when its function evaluates truthy.
-
-```typescript
-import { keatCore, audience } from "keat";
-
-const { variation } = keatCore({
-  features: {
-    recommendations: "staff",
-  },
-  plugins: [audience("staff", (user) => user.email?.endsWith("example.io"))],
-});
-
-variation("recommendations", { email: "dev@example.io" }) === true;
-variation("recommendations", { email: "jef@gmail.com" }) === false;
-```
-
-### Enable features for a percentage of users
+---
 
 Enabling features for a percentage of users allows canary and A/B testing.
 By releasing to a small and gradually increasing amount of users you gain the confidence you need.
@@ -68,20 +67,20 @@ To do this you use the `rollouts` plugin.
 This plugin takes the first `number` of a rule and enables the feature for a percentage of users equal to that amount. Under the hood a murmurhash will ensure sticky behavior across sessions for the same user.
 
 ```typescript
-import { keatCore, audience, rollouts } from "keat";
+import { keatCore, audience, rollouts } from 'keat'
 
 const { variation } = keatCore({
-  features: {
-    recommendations: { OR: ["staff", 25] },
-  },
-  plugins: [
-    audience("staff", (user) => user.email?.endsWith("example.io")),
-    rollouts(),
-  ],
-});
+    features: {
+        recommendations: { OR: ['staff', 25] },
+    },
+    plugins: [
+        audience('staff', (user) => user.email?.endsWith('example.io')),
+        rollouts(),
+    ],
+})
 
-variation("recommendations", { email: "dev@example.io" }) === true;
-variation("recommendations", { email: randomEmail() }); // `true` for 25% of users.
+variation('recommendations', { email: 'dev@example.io' }) === true
+variation('recommendations', { email: randomEmail() }) // `true` for 25% of users.
 ```
 
 You might also wonder how multiple plugins relate to each other.
@@ -99,31 +98,31 @@ The format is a basic JSON object that maps the feature to its updated rule:
 
 ```json
 {
-  "recommendations": { "OR": ["staff", 50] }
+    "recommendations": { "OR": ["staff", 50] }
 }
 ```
 
 The plain format combined with custom plugins means possibilities are endless:
 
-- Serve from Cloud Object Storage or embed it within your API.
-- Use CloudFlare at edge or tools like Firebase Remote configuration.
-- Open a WebSocket or use server-sent events to stream changes in real-time.
+-   Serve from Cloud Object Storage or embed it within your API.
+-   Use CloudFlare at edge or tools like Firebase Remote configuration.
+-   Open a WebSocket or use server-sent events to stream changes in real-time.
 
 Or you can use the build-in `remoteConfig` to fetch it from an endpoint:
 
 ```typescript
-import { keatCore, remoteConfig, audience, rollouts } from "keat";
+import { keatCore, remoteConfig, audience, rollouts } from 'keat'
 
 const { variation } = keatCore({
-  features: {
-    recommendations: false,
-  },
-  plugins: [
-    remoteConfig("http://example.io/config", { interval: 300 }),
-    audience("staff", (user) => user.email?.endsWith("example.io")),
-    rollouts(),
-  ],
-});
+    features: {
+        recommendations: false,
+    },
+    plugins: [
+        remoteConfig('http://example.io/config', { interval: 300 }),
+        audience('staff', (user) => user.email?.endsWith('example.io')),
+        rollouts(),
+    ],
+})
 ```
 
 ## Examples
@@ -212,46 +211,49 @@ With **feature display** you can optimize individual boundaries instead of block
 It will feel familiar if you've worked with `font-display` before ([Playground](https://font-display.glitch.me/), [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display)).
 
 ```tsx
-import { keatReact, audience, remoteConfig, rollouts } from "keat";
+import { keatReact, audience, remoteConfig, rollouts } from 'keat'
 
 const { useKeat, FeatureBoundary } = keatReact({
-  features: {
-    search: false,
-    redesign: false,
-    sortAlgorithm: {
-      variates: ["quicksort", "insertionSort", "heapsort"],
-    },
-  } as const,
-  plugins: [
-    remoteConfig("https://example.io/slowConfig", { interval: 300 }),
-    audience("staff", (user) => user.email?.endsWith("example.io")),
-    audience("preview", (user) => user.settings.previewEnabled),
-    rollouts(),
-  ],
-});
+    features: {
+        search: false,
+        redesign: false,
+        sortAlgorithm: {
+            variates: ['quicksort', 'insertionSort', 'heapsort'],
+        },
+    } as const,
+    plugins: [
+        remoteConfig('https://example.io/slowConfig', { interval: 300 }),
+        audience('staff', (user) => user.email?.endsWith('example.io')),
+        audience('preview', (user) => user.settings.previewEnabled),
+        rollouts(),
+    ],
+})
 
 export function App() {
-  const { variation } = useKeat();
+    const { variation } = useKeat()
 
-  return (
-    <div>
-      <h1>Keat</h1>
+    return (
+        <div>
+            <h1>Keat</h1>
 
-      <FeatureBoundary name="redesign" fallback={<p>Your old design</p>}>
-        <p>Your new design</p>
-      </FeatureBoundary>
+            <FeatureBoundary name="redesign" fallback={<p>Your old design</p>}>
+                <p>Your new design</p>
+            </FeatureBoundary>
 
-      <FeatureBoundary
-        name="search"
-        display="block"
-        invisible={<SearchSkeleton />}
-      >
-        <Search />
-      </FeatureBoundary>
+            <FeatureBoundary
+                name="search"
+                display="block"
+                invisible={<SearchSkeleton />}
+            >
+                <Search />
+            </FeatureBoundary>
 
-      <SortedList data={[1, 3, 4]} algorithm={variation("sortAlgorithm")} />
-    </div>
-  );
+            <SortedList
+                data={[1, 3, 4]}
+                algorithm={variation('sortAlgorithm')}
+            />
+        </div>
+    )
 }
 ```
 
@@ -261,21 +263,21 @@ export function App() {
 
 Rules:
 
-- **audience** checks whether the rule contains its name and enables the feature when its function responds truthy.
-- **queryParam** checks whether the rule contains its name and enables the feature depending on the URLs query parameter.
-- **rollouts** takes the first `number` and enables the feature for a percentage of users equal to that amount.
-- **launchDay** takes all `ISO 8601 date strings` and enables the feature when the date is in the past.
+-   **audience** checks whether the rule contains its name and enables the feature when its function responds truthy.
+-   **queryParam** checks whether the rule contains its name and enables the feature depending on the URLs query parameter.
+-   **rollouts** takes the first `number` and enables the feature for a percentage of users equal to that amount.
+-   **launchDay** takes all `ISO 8601 date strings` and enables the feature when the date is in the past.
 
 Configurations:
 
-- **localConfig** fetches your configuration from a local JSON file or environment variables.
-- **remoteConfig** fetches your configuration from a remote endpoint, which allows decoupling deploy from release.
-- **customConfig** fetches your configuration with a customizable fetch.
+-   **localConfig** fetches your configuration from a local JSON file or environment variables.
+-   **remoteConfig** fetches your configuration from a remote endpoint, which allows decoupling deploy from release.
+-   **customConfig** fetches your configuration with a customizable fetch.
 
 Miscellaneous:
 
-- **cache** adds simple caching to your evaluations which improve performance.
-- **anonymous** adds a generated, stable identity, which allows reliable rollout results.
+-   **cache** adds simple caching to your evaluations which improve performance.
+-   **anonymous** adds a generated, stable identity, which allows reliable rollout results.
 
 ### Custom plugins
 
@@ -286,13 +288,13 @@ Here is the code for the launch day plugin:
 
 ```typescript
 export const launchDay = () => {
-  createPlugin({
-    matcher: isDate,
-    evaluate({ literal }) {
-      return literal.getTime() < Date.now();
-    },
-  });
-};
+    createPlugin({
+        matcher: isDate,
+        evaluate({ literal }) {
+            return literal.getTime() < Date.now()
+        },
+    })
+}
 ```
 
 ## License

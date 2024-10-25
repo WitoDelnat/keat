@@ -1,0 +1,385 @@
+:root {
+    --font-sans: 'Inter', --apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+        Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+        sans-serif;
+    --app-bg: var(--gray1);
+    --cmdk-shadow: 0 16px 70px #000;
+    --lowContrast: #fff;
+    --highContrast: #000;
+    --gray1: #fcfcfc;
+    --gray2: #f8f8f8;
+    --gray3: #f3f3f3;
+    --gray4: #ededed;
+    --gray5: #e8e8e8;
+    --gray6: #e2e2e2;
+    --gray7: #dbdbdb;
+    --gray8: #c7c7c7;
+    --gray9: #8f8f8f;
+    --gray10: #858585;
+    --gray11: #6f6f6f;
+    --gray12: #171717;
+    --grayA1: rgba(0, 0, 0, 0.012);
+    --grayA2: rgba(0, 0, 0, 0.027);
+    --grayA3: rgba(0, 0, 0, 0.047);
+    --grayA4: rgba(0, 0, 0, 0.071);
+    --grayA5: rgba(0, 0, 0, 0.09);
+    --grayA6: rgba(0, 0, 0, 0.114);
+    --grayA7: rgba(0, 0, 0, 0.141);
+    --grayA8: rgba(0, 0, 0, 0.22);
+    --grayA9: rgba(0, 0, 0, 0.439);
+    --grayA10: rgba(0, 0, 0, 0.478);
+    --grayA11: rgba(0, 0, 0, 0.565);
+    --grayA12: rgba(0, 0, 0, 0.91);
+    --blue1: #fbfdff;
+    --blue2: #f5faff;
+    --blue3: #edf6ff;
+    --blue4: #e1f0ff;
+    --blue5: #cee7fe;
+    --blue6: #b7d9f8;
+    --blue7: #96c7f2;
+    --blue8: #5eb0ef;
+    --blue9: #0091ff;
+    --blue10: #0081f1;
+    --blue11: #006adc;
+    --blue12: #00254d;
+}
+.dark {
+    --app-bg: var(--gray1);
+    --lowContrast: #000;
+    --highContrast: #fff;
+    --gray1: #161616;
+    --gray2: #1c1c1c;
+    --gray3: #232323;
+    --gray4: #282828;
+    --gray5: #2e2e2e;
+    --gray6: #343434;
+    --gray7: #3e3e3e;
+    --gray8: #505050;
+    --gray9: #707070;
+    --gray10: #7e7e7e;
+    --gray11: #a0a0a0;
+    --gray12: #ededed;
+    --grayA1: rgba(255, 255, 255, 0);
+    --grayA2: rgba(255, 255, 255, 0.026);
+    --grayA3: rgba(255, 255, 255, 0.056);
+    --grayA4: rgba(255, 255, 255, 0.077);
+    --grayA5: rgba(255, 255, 255, 0.103);
+    --grayA6: rgba(255, 255, 255, 0.129);
+    --grayA7: rgba(255, 255, 255, 0.172);
+    --grayA8: rgba(255, 255, 255, 0.249);
+    --grayA9: rgba(255, 255, 255, 0.386);
+    --grayA10: rgba(255, 255, 255, 0.446);
+    --grayA11: rgba(255, 255, 255, 0.592);
+    --grayA12: rgba(255, 255, 255, 0.923);
+    --blue1: #0f1720;
+    --blue2: #0f1b2d;
+    --blue3: #10243e;
+    --blue4: #102a4c;
+    --blue5: #0f3058;
+    --blue6: #0d3868;
+    --blue7: #0a4481;
+    --blue8: #0954a5;
+    --blue9: #0091ff;
+    --blue10: #369eff;
+    --blue11: #52a9ff;
+    --blue12: #eaf6ff;
+}
+
+[cmdk-overlay] {
+    background-color: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    inset: 0;
+    animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[cmdk-dialog] {
+    border-radius: 6px;
+    box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+        hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 460px;
+    max-height: 85vh;
+    animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[cmdk-root] {
+    max-width: 600px;
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 0;
+    font-family: var(--font-sans);
+    box-shadow: var(--cmdk-shadow);
+    outline: none;
+    background: linear-gradient(136.61deg, #27282b 13.72%, #2d2e31 74.3%);
+}
+[cmdk-app-badge] {
+    height: 24px;
+    padding: 0 8px;
+    font-size: 12px;
+    color: var(--gray11);
+    background: var(--gray3);
+    border-radius: 4px;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+}
+[cmdk-app-shortcuts] {
+    display: flex;
+    margin-left: auto;
+    gap: 8px;
+}
+[cmdk-app-shortcuts] kbd {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--gray11);
+}
+[cmdk-input] {
+    font-family: var(--font-sans);
+    border: none;
+    width: 100%;
+    font-size: 18px;
+    padding: 20px;
+    outline: none;
+    background: var(--bg);
+    color: var(--gray12);
+    border-bottom: 1px solid var(--gray6);
+    border-radius: 0;
+    caret-color: #6e5ed2;
+    margin: 0;
+}
+[cmdk-input]::placeholder {
+    color: var(--gray9);
+}
+[cmdk-item] {
+    content-visibility: auto;
+    cursor: pointer;
+    height: 48px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    color: var(--gray12);
+    user-select: none;
+    will-change: background, color;
+    transition: all 150ms ease;
+    transition-property: none;
+    position: relative;
+}
+
+.rollout [cmdk-group] {
+    width: 100%;
+    display: flex;
+}
+
+.rollout [cmdk-group-heading] {
+    margin-top: 6px;
+}
+
+.rollout [cmdk-group-items] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0 6px;
+}
+
+.rollout [cmdk-item] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    content-visibility: auto;
+    background-color: var(--gray2);
+    border-radius: 6px;
+    width: 40px;
+    cursor: pointer;
+    height: 40px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    margin: 4px;
+    color: var(--gray12);
+    user-select: none;
+    will-change: background, color;
+    transition: all 150ms ease;
+    transition-property: none;
+    position: relative;
+}
+
+.rollout [cmdk-item]:first-child {
+    width: 90px;
+    padding: 4px 8px;
+}
+
+.rollout [cmdk-item]:last-child {
+    width: 90px;
+    padding: 4px 8px;
+}
+
+.toggles [cmdk-group] {
+    width: 100%;
+    display: flex;
+}
+
+.toggles [cmdk-group-items] {
+    display: flex;
+    gap: 4px;
+    margin: 0 6px;
+}
+
+.toggles [cmdk-item] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    content-visibility: auto;
+    background-color: var(--gray2);
+    border-radius: 6px;
+    cursor: pointer;
+    height: 32px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    margin: 4px;
+    color: var(--gray12);
+    user-select: none;
+    will-change: background, color;
+    transition: all 150ms ease;
+    transition-property: none;
+    position: relative;
+}
+
+[cmdk-item][data-selected='true'] {
+    background: var(--gray3);
+}
+[cmdk-item][data-selected='true'] svg {
+    color: var(--gray12);
+}
+[cmdk-item][data-selected='true']:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    z-index: 123;
+    width: 3px;
+    height: 100%;
+    background: #6e5ed2;
+}
+[cmdk-item][data-disabled='true'] {
+    color: var(--gray8);
+    cursor: not-allowed;
+}
+[cmdk-item]:active {
+    transition-property: background;
+    background: var(--gray4);
+}
+[cmdk-item] + [cmdk-item] {
+    margin-top: 4px;
+}
+[cmdk-item] svg {
+    width: 16px;
+    height: 16px;
+    color: var(--gray10);
+}
+[cmdk-list] {
+    height: 300px;
+    max-height: 400px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    transition: 100ms ease;
+    transition-property: height;
+}
+[cmdk-group-heading] {
+    user-select: none;
+    font-size: 12px;
+    color: var(--gray11);
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+}
+[cmdk-empty] {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 64px;
+    white-space: pre-wrap;
+    color: var(--gray11);
+}
+
+[keat-header] {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.confirm {
+    font-family: var(--font-sans);
+    border: none;
+    width: 100%;
+    font-size: 18px;
+    padding: 20px;
+    outline: none;
+    background: var(--bg);
+    color: var(--gray12);
+    border-bottom: 1px solid var(--gray6);
+    border-radius: 0;
+    caret-color: #6e5ed2;
+    margin: 0;
+}
+.settings {
+    gap: 6px;
+    border-top-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--bg);
+    border: none;
+}
+.settings:hover {
+    background: var(--gray3);
+}
+.settings > span {
+    visibility: hidden;
+}
+
+.settings:hover > span {
+    visibility: visible;
+}
+
+.warning {
+    height: 270px;
+    display: flex;
+    padding-top: 30px;
+    flex-direction: column;
+    color: var(--gray11);
+    align-items: center;
+    text-align: center;
+    gap: 40px;
+}
+
+.warning-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+}
+
+.warning-action {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: var(--gray12);
+}
+
+.target {
+    border: 2px solid #6e5ed2;
+}

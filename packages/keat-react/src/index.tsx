@@ -1,75 +1,71 @@
-import * as React from "react";
-import {AnyFeatures, Display, KeatApi, keatCore, KeatInit} from "keat";
-
-export * from "keat";
+import * as React from 'react'
+import { AnyFeatures, Display, KeatApi, keatCore, KeatInit } from 'keat'
 
 type KeatReactApi<TFeatures extends AnyFeatures> = KeatApi<TFeatures> & {
-  useKeat(display?: Display): {
-    loading: boolean;
-    variation: KeatApi<TFeatures>["variation"];
-    setUser: KeatApi<TFeatures>["identify"];
-  };
-  useVariation(display?: Display): KeatApi<TFeatures>["variation"];
-  FeatureBoundary<TFeature extends keyof TFeatures>(args: {
-    name: TFeature;
-    invisible?: React.ReactNode;
-    children?: React.ReactNode;
-    fallback?: React.ReactNode;
-    display?: Display;
-  }): JSX.Element;
-};
+    useKeat(display?: Display): {
+        isLoading: boolean
+        setConfig: KeatApi<TFeatures>['setConfig']
+        setContext: KeatApi<TFeatures>['setContext']
+    }
+    useFeatureFlag<TFeature extends keyof TFeatures>(name: TFeature): boolean
+    useFeatureFlagReady(display?: Display): boolean
+    FeatureBoundary<TFeature extends keyof TFeatures>(args: {
+        name: TFeature
+        invisible?: React.ReactNode
+        children?: React.ReactNode
+        fallback?: React.ReactNode
+        display?: Display
+    }): JSX.Element
+}
 
 export function keat<TFeatures extends AnyFeatures>(
-  init: KeatInit<TFeatures>
+    appId: string,
+    init: KeatInit<TFeatures>
 ): KeatReactApi<TFeatures> {
-  const keatInstance = keatCore(init);
+    const keatInstance = keatCore(appId, init)
 
-  return {
-    ...keatInstance,
-    useKeat(display) {
-      const [loading, setLoading] = React.useState(true);
+    const useFeatureFlagReady = (display: Display = 'block') => {
+        const [ready, setReady] = React.useState(false)
+        React.useEffect(() => {
+            keatInstance.ready(display).then(() => setReady(true))
+        }, [setReady])
+        return ready
+    }
 
-      React.useEffect(() => {
-        keatInstance.ready(display).then(() => setLoading(false));
-      }, [setLoading]);
+    return {
+        ...keatInstance,
+        useKeat(display?: Display) {
+            const ready = useFeatureFlagReady(display)
+            return {
+                isLoading: !ready,
+                setConfig: keatInstance.setConfig,
+                setContext: keatInstance.setContext,
+            }
+        },
+        useFeatureFlagReady,
+        useFeatureFlag(feature) {
+            return keatInstance.get(feature)
+        },
+        FeatureBoundary({
+            display,
+            name,
+            invisible = null,
+            fallback = null,
+            children,
+        }) {
+            const ready = useFeatureFlagReady(display)
+            const [_, forceUpdate] = React.useReducer((x) => x + 1, 0)
 
-      return {
-        loading,
-        variation: keatInstance.variation,
-        setUser: keatInstance.identify,
-      };
-    },
-    useVariation() {
-      return keatInstance.variation;
-    },
-    FeatureBoundary({
-      display,
-      name,
-      invisible = null,
-      fallback = null,
-      children,
-    }) {
-      const [loading, setLoading] = React.useState(true);
-      const [_, forceUpdate] = React.useReducer((x) => x + 1, 0);
+            React.useEffect(() => {
+                const unsubscribe = keatInstance.onChange(forceUpdate)
+                return () => unsubscribe()
+            }, [])
 
-      React.useEffect(() => {
-        keatInstance.ready(display).then(() => setLoading(false));
-      }, [setLoading]);
+            if (!ready) {
+                return <>{invisible}</>
+            }
 
-      React.useEffect(() => {
-        const unsubscribe = keatInstance.onChange(forceUpdate);
-        return () => unsubscribe();
-      }, []);
-
-      if (loading) {
-        return <>{invisible}</>;
-      }
-
-      return keatInstance.variation(name, undefined, display) ? (
-        <>{children}</>
-      ) : (
-        <>{fallback}</>
-      );
-    },
-  };
+            return keatInstance.get(name) ? <>{children}</> : <>{fallback}</>
+        },
+    }
 }

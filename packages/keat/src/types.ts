@@ -1,5 +1,4 @@
-import { Listener, Unsubscribe } from "./keat";
-import type { Plugin } from "./plugin";
+import { Listener, Unsubscribe } from './keat'
 
 /**
  * Bring your own user with declaration merging:
@@ -14,63 +13,53 @@ import type { Plugin } from "./plugin";
  * ```
  */
 export interface CustomTypes {
-  // user: ...
+    // user: ...
 }
 
-export type User = CustomTypes extends { user: infer T }
-  ? T
-  : ({ id: string } | { sub: string } | { email: string }) &
-      Record<string, any>;
+export type Context = CustomTypes extends { user: infer T }
+    ? T
+    : ({ id: string } | { sub: string } | { email: string }) &
+          Record<string, any>
 
 /* * * * * * * * * * * * *
  * API
  * * * * * * * * * * * * */
-export type IdentityFn = (user: User) => string;
-export type Display = "block" | "swap" | "fallback" | "optional";
+export type Display = 'block' | 'swap' | 'fallback' | 'optional'
 
-export type Literal = boolean | string | number;
-export type Rule = { OR: readonly Rule[] } | Literal;
+export type Literal = boolean | string | number
+export type Rule = { OR: readonly Literal[] } | Literal
+export type AnyFeatures = Record<string, Rule>
 
-export type Feature =
-  | Rule
-  | {
-      variates?: readonly [any, any];
-      when?: Rule;
-    }
-  | {
-      variates?: readonly [any, any, ...any];
-      when?: readonly Rule[];
-    };
+export type AudienceFn = (ctx?: Context) => boolean
 
-export type Config = Record<string, Rule | Rule[] | undefined>;
+export type Config = {
+    features?: Record<string, Rule | Rule[] | undefined>
+    audiences?: Record<string, AudienceFn | Array<string | number>>
+}
+
+export type RemoteConfig = {
+    f: Record<string, Rule | Rule[] | undefined>
+    a: Record<string, Array<string | number>>
+}
 
 export type KeatInit<TFeatures extends AnyFeatures> = {
-  features: TFeatures;
-  plugins?: Plugin<any>[];
-  display?: Display;
-};
+    features: TFeatures
+    audiences?: any
+    display?: Display
+}
 
 export type KeatApi<TFeatures extends AnyFeatures> = {
-  ready(display?: Display): Promise<void>;
-  identify(user?: User): void;
-  configure(config: Config): void;
-  setDisplay(display: Display): void;
-  variation<TFeature extends keyof TFeatures>(
-    feature: TFeature,
-    user?: User,
-    display?: Display
-  ): TFeatures[TFeature] extends { variates: any }
-    ? TFeatures[TFeature]["variates"] extends readonly any[]
-      ? TFeatures[TFeature]["variates"][number]
-      : boolean
-    : boolean;
-  onChange(listener: Listener): Unsubscribe;
-};
+    app: string
+    features: string[]
+    get<TFeature extends keyof TFeatures>(
+        feature: TFeature,
+        context?: Context,
+        display?: Display
+    ): boolean
 
-/* * * * * * * * * * * * *
- * Internal types
- * * * * * * * * * * * * */
-export type NormalizedConfig = Record<string, NormalizedRule[]>;
-export type NormalizedRule = Array<NormalizedElem>;
-export type NormalizedElem = boolean | (string | number)[];
-export type AnyFeatures = Record<string, Feature>;
+    onChange(listener: Listener): Unsubscribe
+    ready(display?: Display): Promise<void>
+    setContext(context?: Context): void
+    setConfig(config: Config): void
+    reload(): Promise<void>
+}
