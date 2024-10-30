@@ -15,6 +15,8 @@ type KeatCtx = {
     setScreen: (s: Screen) => void
     feature: string | undefined
     setFeature: (s: string) => void
+    audiences: string[]
+    setAudiences: (s: string[]) => void
     rule: string | boolean | number | undefined
     setRule: (r: string | boolean | number | undefined) => void
     reset: () => void
@@ -42,6 +44,7 @@ export function KeatProvider({ children }: PropsWithChildren<{}>) {
     const [rule, setRule] = React.useState<
         string | number | boolean | undefined
     >()
+    const [audiences, setAudiences] = React.useState<string[]>([])
 
     useEffect(() => {
         if (screen === 'browse' && !app) {
@@ -63,6 +66,8 @@ export function KeatProvider({ children }: PropsWithChildren<{}>) {
             setFeature,
             screen,
             setScreen,
+            audiences,
+            setAudiences,
             rule,
             setRule,
             reset: () => {

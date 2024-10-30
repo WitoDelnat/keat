@@ -4,7 +4,7 @@ export type App = {
     features: {
         name: string
         killed?: boolean
-        rule: string
+        audiences: string[]
     }[]
     audiences: {
         name: string

@@ -1,33 +1,76 @@
-import { Command } from 'cmdk'
-import React, { useCallback, useEffect } from 'react'
+import { Command, useCommandState } from 'cmdk'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useKeatContext } from '../KeatContext'
-import { AssignToMeIcon } from '../Icons'
 import { BackButton, Header } from '../components/Header'
 
-const ROLLOUT_OPTIONS = [
-    { label: 'Nobody', value: false },
-    { label: '1%', value: 1 },
-    { label: '2%', value: 2 },
-    { label: '3%', value: 3 },
-    { label: '5%', value: 5 },
-    { label: '8%', value: 8 },
-    { label: '13%', value: 13 },
-    { label: '21%', value: 21 },
-    { label: '34%', value: 34 },
-    { label: '55%', value: 55 },
-    { label: '89%', value: 89 },
-    { label: 'Everyone', value: true },
-]
-
+// Continue here:
+// - cmdk `useCommandState` does not give programmatic access to current.
+// - custom focused (see stash) does not play nicely with cmdk search.
+// -> Custom cmdk needed?
+// Also the all/selected/unselected could use some better work. It also needs
+// to include filtered..
 export function ToggleScreen() {
-    const { app, feature, setScreen, rule, setRule } = useKeatContext()
+    const search = useCommandState((state) => state.search)
+    const { app, feature, setScreen } = useKeatContext()
+
+    const missingAudiences = useMemo(() => {
+        const remoteAudiences = Object.keys(app?.audiences ?? {})
+        const localAudiences = (globalThis as any).__keat?.apps?.at(
+            0
+        )?.audiences
+        const missing = []
+        for (const f of localAudiences) {
+            if (!remoteAudiences.includes(f)) {
+                missing.push(f)
+            }
+        }
+        return missing
+    }, [app])
+
+    const allAudiences = useMemo(() => {
+        const remoteAudiences = Object.keys(app?.audiences ?? {})
+        return [...missingAudiences, ...remoteAudiences]
+    }, [app, missingAudiences])
+
+    const selectedAudiences = useMemo(() => {
+        if (!feature) return []
+        const feat = app?.features?.find((f) => f.name === feature)
+        return feat?.audiences ?? []
+    }, [feature])
+
+    const unselectedAudiences = useMemo(() => {
+        return allAudiences.filter((a) => !selectedAudiences.includes(a))
+    }, [feature])
+
+    const [audiences, setAudiences] = useState<string[]>(selectedAudiences)
+    const [focused, setFocused] = useState(0)
+
+    useEffect(() => {
+        const down = (e: any) => {
+            if (e.code === 'Space') {
+                // Toggle Audience
+                e.preventDefault()
+                const focusedAudience = allAudiences[focused]
+                const isSelected = audiences.find((a) => a === focusedAudience)
+                if (isSelected) {
+                    setAudiences(audiences.filter((a) => a !== focusedAudience))
+                } else {
+                    setAudiences([focusedAudience, ...audiences])
+                }
+                e.preventDefault()
+            }
+        }
+
+        document.addEventListener('keydown', down)
+        return () => document.removeEventListener('keydown', down)
+    }, [audiences, setAudiences, focused, search])
 
     const handleToggle = useCallback(
-        (rule: string | boolean | number) => {
-            setRule(rule)
+        (audience: string) => {
+            setAudiences([audience, ...audiences])
             setScreen('confirm')
         },
-        [setRule, setScreen]
+        [audiences, setAudiences, setScreen]
     )
 
     useEffect(() => {
@@ -45,44 +88,41 @@ export function ToggleScreen() {
             <Header>
                 <BackButton />
             </Header>
-            <Command.Input autoFocus placeholder="e.g. tomorrow at 5pm" />
+
+            <Command.Input autoFocus placeholder="Release to…" />
+
             <Command.List>
-                <Command.Empty>No results found.</Command.Empty>
+                <Command.Empty>No audience found.</Command.Empty>
 
-                <Command.Group heading="Rollout to…" className="rollout">
-                    {ROLLOUT_OPTIONS.map((i) => {
-                        const targetted = i.value === rule
-                        return (
-                            <Command.Item
-                                key={`rollout-${i.value}`}
-                                value={String(i.value)}
-                                onSelect={() => handleToggle(i.value)}
-                                className={
-                                    targetted ? 'rollout target' : 'rollout'
-                                }
-                            >
-                                {i.label}
-                            </Command.Item>
-                        )
-                    })}
-                </Command.Group>
-
-                {(app?.audiences.length ?? 0) > 0 ? (
-                    <Command.Group heading="Audiences">
-                        {Object.keys(app?.audiences ?? {}).map((a) => {
-                            return (
-                                <Command.Item
-                                    key="connect"
-                                    value="connect"
-                                    onSelect={() => handleToggle(a)}
-                                >
-                                    <AssignToMeIcon />
-                                    {a}
-                                </Command.Item>
-                            )
-                        })}
-                    </Command.Group>
-                ) : null}
+                {allAudiences.map((a, i) => {
+                    const isChecked = audiences.includes(a)
+                    const isFocused = i == focused
+                    return (
+                        <Command.Item
+                            key={a}
+                            value={a}
+                            onSelect={() => handleToggle(a)}
+                            className={`item ${
+                                isFocused ? 'item-focused' : 'item-unfocused'
+                            }`}
+                        >
+                            <div aria-label={a} className="item-inner">
+                                <div className="item-checkbox">
+                                    {isChecked || isFocused ? (
+                                        <input
+                                            data-1p-ignore="true"
+                                            type="checkbox"
+                                            className={`${
+                                                isChecked ? 'cb-on' : 'cb-off'
+                                            }`}
+                                        ></input>
+                                    ) : null}
+                                </div>
+                                <span>{a}</span>
+                            </div>
+                        </Command.Item>
+                    )
+                })}
             </Command.List>
         </>
     )

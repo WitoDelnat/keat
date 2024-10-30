@@ -4,13 +4,15 @@ import { keat } from 'keat-react'
 import { useCallback, useState } from 'react'
 import { KeatMenu } from 'keat-release'
 
-const { FeatureBoundary, useKeat } = keat('15f59783a070452ebb6d07de7976b4a3', {
+const { FeatureBoundary, useKeat } = keat('5d723a7e8ce54232ad339cb9cf67f893', {
     features: {
         demo: false,
         chatbot: false,
     },
     audiences: {
         staff: ['john@example.com'],
+        foo: 1,
+        bar: 10,
     },
 })
 

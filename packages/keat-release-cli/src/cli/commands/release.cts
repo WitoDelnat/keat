@@ -1,22 +1,13 @@
 import { diffJson } from 'diff'
-import prompts from 'prompts'
 import { getAppId } from '../app/getAppId'
 import { KeatError, Uninitialized } from '../errors.cjs'
 import { confirm } from '../utils/confirm.cjs'
 import { B, C, print, success } from '../utils/screens.cjs'
-import { promptFeature } from './release.io.cjs'
+import { promptAudiences, promptFeature } from './release.io.cjs'
 import { getAppKeyOrAuthenticate } from '../app/getAppKey'
 import { discoverKeatInstancePath } from './init.cjs'
 import { extractInstance } from '../utils/keatInstance.cjs'
 import { client, withAuthHeader } from '../../api/client'
-
-type Rule =
-    | {
-          OR: (boolean | string | number)[]
-      }
-    | boolean
-    | string
-    | number
 
 export type RawReleaseOptions = {
     yes?: boolean
@@ -44,24 +35,27 @@ export async function release({
         throw new Uninitialized()
     }
     const appKey = await getAppKeyOrAuthenticate(appId, { options })
-
-    const pluginMetadata = {
-        weight: true,
-        audience: ['preview'],
-    }
-
     const keatInstancePath = await discoverKeatInstancePath('.')
     const instance = await extractInstance(keatInstancePath)
+    const appPromise = client.getApp({ id: appId }, withAuthHeader(appKey))
     const availableFeatures = instance?.features ?? []
     const feat = await getOrPromptFeature(feature, availableFeatures)
-    const { app } = await client.getApp({ id: appId }, withAuthHeader(appKey))
-    const oldFeature = app?.features.find((f) => f.name === feat)
-    const oldRule = oldFeature?.rule ?? false
-    const newRule = await buildRule(oldRule as any, pluginMetadata)
 
-    const oldRuleAsArray = Array.isArray(oldRule) ? oldRule : [oldRule]
-    const newRuleAsArray = Array.isArray(newRule) ? newRule : [newRule]
-    const difference = diffJson(oldRuleAsArray, newRuleAsArray)
+    const { app } = await appPromise
+    const oldFeature = app?.features.find((f) => f.name === feat)
+    const oldAudiences = oldFeature?.values ?? []
+
+    const buildInAudiences = ['everyone']
+    const allAudiences = Array.from(
+        new Set([
+            ...buildInAudiences,
+            ...(instance?.audiences ?? []),
+            ...(app?.audiences.map((a) => a.name) ?? []),
+        ])
+    )
+    const newAudiences = await promptAudiences(allAudiences, oldAudiences)
+
+    const difference = diffJson(oldAudiences, newAudiences)
     const colored = difference
         .map((part) => {
             return part.added
@@ -85,7 +79,7 @@ export async function release({
     }
 
     await client.toggle(
-        { app: appId, feature: feat, rule: newRule as any },
+        { app: appId, feature: feat, values: newAudiences },
         withAuthHeader(appKey)
     )
 
@@ -112,110 +106,4 @@ export async function getOrPromptFeature(
     }
 
     return promptFeature(availableFeatures)
-}
-
-// New approach is to build the full rule from scratch depending on plugin metadata
-// The approach acts as a builder
-
-// example
-// - Set a weight (enter number)
-// - Do you want to set audiences?
-// - Select audiences (multiSelect)
-// - etc.
-// - Select query params (if present)
-// - Do you want to set a launch date?
-
-// flags could be dynamic for plugins: keat release demo --weight 5 --audience preview -a staff -d tomorrow
-
-type PluginMetadata = {
-    weight: boolean
-    audience?: string[]
-    launchDay?: boolean
-}
-async function buildRule(
-    oldRule: Rule,
-    plugins: PluginMetadata
-): Promise<Rule> {
-    const state =
-        oldRule === false
-            ? 'DISABLED'
-            : oldRule === true
-            ? 'ENABLED'
-            : 'PARTIAL'
-
-    const p1 = await prompts({
-        type: 'autocomplete',
-        name: 'result',
-        message: `Toggle`,
-        choices:
-            state === 'ENABLED'
-                ? [
-                      { title: 'Disable', value: 'disable' },
-                      { title: 'Enable progressively', value: 'more' },
-                  ]
-                : state === 'DISABLED'
-                ? [
-                      { title: 'Enable', value: 'enable' },
-                      { title: 'Enable progressively', value: 'more' },
-                  ]
-                : [
-                      { title: 'Enable', value: 'enable' },
-                      { title: 'Disable', value: 'disable' },
-                      { title: 'Enable progressively', value: 'more' },
-                  ],
-    })
-
-    if (p1.result !== 'more') {
-        return p1.result === 'enable'
-    }
-
-    const newRule: Rule = { OR: [] }
-
-    if (plugins.weight) {
-        const { weight } = await prompts([
-            {
-                type: 'toggle',
-                message: 'Set weighted rollout?',
-                name: 'go',
-                initial: true,
-                active: 'yes',
-                inactive: 'no',
-            },
-            {
-                type: (prev) => (prev ? 'number' : null),
-                name: 'weight',
-                message: `What percentage to rollout?`,
-                min: 0,
-                max: 100,
-            },
-        ])
-
-        if (weight !== '__skip__') {
-            newRule.OR.push(weight)
-        }
-    }
-
-    if (plugins.audience) {
-        const { audiences } = await prompts({
-            type: 'autocompleteMultiselect',
-            name: 'audiences',
-            choices: plugins.audience.map((a) => ({ title: a, value: a })),
-            message: `Select audiences:`,
-            instructions: false,
-        })
-        if (audiences.length > 0) {
-            newRule.OR.push(...audiences)
-        }
-    }
-
-    // TODO add launch day and other plugins
-    // if (plugins.launchDay) {
-    //   const { result } = await prompts({
-    //     type: "text",
-    //     name: "result",
-    //     message: `Enter ${inputConfig.type} for "${name}":`,
-    //   });
-    // }
-
-    return newRule.OR.length === 0 ? newRule.OR[0] : newRule
 }

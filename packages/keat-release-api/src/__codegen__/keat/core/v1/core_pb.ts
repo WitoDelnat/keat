@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Any, Message, proto3 } from "@bufbuild/protobuf";
+import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
  * @generated from message keat.core.v1.App
@@ -35,6 +35,11 @@ export class App extends Message<App> {
    */
   features: Feature[] = [];
 
+  /**
+   * @generated from field: repeated keat.core.v1.Audience audiences = 6;
+   */
+  audiences: Audience[] = [];
+
   constructor(data?: PartialMessage<App>) {
     super();
     proto3.util.initPartial(data, this);
@@ -48,6 +53,7 @@ export class App extends Message<App> {
     { no: 3, name: "day_offset", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
     { no: 4, name: "theme", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 5, name: "features", kind: "message", T: Feature, repeated: true },
+    { no: 6, name: "audiences", kind: "message", T: Audience, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): App {
@@ -82,9 +88,9 @@ export class Feature extends Message<Feature> {
   kill?: boolean;
 
   /**
-   * @generated from field: repeated google.protobuf.Any rule = 3;
+   * @generated from field: repeated string values = 3;
    */
-  rule: Any[] = [];
+  values: string[] = [];
 
   constructor(data?: PartialMessage<Feature>) {
     super();
@@ -96,7 +102,7 @@ export class Feature extends Message<Feature> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "kill", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
-    { no: 3, name: "rule", kind: "message", T: Any, repeated: true },
+    { no: 3, name: "values", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Feature {
@@ -330,9 +336,9 @@ export class CreateAppResponse extends Message<CreateAppResponse> {
  */
 export class UpdateAppRequest extends Message<UpdateAppRequest> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: string app_id = 1;
    */
-  id = "";
+  appId = "";
 
   constructor(data?: PartialMessage<UpdateAppRequest>) {
     super();
@@ -342,7 +348,7 @@ export class UpdateAppRequest extends Message<UpdateAppRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "keat.core.v1.UpdateAppRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateAppRequest {
@@ -500,9 +506,9 @@ export class ToggleRequest extends Message<ToggleRequest> {
   feature = "";
 
   /**
-   * @generated from field: google.protobuf.Any rule = 3;
+   * @generated from field: repeated string values = 3;
    */
-  rule?: Any;
+  values: string[] = [];
 
   constructor(data?: PartialMessage<ToggleRequest>) {
     super();
@@ -514,7 +520,7 @@ export class ToggleRequest extends Message<ToggleRequest> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "app", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "feature", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "rule", kind: "message", T: Any },
+    { no: 3, name: "values", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ToggleRequest {

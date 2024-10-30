@@ -18,12 +18,13 @@ message App {
   optional int32 day_offset = 3;
   optional string theme = 4;
   repeated Feature features = 5;
+  repeated Audience audiences = 6;
 }
 
 message Feature {
   string name = 1;
   optional bool kill = 2;
-  repeated google.protobuf.Any rule = 3;
+  repeated string values = 3;
 }
 
 message Audience {
@@ -71,7 +72,7 @@ message UpsertAudienceResponse {
 message ToggleRequest {
   string app = 1;
   string feature = 2;
-  google.protobuf.Any rule = 3;
+  repeated string values = 3;
 }
 
 message ToggleResponse {

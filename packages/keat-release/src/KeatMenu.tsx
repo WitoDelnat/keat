@@ -47,7 +47,7 @@ export function KeatDialog({ hotkey = '¶' }: Props) {
     )
 
     return (
-        <Command.Dialog open={open} onOpenChange={toggle} label="Keat Release">
+        <Command.Dialog open onOpenChange={toggle} label="Keat Release">
             {screen === 'connect' ? (
                 <ConnectScreen />
             ) : screen === 'browse' ? (

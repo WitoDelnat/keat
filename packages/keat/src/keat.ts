@@ -7,6 +7,8 @@ import type {
     KeatInit,
     Context,
     RemoteConfig,
+    Rule,
+    Aud,
 } from './types'
 import { hash } from './utils/hash'
 
@@ -44,26 +46,31 @@ export function keatCore<TFeatures extends AnyFeatures>(
 
     const doEval = (feature: string, ctx?: Context): boolean => {
         try {
-            const rule = config.features?.[feature] ?? false
-            if (typeof rule === 'boolean') return rule
-            if (typeof rule === 'number')
-                return rollout(feature, getId(ctx), rule)
-            if (typeof rule !== 'string') return false
-            // Audiences
-            if (rule.startsWith('@')) {
-                const audience = config.audiences?.[rule.substring(1)]
-                if (audience) {
-                    if (typeof audience === 'function') {
-                        return audience(ctx)
-                    }
-                    if (Array.isArray(audience)) {
-                        return defaultAudienceFn(ctx, audience, appHash)
-                    }
-                    return false
+            const audiences = normalise(config.features?.[feature] ?? false)
+            const rules = audiences
+                .map((a) => config.audiences?.[a])
+                .map(normaliseAudience)
+                .filter(isDefined)
+            for (const r of rules) {
+                if (r.kind === 'toggle') {
+                    const m = r.value
+                    if (m) {
+                        return true
+                    } else continue
+                }
+                if (r.kind === 'group') {
+                    const m = defaultAudienceFn(ctx, r.values, appHash)
+                    if (m) {
+                        return true
+                    } else continue
+                }
+                if (r.kind === 'rollout') {
+                    const m = rollout(feature, getId(ctx), r.percentage)
+                    if (m) {
+                        return true
+                    } else continue
                 }
             }
-            // TODO: Dates
-            // TODO: Query params
             return false
         } catch {
             return false
@@ -73,6 +80,7 @@ export function keatCore<TFeatures extends AnyFeatures>(
     const api: KeatApi<TFeatures> = {
         app: appId,
         features: Object.keys(config.features ?? {}),
+        audiences: Object.keys(config.audiences ?? {}),
         get: <TFeature extends keyof TFeatures>(
             feature: TFeature,
             context?: Context
@@ -108,6 +116,33 @@ export function keatCore<TFeatures extends AnyFeatures>(
     return api
 }
 
+function isDefined<T>(value: T | null | undefined): value is T {
+    return value !== undefined && value !== null
+}
+
+function normalise(v: boolean | string | string[]): string[] {
+    return typeof v === 'boolean'
+        ? v
+            ? ['everyone']
+            : []
+        : typeof v === 'string'
+        ? [v]
+        : v
+}
+
+function normaliseAudience(
+    a?: Rule | string | string[] | number | number[]
+): Aud | undefined {
+    if (!a) return undefined
+    if (typeof a === 'number') {
+        return { kind: 'rollout', percentage: a }
+    }
+    if (Array.isArray(a)) {
+        return { kind: 'group', values: a }
+    }
+    return undefined
+}
+
 function merge(c1: Config, c2: Config | RemoteConfig): Config {
     if ('f' in c2) {
         return {
@@ -131,7 +166,7 @@ function rollout(feature: string, id: string | undefined, threshold: number) {
 
 function defaultAudienceFn(
     ctx: Context | undefined,
-    items: Array<string | number>,
+    items: (string | number)[],
     appHash: number
 ): boolean {
     if (!ctx) return false

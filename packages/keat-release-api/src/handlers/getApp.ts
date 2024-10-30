@@ -15,7 +15,14 @@ export const getApp: Handler = async (req, ctx) => {
         }
         const keat = (await keatDoc.json()) as App
 
-        return { app: { name: keat.name, env: keat.env } }
+        return {
+            app: {
+                name: keat.name,
+                env: keat.env,
+                audiences: keat.audiences,
+                features: keat.features,
+            },
+        }
     } catch (err) {
         throw new ConnectError('cannot up app', Code.Internal)
     }

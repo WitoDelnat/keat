@@ -5,7 +5,7 @@ import { useKeatContext } from '../KeatContext'
 import { Header, SettingsButton } from '../components/Header'
 
 export function BrowseScreen() {
-    const { app, setScreen, setFeature, setRule } = useKeatContext()
+    const { app, setScreen, setFeature, setAudiences } = useKeatContext()
 
     const missingFeatures = useMemo(() => {
         const remoteFeatures = Object.keys(app?.features ?? {})
@@ -28,11 +28,13 @@ export function BrowseScreen() {
         (f: string) => {
             if (!app) return
             setFeature(f)
-            const rule = app.features?.find((ft) => ft.name === f)?.rule
-            setRule(rule)
+            const audiences = app.features?.find(
+                (ft) => ft.name === f
+            )?.audiences
+            setAudiences(audiences ?? [])
             setScreen('toggle')
         },
-        [app, setFeature, setRule, setScreen]
+        [app, setFeature, setAudiences, setScreen]
     )
 
     return (

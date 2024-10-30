@@ -26,20 +26,37 @@ export type Context = CustomTypes extends { user: infer T }
  * * * * * * * * * * * * */
 export type Display = 'block' | 'swap' | 'fallback' | 'optional'
 
-export type Literal = boolean | string | number
-export type Rule = { OR: readonly Literal[] } | Literal
-export type AnyFeatures = Record<string, Rule>
+export type Rule = string | string[] | number | number[] | Aud
+export type Aud = Toggle | Group | Rollout
+export type BaseAud = { kind: string }
+export type Toggle = BaseAud & {
+    kind: 'toggle'
+    value: boolean
+}
+export type Group = BaseAud & {
+    kind: 'group'
+    values: (string | number)[]
+    key?: string
+}
+export type Rollout = BaseAud & {
+    kind: 'rollout'
+    percentage: number
+}
+export type AnyAudience = Record<string, Rule>
 
-export type AudienceFn = (ctx?: Context) => boolean
+export type Audience = string
+export type AnyFeatures = Record<string, boolean | Audience | Audience[]>
+export type NrmFeatures = Record<string, string[]>
 
 export type Config = {
-    features?: Record<string, Rule | Rule[] | undefined>
-    audiences?: Record<string, AudienceFn | Array<string | number>>
+    app?: string
+    audiences?: Record<string, Rule>
+    features?: Record<string, boolean | Audience | Audience[]>
 }
 
 export type RemoteConfig = {
-    f: Record<string, Rule | Rule[] | undefined>
-    a: Record<string, Array<string | number>>
+    f: Record<string, boolean | string[]>
+    a: Record<string, Audience | string[] | string | number[] | number>
 }
 
 export type KeatInit<TFeatures extends AnyFeatures> = {
@@ -51,6 +68,7 @@ export type KeatInit<TFeatures extends AnyFeatures> = {
 export type KeatApi<TFeatures extends AnyFeatures> = {
     app: string
     features: string[]
+    audiences: string[]
     get<TFeature extends keyof TFeatures>(
         feature: TFeature,
         context?: Context,

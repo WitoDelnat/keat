@@ -29,7 +29,7 @@ async function getOrPromptAppKey(): Promise<string> {
     console.log('')
 
     const { result } = await prompts({
-        type: 'text',
+        type: 'password',
         name: 'result',
         message: 'Enter your application key',
         instructions: false,

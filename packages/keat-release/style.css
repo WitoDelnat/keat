@@ -103,6 +103,7 @@
     width: 90vw;
     max-width: 460px;
     max-height: 85vh;
+    z-index: 800;
     animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -116,7 +117,7 @@
     font-family: var(--font-sans);
     box-shadow: var(--cmdk-shadow);
     outline: none;
-    background: linear-gradient(136.61deg, #27282b 13.72%, #2d2e31 74.3%);
+    background: lch(10.633 1.867 272);
 }
 [cmdk-app-badge] {
     height: 24px;
@@ -171,6 +172,150 @@
     transition: all 150ms ease;
     transition-property: none;
     position: relative;
+}
+
+.item {
+    display: flex;
+    padding: 8px 12px;
+    height: 46px;
+    align-items: center;
+}
+
+/* jkQagy */
+.item-unfocused {
+    height: 46px;
+    color: lch(91.223 1.933 272);
+    white-space: nowrap;
+    display: flex;
+    flex: 0 0 100%;
+    -webkit-box-flex: 0;
+    -webkit-box-align: center;
+    align-items: center;
+    transition: color var(--speed-highlightFadeOut);
+    cursor: var(--pointer);
+    opacity: 1;
+    position: relative;
+    --command-menu-item-icon-fill: lch(64.892% 1.933 272 / 1);
+}
+
+.item-unfocused::after {
+    content: '';
+    position: absolute;
+    inset: 2px 12px;
+    background-color: transparent;
+    z-index: -1;
+    border-radius: 6px;
+}
+
+/* lanpBV */
+.item-focused {
+    height: 46px;
+    color: lch(100 0 272);
+    white-space: nowrap;
+    display: flex;
+    flex: 0 0 100%;
+    -webkit-box-flex: 0;
+    -webkit-box-align: center;
+    align-items: center;
+    transition: color 0s ease 0s;
+    cursor: pointer;
+    opacity: 1;
+    position: relative;
+    --command-menu-item-icon-fill: lch(100% 0 272 / 1);
+}
+
+.item-focused::after {
+    content: '';
+    position: absolute;
+    inset: 6px 14px;
+    background-color: lch(19.967 4.783 272);
+    z-index: 0;
+    border-radius: 6px;
+}
+
+.item-inner {
+    height: 100%;
+    -webkit-box-align: center;
+    align-items: center;
+    width: 100%;
+    padding: 0px 20px;
+
+    z-index: 1;
+    display: flex;
+    flex-shrink: initial;
+    flex-basis: initial;
+    flex-direction: row;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-flex: 1;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.item-checkbox {
+    display: flex;
+    margin: 0px 6px 0px -6px;
+    flex-shrink: 0;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    width: 20px;
+}
+
+.cb-off {
+    appearance: none;
+    background-color: transparent;
+    flex-shrink: 0;
+    height: 14px;
+    width: 14px;
+    padding: 2px;
+    margin: 0px 8px 0px 0px;
+    vertical-align: middle;
+    transition: all 80ms ease-out 0s;
+    fill-opacity: 0;
+    border: 1px solid lch(42.071 1.933 272);
+    border-radius: 3px;
+    background-position: 1px 2px;
+    box-shadow: none;
+}
+
+.cb-on {
+    appearance: none;
+    flex-shrink: 0;
+    height: 14px;
+    width: 14px;
+    padding: 2px;
+    vertical-align: middle;
+    transition: all 80ms ease-out 0s;
+    fill-opacity: 0;
+    border-radius: 3px;
+    background-position: 1px 2px;
+    box-shadow: none;
+    background-color: lch(47.918 59.303 288.421);
+    background-image: url('data:image/svg+xml;utf8,%3Csvg%20width=%2210%22%20height=%229%22%20viewBox=%220%200%2010%208%22%20xmlns=%22http://www.w3.org/2000/svg%22%20fill=%22lch%28100%25%205%20288.421%20/%201%29%22%3E%3Cpath%20d=%22M3.46975%205.70757L1.88358%204.1225C1.65832%203.8974%201.29423%203.8974%201.06897%204.1225C0.843675%204.34765%200.843675%204.7116%201.06897%204.93674L3.0648%206.93117C3.29006%207.15628%203.65414%207.15628%203.8794%206.93117L8.93103%201.88306C9.15633%201.65792%209.15633%201.29397%208.93103%201.06883C8.70578%200.843736%208.34172%200.843724%208.11646%201.06879C8.11645%201.0688%208.11643%201.06882%208.11642%201.06883L3.46975%205.70757Z%22%20stroke-width=%220.2%22%20/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    border: 1px solid lch(47.918 59.303 288.421);
+}
+
+.divider {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 1;
+    -webkit-box-flex: 1;
+    flex-grow: 1;
+    min-width: min-content;
+    will-change: transform;
+    transform-origin: center center;
+    border-radius: 8px;
+    box-shadow: lch(0 0 0 / 0.15) 0px 4px 40px, lch(0 0 0 / 0.188) 0px 3px 20px,
+        lch(0 0 0 / 0.188) 0px 3px 12px, lch(0 0 0 / 0.188) 0px 2px 8px,
+        lch(0 0 0 / 0.188) 0px 1px 1px;
+    max-width: 640px;
+    font-size: var(--font-size-regular);
+    color: lch(90.65 1.35 272);
+    overflow: hidden;
 }
 
 .rollout [cmdk-group] {
