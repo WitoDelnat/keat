@@ -1,12 +1,20 @@
 import './App.css'
 import 'keat-release/style.css'
-import { keat } from 'keat-react'
+import { createKeat } from 'keat-react'
 import { useCallback, useState } from 'react'
 import { KeatMenu } from 'keat-release'
 
-const { FeatureBoundary, useKeat } = keat('5d723a7e8ce54232ad339cb9cf67f893', {
+type Token = typeof EXAMPLE_ID_TOKEN
+
+declare module 'keat' {
+    interface CustomTypes {
+        user: Token
+    }
+}
+
+const { FeatureBoundary, useKeat } = createKeat({
     features: {
-        demo: false,
+        demo: true,
         chatbot: false,
     },
     audiences: {
@@ -14,9 +22,8 @@ const { FeatureBoundary, useKeat } = keat('5d723a7e8ce54232ad339cb9cf67f893', {
         foo: 1,
         bar: 10,
     },
+    fetch: 'app-id',
 })
-
-type Token = typeof EXAMPLE_ID_TOKEN
 
 const EXAMPLE_ID_TOKEN = {
     iss: 'http://auth.example.com',
@@ -37,15 +44,15 @@ const GMAIL_ID_TOKEN: Token = {
 }
 
 function App() {
-    const { setContext } = useKeat()
+    const { identify: identifyKeat } = useKeat()
     const [token, setToken] = useState<Token>()
 
     const identify = useCallback(
         (tkn: Token | undefined) => {
             setToken(tkn)
-            setContext(tkn)
+            identifyKeat(tkn)
         },
-        [setContext]
+        [identifyKeat]
     )
 
     return (

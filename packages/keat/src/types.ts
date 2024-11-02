@@ -1,5 +1,3 @@
-import { Listener, Unsubscribe } from './keat'
-
 /**
  * Bring your own user with declaration merging:
  *
@@ -15,6 +13,10 @@ import { Listener, Unsubscribe } from './keat'
 export interface CustomTypes {
     // user: ...
 }
+
+export type ExtractFeatures<K> = K extends KeatApi<infer K> ? keyof K : never
+export type Listener = () => void
+export type Unsubscribe = () => void
 
 export type Context = CustomTypes extends { user: infer T }
     ? T
@@ -48,36 +50,31 @@ export type Audience = string
 export type AnyFeatures = Record<string, boolean | Audience | Audience[]>
 export type NrmFeatures = Record<string, string[]>
 
-export type Config = {
-    app?: string
-    audiences?: Record<string, Rule>
-    features?: Record<string, boolean | Audience | Audience[]>
-}
-
-export type RemoteConfig = {
-    f: Record<string, boolean | string[]>
-    a: Record<string, Audience | string[] | string | number[] | number>
-}
-
-export type KeatInit<TFeatures extends AnyFeatures> = {
+export type Config<TFeatures extends AnyFeatures = AnyFeatures> = {
     features: TFeatures
-    audiences?: any
-    display?: Display
+    audiences?: Record<string, Rule>
 }
+
+export type ConfigN = {
+    features: Record<string, string[] | undefined>
+    audiences: Record<string, Aud | undefined>
+}
+
+export type Fetcher = () => Promise<Config>
+
+export type KeatInit<TFeatures extends AnyFeatures = AnyFeatures> = {
+    fetch?: string | URL | Fetcher
+} & Config<TFeatures>
 
 export type KeatApi<TFeatures extends AnyFeatures> = {
-    app: string
-    features: string[]
-    audiences: string[]
+    config: Config
+    identify(ctx?: Context): void
+    ready(display?: Display): Promise<void>
+    onChange(listener: Listener): Unsubscribe
+
     get<TFeature extends keyof TFeatures>(
         feature: TFeature,
-        context?: Context,
+        identity?: Context,
         display?: Display
     ): boolean
-
-    onChange(listener: Listener): Unsubscribe
-    ready(display?: Display): Promise<void>
-    setContext(context?: Context): void
-    setConfig(config: Config): void
-    reload(): Promise<void>
 }

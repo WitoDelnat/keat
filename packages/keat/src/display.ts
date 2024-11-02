@@ -1,46 +1,44 @@
-import { Display } from "./types";
+import { Display } from './types'
 
-export function load(init: PromiseLike<any>) {
-  const delayLong = pause(3000);
-  const delay = pause(100);
+export function load(init?: PromiseLike<any>) {
+    if (!init) return { ready: () => Promise.resolve() }
+    const delayLong = pause(3000)
+    const delay = pause(100)
 
-  const loading: Record<Display, Promise<void>> = {
-    block: Promise.race([init, delayLong]),
-    fallback: Promise.race([init, delay]),
-    optional: Promise.race([init, delay]),
-    swap: Promise.resolve(),
-  };
-  const result: Record<Display, boolean | undefined> = {
-    block: undefined,
-    fallback: undefined,
-    optional: undefined,
-    swap: undefined,
-  };
+    const loading: Record<Display, Promise<void>> = {
+        block: Promise.race([init, delayLong]),
+        fallback: Promise.race([init, delay]),
+        optional: Promise.race([init, delay]),
+        swap: Promise.resolve(),
+    }
+    const result: Record<Display, boolean | undefined> = {
+        block: undefined,
+        fallback: undefined,
+        optional: undefined,
+        swap: undefined,
+    }
 
-  // block
-  delayLong.then(() => (result["block"] = result["block"] ?? false));
-  init.then(() => (result["block"] = true));
+    // block
+    delayLong.then(() => (result['block'] = result['block'] ?? false))
+    init.then(() => (result['block'] = true))
 
-  // swap
-  result["swap"] = false;
-  init.then(() => (result["swap"] = true));
+    // swap
+    result['swap'] = false
+    init.then(() => (result['swap'] = true))
 
-  // fallback
-  let canSwap = true;
-  delayLong.then(() => (canSwap = false));
-  delay.then(() => (result["fallback"] = result["fallback"] ?? false));
-  init.then(() => (result["fallback"] = canSwap));
+    // fallback
+    let canSwap = true
+    delayLong.then(() => (canSwap = false))
+    delay.then(() => (result['fallback'] = result['fallback'] ?? false))
+    init.then(() => (result['fallback'] = canSwap))
 
-  // optional
-  init.then(() => (result["optional"] = result["optional"] === undefined));
-  delay.then(() => (result["optional"] = result["optional"] !== undefined));
+    // optional
+    init.then(() => (result['optional'] = result['optional'] === undefined))
+    delay.then(() => (result['optional'] = result['optional'] !== undefined))
 
-  return {
-    ready: (display: Display): Promise<void> => loading[display],
-    useLatest: (display: Display): boolean => result[display] ?? false,
-  };
+    return { ready: (display: Display): Promise<void> => loading[display] }
 }
 
 function pause(ms: number): Promise<void> {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+    return new Promise<void>((resolve) => setTimeout(resolve, ms))
 }

@@ -1,11 +1,19 @@
 import * as React from 'react'
-import { AnyFeatures, Display, KeatApi, keatCore, KeatInit } from 'keat'
+import type {
+    AnyFeatures,
+    Config,
+    Context,
+    Display,
+    KeatApi,
+    KeatInit,
+} from 'keat'
+import { createKeat as createKeatCore } from 'keat'
 
 type KeatReactApi<TFeatures extends AnyFeatures> = KeatApi<TFeatures> & {
     useKeat(display?: Display): {
         isLoading: boolean
-        setConfig: KeatApi<TFeatures>['setConfig']
-        setContext: KeatApi<TFeatures>['setContext']
+        configure: (config: Config) => void
+        identify: (context?: Context) => void
     }
     useFeatureFlag<TFeature extends keyof TFeatures>(name: TFeature): boolean
     useFeatureFlagReady(display?: Display): boolean
@@ -18,33 +26,34 @@ type KeatReactApi<TFeatures extends AnyFeatures> = KeatApi<TFeatures> & {
     }): JSX.Element
 }
 
-export function keat<TFeatures extends AnyFeatures>(
-    appId: string,
+export function createKeat<TFeatures extends AnyFeatures>(
     init: KeatInit<TFeatures>
 ): KeatReactApi<TFeatures> {
-    const keatInstance = keatCore(appId, init)
+    const keat = createKeatCore(init)
 
     const useFeatureFlagReady = (display: Display = 'block') => {
         const [ready, setReady] = React.useState(false)
         React.useEffect(() => {
-            keatInstance.ready(display).then(() => setReady(true))
+            keat.ready(display).then(() => setReady(true))
         }, [setReady])
         return ready
     }
 
     return {
-        ...keatInstance,
+        ...keat,
         useKeat(display?: Display) {
             const ready = useFeatureFlagReady(display)
             return {
                 isLoading: !ready,
-                setConfig: keatInstance.setConfig,
-                setContext: keatInstance.setContext,
+                configure: (config: Config) => {
+                    keat.config = config
+                },
+                identify: keat.identify,
             }
         },
         useFeatureFlagReady,
         useFeatureFlag(feature) {
-            return keatInstance.get(feature)
+            return keat.get(feature)
         },
         FeatureBoundary({
             display,
@@ -57,7 +66,7 @@ export function keat<TFeatures extends AnyFeatures>(
             const [_, forceUpdate] = React.useReducer((x) => x + 1, 0)
 
             React.useEffect(() => {
-                const unsubscribe = keatInstance.onChange(forceUpdate)
+                const unsubscribe = keat.onChange(forceUpdate)
                 return () => unsubscribe()
             }, [])
 
@@ -65,7 +74,7 @@ export function keat<TFeatures extends AnyFeatures>(
                 return <>{invisible}</>
             }
 
-            return keatInstance.get(name) ? <>{children}</> : <>{fallback}</>
+            return keat.get(name) ? <>{children}</> : <>{fallback}</>
         },
     }
 }
