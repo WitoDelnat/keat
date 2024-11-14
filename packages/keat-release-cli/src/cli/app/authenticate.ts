@@ -1,7 +1,7 @@
 import prompts from 'prompts'
 import { addAppToStore, getStore } from '../utils/store.cjs'
 import { Unauthenticated } from '../errors.cjs'
-import { client, withAuthHeader } from '../../api/client'
+import { client } from '../../api/client'
 
 export async function authenticate(appId: string) {
     const store = await getStore()
@@ -11,27 +11,27 @@ export async function authenticate(appId: string) {
         return app.key
     }
 
-    const appKey = await getOrPromptAppKey()
+    const password = await promptPassword()
 
     try {
-        await client.getApp({ id: appId }, withAuthHeader(appKey))
+        const authResponse = await client.authenticate({ appId, password })
+        const appKey = authResponse.key
         await addAppToStore({ id: appId, key: appKey })
         return appKey
     } catch (err) {
         console.debug('err authenticate', { err })
-        // Authentication failed
         throw new Unauthenticated()
     }
 }
 
-async function getOrPromptAppKey(): Promise<string> {
+async function promptPassword(): Promise<string> {
     console.log('Please authenticate the CLI:')
     console.log('')
 
     const { result } = await prompts({
         type: 'password',
         name: 'result',
-        message: 'Enter your application key',
+        message: 'Enter your password',
         instructions: false,
     })
 

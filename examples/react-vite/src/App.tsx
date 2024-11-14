@@ -1,8 +1,7 @@
 import './App.css'
-import 'keat-release/style.css'
 import { createKeat } from 'keat-react'
 import { useCallback, useState } from 'react'
-import { KeatMenu } from 'keat-release'
+import cohorts from './keat.json?cohorts'
 
 type Token = typeof EXAMPLE_ID_TOKEN
 
@@ -17,12 +16,11 @@ const { FeatureBoundary, useKeat } = createKeat({
         demo: true,
         chatbot: false,
     },
-    audiences: {
-        staff: ['john@example.com'],
-        foo: 1,
-        bar: 10,
+    cohorts: {
+        foo: ['wito@kubeshop.io'],
+        ...cohorts,
     },
-    fetch: 'app-id',
+    fetch: 'http://localhost:8787/18f9069bb2ee470eb75ef1da3db698ee/feature-flags.json',
 })
 
 const EXAMPLE_ID_TOKEN = {
@@ -55,10 +53,15 @@ function App() {
         [identifyKeat]
     )
 
+    const toggleKeatMenu = useCallback(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = document.getElementsByTagName('keat-menu')[0] as any
+        d?.showModal()
+    }, [])
+
     return (
         <>
             <h1>Keat + Vite + React</h1>
-            <KeatMenu />
 
             <div className="card">
                 <FeatureBoundary
@@ -98,6 +101,8 @@ function App() {
                     >
                         Logout
                     </button>
+
+                    <button onClick={toggleKeatMenu}>open keat menu</button>
                 </div>
 
                 <p className="description">

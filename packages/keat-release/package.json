@@ -1,52 +1,84 @@
 {
-    "name": "keat-release",
-    "version": "0.1.0",
-    "type": "module",
-    "source": "src/KeatMenu.ts",
-    "module": "lib/KeatMenu.js",
-    "typings": "lib/KeatMenu.d.ts",
-    "types": "lib/KeatMenu.d.ts",
-    "license": "MIT",
-    "sideEffects": false,
-    "author": {
-        "name": "Wito Delnat",
-        "url": "https://github.com/WitoDelnat"
+  "name": "keat-release",
+  "version": "0.1.0",
+  "main": "dist/KeatMenu.js",
+  "module": "dist/KeatMenu.mjs",
+  "typings": "dist/KeatMenu.d.ts",
+  "types": "dist/KeatMenu.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/KeatMenu.d.ts",
+      "import": "./lib/KeatMenu.mjs",
+      "default": "./lib/KeatMenu.js"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/WitoDelnat/keat"
-    },
-    "keywords": [
-        "keat",
-        "feature flags",
-        "feature toggle",
-        "feature management",
-        "continuous delivery",
-        "release"
-    ],
-    "files": [
-        "style.css",
-        "lib"
-    ],
-    "scripts": {
-        "lint": "tsc --noEmit",
-        "dev": "tsc --watch",
-        "build": "rimraf lib && tsc"
-    },
-    "dependencies": {
-        "cmdk": "1.0.0",
-        "keat-new": "*"
-    },
-    "devDependencies": {
-        "@types/react": "18.0.9",
-        "react": "18.1.0",
-        "react-dom": "18.1.0",
-        "rimraf": "3.0.2",
-        "tsconfig": "*",
-        "typescript": "4.9.5"
-    },
-    "peerDependencies": {
-        "react": "^18.0 || ^17.0 || ^16.0",
-        "react-dom": "^18.0 || ^17.0 || ^16.0"
-    }
+    "./lib/*": "./lib/*",
+    "./package": "./package.json",
+    "./package.json": "./package.json"
+  },
+  "license": "MIT",
+  "sideEffects": false,
+  "author": {
+    "name": "Wito Delnat",
+    "url": "https://github.com/WitoDelnat"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WitoDelnat/keat"
+  },
+  "keywords": [
+    "keat",
+    "feature flags",
+    "feature toggle",
+    "feature management",
+    "continuous delivery",
+    "release"
+  ],
+  "files": [
+    "style.css",
+    "dist"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "build": "npm run build:prod",
+    "build:debug": "rollup -c",
+    "build:prod": "rollup -c --environment BUILD:production",
+    "watch": "rollup -c --watch"
+  },
+  "devDependencies": {
+    "@rollup/plugin-inject": "^5.0.5",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-virtual": "^3.0.2",
+    "@rollup/pluginutils": "^5.0.4",
+    "@swc/cli": "^0.1.62",
+    "@swc/core": "^1.3.89",
+    "@swc/helpers": "^0.5.2",
+    "@types/html-minifier": "^4.0.3",
+    "@webcomponents/webcomponentsjs": "^2.8.0",
+    "html-minifier": "4.0.0",
+    "postcss": "^8.4.30",
+    "postcss-mixins": "^9.0.4",
+    "postcss-preset-env": "10.0.9",
+    "react": "18.1.0",
+    "react-dom": "18.1.0",
+    "rimraf": "3.0.2",
+    "prettier": "^2.8.8",
+    "rollup": "^3.29.3",
+    "rollup-plugin-dts": "^5.3.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-string": "^3.0.0",
+    "rollup-plugin-swc3": "^0.8.2",
+    "tslib": "^2.6.2",
+    "typescript": "5.1.6"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "chrome >= 67",
+    "firefox esr"
+  ],
+  "workspaces": [
+    "."
+  ]
 }

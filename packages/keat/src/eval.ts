@@ -1,5 +1,5 @@
-import { Aud, ConfigN, Context } from './types'
-import { hash } from './utils/hash'
+import { Cohort, ConfigN, Context } from './types'
+import { hashSync } from './utils/hash'
 
 export function evaluate(
     cfg: ConfigN,
@@ -7,53 +7,59 @@ export function evaluate(
     ctx?: Context
 ): boolean {
     try {
-        const auds = cfg.features[feature] ?? []
-        return auds.some((a) => evalAud(cfg.audiences[a], feature, ctx))
+        const cohorts = cfg.features[feature] ?? []
+        for (const c of cohorts) {
+            const r = evalCohort(cfg.cohorts[c], feature, ctx)
+            if (r) return r
+        }
+        return false
     } catch {
         return false
     }
 }
 
-export function evalAud(
-    aud: Aud | undefined,
+export function evalCohort(
+    cohort: Cohort | undefined,
     feature: string,
     ctx?: Context
 ): boolean {
-    if (!aud) {
+    if (!cohort) {
         return false
     }
-    if (aud.kind === 'toggle') {
-        return aud.value
+    if (cohort.strategy === 'toggle') {
+        return cohort.value
     }
-    if (aud.kind === 'group') {
-        return defaultAudienceFn(ctx, aud.values)
+    if (cohort.strategy === 'group') {
+        return defaultAudienceFn(ctx, cohort.targets)
     }
-    if (aud.kind === 'rollout') {
-        return rollout(feature, getId(ctx), aud.percentage)
+    if (cohort.strategy === 'rollout') {
+        return rollout(feature, getId(ctx), cohort.percentage)
     }
     return false
 }
 
-function rollout(feature: string, id: string | undefined, threshold: number) {
+function rollout(
+    feature: string,
+    id: string | undefined,
+    threshold: number
+): boolean {
     if (!id) return false
-    const seed = hash(feature)
-    const percentage = (hash(id, seed) % 100) + 1
+    const h = hashSync(`${feature}-${id}`)
+    const percentage = (parseInt(h.substring(0, 16), 16) % 100) + 1
     return percentage <= threshold
 }
 
-function defaultAudienceFn(
-    ctx: Context | undefined,
-    items: (string | number)[]
-): boolean {
+function defaultAudienceFn(ctx: Context | undefined, items: string[]): boolean {
     if (!ctx) return false
-    let h: number | undefined = undefined
+    let h: string | undefined = undefined
     const id = getId(ctx)
+    const hashed = items.every((s) => s.length === 64)
     for (const i of items) {
-        if (typeof i === 'string') {
+        if (!hashed) {
             return i === id
         } else {
             if (h === undefined) {
-                h = hash(getId(ctx))
+                h = hashSync(getId(ctx))
             }
             return i === h
         }

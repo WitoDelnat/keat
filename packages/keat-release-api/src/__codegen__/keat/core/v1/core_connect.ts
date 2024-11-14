@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateAppRequest, CreateAppResponse, GetAppRequest, GetAppResponse, ToggleRequest, ToggleResponse, UpdateAppRequest, UpdateAppResponse, UpsertAudienceRequest, UpsertAudienceResponse } from "./core_pb.js";
+import { AuthRequest, AuthResponse, CreateAppRequest, CreateAppResponse, DeleteAppRequest, DeleteAppResponse, GetAppRequest, GetAppResponse, RemoveCohortRequest, RemoveCohortResponse, RemoveFeatureRequest, RemoveFeatureResponse, TargetRequest, TargetResponse, ToggleRequest, ToggleResponse } from "./core_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -12,6 +12,15 @@ import { MethodKind } from "@bufbuild/protobuf";
 export const KeatService = {
   typeName: "keat.core.v1.KeatService",
   methods: {
+    /**
+     * @generated from rpc keat.core.v1.KeatService.Auth
+     */
+    auth: {
+      name: "Auth",
+      I: AuthRequest,
+      O: AuthResponse,
+      kind: MethodKind.Unary,
+    },
     /**
      * @generated from rpc keat.core.v1.KeatService.GetApp
      */
@@ -31,21 +40,12 @@ export const KeatService = {
       kind: MethodKind.Unary,
     },
     /**
-     * @generated from rpc keat.core.v1.KeatService.UpdateApp
+     * @generated from rpc keat.core.v1.KeatService.DeleteApp
      */
-    updateApp: {
-      name: "UpdateApp",
-      I: UpdateAppRequest,
-      O: UpdateAppResponse,
-      kind: MethodKind.Unary,
-    },
-    /**
-     * @generated from rpc keat.core.v1.KeatService.UpsertAudience
-     */
-    upsertAudience: {
-      name: "UpsertAudience",
-      I: UpsertAudienceRequest,
-      O: UpsertAudienceResponse,
+    deleteApp: {
+      name: "DeleteApp",
+      I: DeleteAppRequest,
+      O: DeleteAppResponse,
       kind: MethodKind.Unary,
     },
     /**
@@ -55,6 +55,33 @@ export const KeatService = {
       name: "Toggle",
       I: ToggleRequest,
       O: ToggleResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc keat.core.v1.KeatService.RemoveFeature
+     */
+    removeFeature: {
+      name: "RemoveFeature",
+      I: RemoveFeatureRequest,
+      O: RemoveFeatureResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc keat.core.v1.KeatService.Target
+     */
+    target: {
+      name: "Target",
+      I: TargetRequest,
+      O: TargetResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc keat.core.v1.KeatService.RemoveCohort
+     */
+    removeCohort: {
+      name: "RemoveCohort",
+      I: RemoveCohortRequest,
+      O: RemoveCohortResponse,
       kind: MethodKind.Unary,
     },
   }

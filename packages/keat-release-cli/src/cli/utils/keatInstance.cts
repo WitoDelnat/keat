@@ -28,7 +28,7 @@ export function extractFeatures(code: SourceFile): string[] | [] {
 
     const keatCall = callExpressions.find((call) => {
         const name = getId(call) ?? ''
-        return ['keat'].includes(name)
+        return ['createKeat'].includes(name)
     })
 
     if (!keatCall) {
@@ -81,18 +81,30 @@ function extractAppId(code: SourceFile): string | undefined {
 
     const keatCall = callExpressions.find((call) => {
         const name = getId(call) ?? ''
-        return ['keat'].includes(name)
+        return ['createKeat'].includes(name)
     })
 
     if (!keatCall) {
         return undefined
     }
 
-    return keatCall
-        .getArguments()
-        .at(0)
-        ?.asKind(Kind.StringLiteral)
-        ?.getLiteralValue()
+    const args = keatCall.getFirstChildByKindOrThrow(
+        SyntaxKind.ObjectLiteralExpression
+    )
+
+    const fetchNode = args
+        .getProperties()
+        .find((property) => getId(property) === 'fetch')
+
+    if (!fetchNode) {
+        return undefined
+    }
+
+    const appIdLiteral = fetchNode.getFirstDescendantByKind(
+        SyntaxKind.StringLiteral
+    )
+
+    return appIdLiteral?.getLiteralValue()
 }
 
 function extractAudiences(code: SourceFile): string[] {
@@ -100,7 +112,7 @@ function extractAudiences(code: SourceFile): string[] {
 
     const keatCall = callExpressions.find((call) => {
         const name = getId(call) ?? ''
-        return ['keat'].includes(name)
+        return ['createKeat'].includes(name)
     })
 
     if (!keatCall) {

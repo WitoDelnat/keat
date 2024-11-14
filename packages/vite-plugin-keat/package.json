@@ -1,0 +1,45 @@
+{
+    "name": "vite-plugin-keat",
+    "version": "0.1.0",
+    "description": "Vite plugin to import Keat cohorts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/WitoDelnat/keat.git"
+    },
+    "license": "MIT",
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build && shx cp src/index.d.ts dist/index.d.ts",
+        "preview": "vite preview"
+    },
+    "keywords": [
+        "vite",
+        "vite-plugin"
+    ],
+    "devDependencies": {
+        "@types/node": "^20.12.12",
+        "keat": "*",
+        "prettier": "3.2.5",
+        "shx": "^0.3.4",
+        "typescript": "^5.2.2"
+    },
+    "peerDependencies": {
+        "vite": "^5.2.0"
+    },
+    "dependencies": {
+        "@rollup/pluginutils": "^5.1.0"
+    }
+}

@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateAppRequest, CreateAppResponse, GetAppRequest, GetAppResponse, ToggleRequest, ToggleResponse, UpdateAppRequest, UpdateAppResponse, UpsertAudienceRequest, UpsertAudienceResponse } from "./core_pb.js";
+import { AuthRequest, AuthResponse, CreateAppRequest, CreateAppResponse, GetAppRequest, GetAppResponse, ToggleRequest, ToggleResponse, UpdateAppRequest, UpdateAppResponse, UpsertAudienceRequest, UpsertAudienceResponse } from "./core_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -12,6 +12,15 @@ import { MethodKind } from "@bufbuild/protobuf";
 export const KeatService = {
   typeName: "keat.core.v1.KeatService",
   methods: {
+    /**
+     * @generated from rpc keat.core.v1.KeatService.Authenticate
+     */
+    authenticate: {
+      name: "Authenticate",
+      I: AuthRequest,
+      O: AuthResponse,
+      kind: MethodKind.Unary,
+    },
     /**
      * @generated from rpc keat.core.v1.KeatService.GetApp
      */

@@ -1,15 +1,17 @@
 {
+    "name": "keat-root",
+    "packageManager": "npm@10.5.0",
     "workspaces": [
         "packages/*",
         "examples/*"
     ],
+    "scripts": {
+        "dev": "turbo",
+        "typecheck": "tsc --noEmit"
+    },
     "devDependencies": {
         "@changesets/cli": "2.26.2",
-        "graphql": "16.6.0",
-        "turborepo": "0.0.1",
+        "turbo": "2.2.3",
         "typescript": "5.1.6"
-    },
-    "dependencies": {
-        "node-fetch": "3.3.2"
     }
 }

@@ -1,0 +1,45 @@
+dialog {
+    background: #18191b;
+    width: 420px;
+    border-radius: 6px;
+    border: none;
+    padding: 0px;
+    overflow: hidden;
+    height: 300px;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+input {
+    box-sizing: border-box;
+    margin: 0;
+    border: none;
+    padding: 20px;
+    height: 56px;
+    outline: none;
+    width: 100%;
+}
+
+.separator {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 4px;
+    width: 100%;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    height: 46px;
+    width: 100%;
+    padding: 0 14px;
+}
+
+ul {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}

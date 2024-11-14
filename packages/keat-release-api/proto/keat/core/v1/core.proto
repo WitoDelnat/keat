@@ -4,12 +4,26 @@ package keat.core.v1;
 import "google/protobuf/any.proto";
 
 service KeatService {
+  rpc Auth(AuthRequest) returns (AuthResponse) {}
+
   rpc GetApp(GetAppRequest) returns (GetAppResponse) {}
   rpc CreateApp(CreateAppRequest) returns (CreateAppResponse) {}
-  rpc UpdateApp(UpdateAppRequest) returns (UpdateAppResponse) {}
+  rpc DeleteApp(DeleteAppRequest) returns (DeleteAppResponse) {}
 
-  rpc UpsertAudience(UpsertAudienceRequest) returns (UpsertAudienceResponse) {}
   rpc Toggle(ToggleRequest) returns (ToggleResponse) {}
+  rpc RemoveFeature(RemoveFeatureRequest) returns (RemoveFeatureResponse) {}
+
+  rpc Target(TargetRequest) returns (TargetResponse) {}
+  rpc RemoveCohort(RemoveCohortRequest) returns (RemoveCohortResponse) {}
+}
+
+message AuthRequest {
+  string app_id = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string key = 1;
 }
 
 message App {
@@ -18,23 +32,11 @@ message App {
   optional int32 day_offset = 3;
   optional string theme = 4;
   repeated Feature features = 5;
-  repeated Audience audiences = 6;
-}
-
-message Feature {
-  string name = 1;
-  optional bool kill = 2;
-  repeated string values = 3;
-}
-
-message Audience {
-  string name = 1;
-  optional string key = 2;
-  repeated string values = 3;
+  repeated Cohort cohorts = 6;
 }
 
 message GetAppRequest {
-  string id = 1;
+  string app_id = 1;
 }
 
 message GetAppResponse {
@@ -44,37 +46,80 @@ message GetAppResponse {
 message CreateAppRequest {
   string name = 1;
   string feature = 2;
+  string password = 3;
 }
 
 message CreateAppResponse {
-  string id = 1;
+  string app_id = 1;
   string key = 2;
 }
 
-message UpdateAppRequest {
+message DeleteAppRequest {
   string app_id = 1;
 }
 
-message UpdateAppResponse {
-  App app = 1;
+message DeleteAppResponse {
+  bool ok = 1;
 }
 
-message UpsertAudienceRequest {
+message Feature {
   string name = 1;
-  string feature = 2;
-}
-
-message UpsertAudienceResponse {
-  string id = 1;
-  string key = 2;
+  repeated string cohorts = 3;
 }
 
 message ToggleRequest {
-  string app = 1;
+  string app_id = 1;
   string feature = 2;
-  repeated string values = 3;
+  repeated string cohorts = 3;
 }
 
 message ToggleResponse {
-  bool success = 1;
+  bool ok = 1;
+}
+
+message RemoveFeatureRequest {
+  string app_id = 1;
+  string feature = 2;
+}
+
+message RemoveFeatureResponse {
+  bool ok = 1;
+}
+
+message Cohort {
+  string name = 1;
+
+  oneof strategy {
+    Rollout rollout = 2;
+    Group group = 3;
+  }
+
+  message Rollout {
+    int32 percentage = 1;
+  }
+  message Group {
+    repeated string targets = 1;
+  }
+}
+
+message TargetRequest {
+  string app_id = 1;
+  string cohort = 2;
+  oneof strategy {
+    Cohort.Rollout rollout = 3;
+    Cohort.Group group = 4;
+  }
+}
+
+message TargetResponse {
+  bool ok = 1;
+}
+
+message RemoveCohortRequest {
+  string app_id = 1;
+  string cohort = 2;
+}
+
+message RemoveCohortResponse {
+  bool ok = 1;
 }

@@ -28,36 +28,36 @@ export type Context = CustomTypes extends { user: infer T }
  * * * * * * * * * * * * */
 export type Display = 'block' | 'swap' | 'fallback' | 'optional'
 
-export type Rule = string | string[] | number | number[] | Aud
-export type Aud = Toggle | Group | Rollout
-export type BaseAud = { kind: string }
-export type Toggle = BaseAud & {
-    kind: 'toggle'
+export type Cohort = Toggle | Group | Rollout
+export type BaseCohort = { strategy: string }
+export type Toggle = BaseCohort & {
+    strategy: 'toggle'
     value: boolean
 }
-export type Group = BaseAud & {
-    kind: 'group'
-    values: (string | number)[]
+export type Group = BaseCohort & {
+    strategy: 'group'
+    targets: string[]
     key?: string
 }
-export type Rollout = BaseAud & {
-    kind: 'rollout'
+export type Rollout = BaseCohort & {
+    strategy: 'rollout'
     percentage: number
 }
-export type AnyAudience = Record<string, Rule>
 
-export type Audience = string
-export type AnyFeatures = Record<string, boolean | Audience | Audience[]>
-export type NrmFeatures = Record<string, string[]>
+export type AnyCohort = Record<string, number | string | string[] | Cohort>
+export type NrmCohort = Record<string, Cohort | undefined>
+
+export type AnyFeatures = Record<string, boolean | string | string[]>
+export type NrmFeatures = Record<string, string[] | undefined>
 
 export type Config<TFeatures extends AnyFeatures = AnyFeatures> = {
     features: TFeatures
-    audiences?: Record<string, Rule>
+    cohorts?: AnyCohort
 }
 
 export type ConfigN = {
-    features: Record<string, string[] | undefined>
-    audiences: Record<string, Aud | undefined>
+    features: NrmFeatures
+    cohorts: NrmCohort
 }
 
 export type Fetcher = () => Promise<Config>
@@ -69,8 +69,11 @@ export type KeatInit<TFeatures extends AnyFeatures = AnyFeatures> = {
 export type KeatApi<TFeatures extends AnyFeatures> = {
     config: Config
     identify(ctx?: Context): void
-    ready(display?: Display): Promise<void>
     onChange(listener: Listener): Unsubscribe
+
+    appId?: string
+    ready(display?: Display): Promise<void>
+    refresh(): void
 
     get<TFeature extends keyof TFeatures>(
         feature: TFeature,

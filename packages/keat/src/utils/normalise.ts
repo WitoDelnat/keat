@@ -1,8 +1,8 @@
-import { Aud, Config, ConfigN, Fetcher, Rule } from '../types'
+import { Cohort, Config, ConfigN, Fetcher } from '../types'
 
-const DEFAULT_AUDS: Record<string, Aud> = {
-    everyone: { kind: 'toggle', value: true },
-    nobody: { kind: 'toggle', value: false },
+const DEFAULT_COHORTS: Record<string, Cohort> = {
+    everyone: { strategy: 'toggle', value: true },
+    nobody: { strategy: 'toggle', value: false },
 }
 
 export function normalise(c: Config): ConfigN {
@@ -10,12 +10,12 @@ export function normalise(c: Config): ConfigN {
         features: Object.fromEntries(
             Object.entries(c.features).map(([k, v]) => [k, normaliseToggle(v)])
         ),
-        audiences: {
-            ...DEFAULT_AUDS,
+        cohorts: {
+            ...DEFAULT_COHORTS,
             ...Object.fromEntries(
-                Object.entries(c.audiences ?? {}).map(([k, v]) => [
+                Object.entries(c.cohorts ?? {}).map(([k, v]) => [
                     k,
-                    normaliseAudience(v),
+                    normaliseCohort(v),
                 ])
             ),
         },
@@ -50,15 +50,15 @@ export function normaliseFetch(
     return () => fetch(url).then((r) => r.json())
 }
 
-function normaliseAudience(
-    a?: Rule | string | string[] | number | number[]
-): Aud | undefined {
-    if (!a) return undefined
-    if (typeof a === 'number') {
-        return { kind: 'rollout', percentage: a }
+function normaliseCohort(
+    c?: string | string[] | number | Cohort
+): Cohort | undefined {
+    if (!c) return undefined
+    if (typeof c === 'number') {
+        return { strategy: 'rollout', percentage: c }
     }
-    if (Array.isArray(a)) {
-        return { kind: 'group', values: a }
+    if (Array.isArray(c)) {
+        return { strategy: 'group', targets: c }
     }
     return undefined
 }

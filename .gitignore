@@ -5,3 +5,5 @@ yarn-error.log
 .env
 .idea/**
 examples/react-release/**
+**/.turbo/**
+.DS_Store

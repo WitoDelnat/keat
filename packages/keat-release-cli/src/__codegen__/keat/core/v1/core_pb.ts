@@ -7,6 +7,86 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
+ * @generated from message keat.core.v1.AuthRequest
+ */
+export class AuthRequest extends Message<AuthRequest> {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId = "";
+
+  /**
+   * @generated from field: string password = 2;
+   */
+  password = "";
+
+  constructor(data?: PartialMessage<AuthRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.AuthRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "password", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AuthRequest {
+    return new AuthRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): AuthRequest {
+    return new AuthRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): AuthRequest {
+    return new AuthRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: AuthRequest | PlainMessage<AuthRequest> | undefined, b: AuthRequest | PlainMessage<AuthRequest> | undefined): boolean {
+    return proto3.util.equals(AuthRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.AuthResponse
+ */
+export class AuthResponse extends Message<AuthResponse> {
+  /**
+   * @generated from field: string key = 1;
+   */
+  key = "";
+
+  constructor(data?: PartialMessage<AuthResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.AuthResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AuthResponse {
+    return new AuthResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): AuthResponse {
+    return new AuthResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): AuthResponse {
+    return new AuthResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: AuthResponse | PlainMessage<AuthResponse> | undefined, b: AuthResponse | PlainMessage<AuthResponse> | undefined): boolean {
+    return proto3.util.equals(AuthResponse, a, b);
+  }
+}
+
+/**
  * @generated from message keat.core.v1.App
  */
 export class App extends Message<App> {
@@ -259,6 +339,11 @@ export class CreateAppRequest extends Message<CreateAppRequest> {
    */
   feature = "";
 
+  /**
+   * @generated from field: string password = 3;
+   */
+  password = "";
+
   constructor(data?: PartialMessage<CreateAppRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -269,6 +354,7 @@ export class CreateAppRequest extends Message<CreateAppRequest> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "feature", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "password", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateAppRequest {

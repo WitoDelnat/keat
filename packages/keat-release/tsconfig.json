@@ -1,22 +1,20 @@
 {
-    "compilerOptions": {
-        "rootDir": "src",
-        "outDir": "lib",
-        "lib": ["ESNext", "DOM"],
-        "module": "ESNext",
-        "target": "ESNext",
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true,
-        "declaration": true,
-        "forceConsistentCasingInFileNames": true,
-        "esModuleInterop": true,
-        "jsx": "react",
-        "pretty": true,
-        "resolveJsonModule": true,
-        "skipLibCheck": true,
-        "removeComments": false,
-        "strict": true
-    },
-    "exclude": ["node_modules", "lib"],
-    "include": ["src"]
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "es2015",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipDefaultLibCheck": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "useDefineForClassFields": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "lib": ["dom", "es2017", "es2020.intl"],
+    "types": []
+  },
+  "include": ["src/**/*"]
 }

@@ -7,6 +7,86 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
+ * @generated from message keat.core.v1.AuthRequest
+ */
+export class AuthRequest extends Message<AuthRequest> {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId = "";
+
+  /**
+   * @generated from field: string password = 2;
+   */
+  password = "";
+
+  constructor(data?: PartialMessage<AuthRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.AuthRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "password", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AuthRequest {
+    return new AuthRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): AuthRequest {
+    return new AuthRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): AuthRequest {
+    return new AuthRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: AuthRequest | PlainMessage<AuthRequest> | undefined, b: AuthRequest | PlainMessage<AuthRequest> | undefined): boolean {
+    return proto3.util.equals(AuthRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.AuthResponse
+ */
+export class AuthResponse extends Message<AuthResponse> {
+  /**
+   * @generated from field: string key = 1;
+   */
+  key = "";
+
+  constructor(data?: PartialMessage<AuthResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.AuthResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AuthResponse {
+    return new AuthResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): AuthResponse {
+    return new AuthResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): AuthResponse {
+    return new AuthResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: AuthResponse | PlainMessage<AuthResponse> | undefined, b: AuthResponse | PlainMessage<AuthResponse> | undefined): boolean {
+    return proto3.util.equals(AuthResponse, a, b);
+  }
+}
+
+/**
  * @generated from message keat.core.v1.App
  */
 export class App extends Message<App> {
@@ -36,9 +116,9 @@ export class App extends Message<App> {
   features: Feature[] = [];
 
   /**
-   * @generated from field: repeated keat.core.v1.Audience audiences = 6;
+   * @generated from field: repeated keat.core.v1.Cohort cohorts = 6;
    */
-  audiences: Audience[] = [];
+  cohorts: Cohort[] = [];
 
   constructor(data?: PartialMessage<App>) {
     super();
@@ -53,7 +133,7 @@ export class App extends Message<App> {
     { no: 3, name: "day_offset", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
     { no: 4, name: "theme", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
     { no: 5, name: "features", kind: "message", T: Feature, repeated: true },
-    { no: 6, name: "audiences", kind: "message", T: Audience, repeated: true },
+    { no: 6, name: "cohorts", kind: "message", T: Cohort, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): App {
@@ -74,111 +154,13 @@ export class App extends Message<App> {
 }
 
 /**
- * @generated from message keat.core.v1.Feature
- */
-export class Feature extends Message<Feature> {
-  /**
-   * @generated from field: string name = 1;
-   */
-  name = "";
-
-  /**
-   * @generated from field: optional bool kill = 2;
-   */
-  kill?: boolean;
-
-  /**
-   * @generated from field: repeated string values = 3;
-   */
-  values: string[] = [];
-
-  constructor(data?: PartialMessage<Feature>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "keat.core.v1.Feature";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "kill", kind: "scalar", T: 8 /* ScalarType.BOOL */, opt: true },
-    { no: 3, name: "values", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Feature {
-    return new Feature().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Feature {
-    return new Feature().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Feature {
-    return new Feature().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Feature | PlainMessage<Feature> | undefined, b: Feature | PlainMessage<Feature> | undefined): boolean {
-    return proto3.util.equals(Feature, a, b);
-  }
-}
-
-/**
- * @generated from message keat.core.v1.Audience
- */
-export class Audience extends Message<Audience> {
-  /**
-   * @generated from field: string name = 1;
-   */
-  name = "";
-
-  /**
-   * @generated from field: optional string key = 2;
-   */
-  key?: string;
-
-  /**
-   * @generated from field: repeated string values = 3;
-   */
-  values: string[] = [];
-
-  constructor(data?: PartialMessage<Audience>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "keat.core.v1.Audience";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "key", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 3, name: "values", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Audience {
-    return new Audience().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Audience {
-    return new Audience().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Audience {
-    return new Audience().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Audience | PlainMessage<Audience> | undefined, b: Audience | PlainMessage<Audience> | undefined): boolean {
-    return proto3.util.equals(Audience, a, b);
-  }
-}
-
-/**
  * @generated from message keat.core.v1.GetAppRequest
  */
 export class GetAppRequest extends Message<GetAppRequest> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: string app_id = 1;
    */
-  id = "";
+  appId = "";
 
   constructor(data?: PartialMessage<GetAppRequest>) {
     super();
@@ -188,7 +170,7 @@ export class GetAppRequest extends Message<GetAppRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "keat.core.v1.GetAppRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetAppRequest {
@@ -259,6 +241,11 @@ export class CreateAppRequest extends Message<CreateAppRequest> {
    */
   feature = "";
 
+  /**
+   * @generated from field: string password = 3;
+   */
+  password = "";
+
   constructor(data?: PartialMessage<CreateAppRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -269,6 +256,7 @@ export class CreateAppRequest extends Message<CreateAppRequest> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "feature", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "password", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateAppRequest {
@@ -293,9 +281,9 @@ export class CreateAppRequest extends Message<CreateAppRequest> {
  */
 export class CreateAppResponse extends Message<CreateAppResponse> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: string app_id = 1;
    */
-  id = "";
+  appId = "";
 
   /**
    * @generated from field: string key = 2;
@@ -310,7 +298,7 @@ export class CreateAppResponse extends Message<CreateAppResponse> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "keat.core.v1.CreateAppResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
@@ -332,162 +320,119 @@ export class CreateAppResponse extends Message<CreateAppResponse> {
 }
 
 /**
- * @generated from message keat.core.v1.UpdateAppRequest
+ * @generated from message keat.core.v1.DeleteAppRequest
  */
-export class UpdateAppRequest extends Message<UpdateAppRequest> {
+export class DeleteAppRequest extends Message<DeleteAppRequest> {
   /**
    * @generated from field: string app_id = 1;
    */
   appId = "";
 
-  constructor(data?: PartialMessage<UpdateAppRequest>) {
+  constructor(data?: PartialMessage<DeleteAppRequest>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "keat.core.v1.UpdateAppRequest";
+  static readonly typeName = "keat.core.v1.DeleteAppRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateAppRequest {
-    return new UpdateAppRequest().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteAppRequest {
+    return new DeleteAppRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UpdateAppRequest {
-    return new UpdateAppRequest().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteAppRequest {
+    return new DeleteAppRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UpdateAppRequest {
-    return new UpdateAppRequest().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteAppRequest {
+    return new DeleteAppRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: UpdateAppRequest | PlainMessage<UpdateAppRequest> | undefined, b: UpdateAppRequest | PlainMessage<UpdateAppRequest> | undefined): boolean {
-    return proto3.util.equals(UpdateAppRequest, a, b);
+  static equals(a: DeleteAppRequest | PlainMessage<DeleteAppRequest> | undefined, b: DeleteAppRequest | PlainMessage<DeleteAppRequest> | undefined): boolean {
+    return proto3.util.equals(DeleteAppRequest, a, b);
   }
 }
 
 /**
- * @generated from message keat.core.v1.UpdateAppResponse
+ * @generated from message keat.core.v1.DeleteAppResponse
  */
-export class UpdateAppResponse extends Message<UpdateAppResponse> {
+export class DeleteAppResponse extends Message<DeleteAppResponse> {
   /**
-   * @generated from field: keat.core.v1.App app = 1;
+   * @generated from field: bool ok = 1;
    */
-  app?: App;
+  ok = false;
 
-  constructor(data?: PartialMessage<UpdateAppResponse>) {
+  constructor(data?: PartialMessage<DeleteAppResponse>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "keat.core.v1.UpdateAppResponse";
+  static readonly typeName = "keat.core.v1.DeleteAppResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "app", kind: "message", T: App },
+    { no: 1, name: "ok", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpdateAppResponse {
-    return new UpdateAppResponse().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteAppResponse {
+    return new DeleteAppResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UpdateAppResponse {
-    return new UpdateAppResponse().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteAppResponse {
+    return new DeleteAppResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UpdateAppResponse {
-    return new UpdateAppResponse().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteAppResponse {
+    return new DeleteAppResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: UpdateAppResponse | PlainMessage<UpdateAppResponse> | undefined, b: UpdateAppResponse | PlainMessage<UpdateAppResponse> | undefined): boolean {
-    return proto3.util.equals(UpdateAppResponse, a, b);
+  static equals(a: DeleteAppResponse | PlainMessage<DeleteAppResponse> | undefined, b: DeleteAppResponse | PlainMessage<DeleteAppResponse> | undefined): boolean {
+    return proto3.util.equals(DeleteAppResponse, a, b);
   }
 }
 
 /**
- * @generated from message keat.core.v1.UpsertAudienceRequest
+ * @generated from message keat.core.v1.Feature
  */
-export class UpsertAudienceRequest extends Message<UpsertAudienceRequest> {
+export class Feature extends Message<Feature> {
   /**
    * @generated from field: string name = 1;
    */
   name = "";
 
   /**
-   * @generated from field: string feature = 2;
+   * @generated from field: repeated string cohorts = 3;
    */
-  feature = "";
+  cohorts: string[] = [];
 
-  constructor(data?: PartialMessage<UpsertAudienceRequest>) {
+  constructor(data?: PartialMessage<Feature>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "keat.core.v1.UpsertAudienceRequest";
+  static readonly typeName = "keat.core.v1.Feature";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "feature", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "cohorts", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpsertAudienceRequest {
-    return new UpsertAudienceRequest().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Feature {
+    return new Feature().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UpsertAudienceRequest {
-    return new UpsertAudienceRequest().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Feature {
+    return new Feature().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UpsertAudienceRequest {
-    return new UpsertAudienceRequest().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Feature {
+    return new Feature().fromJsonString(jsonString, options);
   }
 
-  static equals(a: UpsertAudienceRequest | PlainMessage<UpsertAudienceRequest> | undefined, b: UpsertAudienceRequest | PlainMessage<UpsertAudienceRequest> | undefined): boolean {
-    return proto3.util.equals(UpsertAudienceRequest, a, b);
-  }
-}
-
-/**
- * @generated from message keat.core.v1.UpsertAudienceResponse
- */
-export class UpsertAudienceResponse extends Message<UpsertAudienceResponse> {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id = "";
-
-  /**
-   * @generated from field: string key = 2;
-   */
-  key = "";
-
-  constructor(data?: PartialMessage<UpsertAudienceResponse>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "keat.core.v1.UpsertAudienceResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UpsertAudienceResponse {
-    return new UpsertAudienceResponse().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UpsertAudienceResponse {
-    return new UpsertAudienceResponse().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UpsertAudienceResponse {
-    return new UpsertAudienceResponse().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: UpsertAudienceResponse | PlainMessage<UpsertAudienceResponse> | undefined, b: UpsertAudienceResponse | PlainMessage<UpsertAudienceResponse> | undefined): boolean {
-    return proto3.util.equals(UpsertAudienceResponse, a, b);
+  static equals(a: Feature | PlainMessage<Feature> | undefined, b: Feature | PlainMessage<Feature> | undefined): boolean {
+    return proto3.util.equals(Feature, a, b);
   }
 }
 
@@ -496,9 +441,9 @@ export class UpsertAudienceResponse extends Message<UpsertAudienceResponse> {
  */
 export class ToggleRequest extends Message<ToggleRequest> {
   /**
-   * @generated from field: string app = 1;
+   * @generated from field: string app_id = 1;
    */
-  app = "";
+  appId = "";
 
   /**
    * @generated from field: string feature = 2;
@@ -506,9 +451,9 @@ export class ToggleRequest extends Message<ToggleRequest> {
   feature = "";
 
   /**
-   * @generated from field: repeated string values = 3;
+   * @generated from field: repeated string cohorts = 3;
    */
-  values: string[] = [];
+  cohorts: string[] = [];
 
   constructor(data?: PartialMessage<ToggleRequest>) {
     super();
@@ -518,9 +463,9 @@ export class ToggleRequest extends Message<ToggleRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "keat.core.v1.ToggleRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "app", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "feature", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "values", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 3, name: "cohorts", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ToggleRequest {
@@ -545,9 +490,9 @@ export class ToggleRequest extends Message<ToggleRequest> {
  */
 export class ToggleResponse extends Message<ToggleResponse> {
   /**
-   * @generated from field: bool success = 1;
+   * @generated from field: bool ok = 1;
    */
-  success = false;
+  ok = false;
 
   constructor(data?: PartialMessage<ToggleResponse>) {
     super();
@@ -557,7 +502,7 @@ export class ToggleResponse extends Message<ToggleResponse> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "keat.core.v1.ToggleResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "success", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: "ok", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ToggleResponse {
@@ -574,6 +519,395 @@ export class ToggleResponse extends Message<ToggleResponse> {
 
   static equals(a: ToggleResponse | PlainMessage<ToggleResponse> | undefined, b: ToggleResponse | PlainMessage<ToggleResponse> | undefined): boolean {
     return proto3.util.equals(ToggleResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.RemoveFeatureRequest
+ */
+export class RemoveFeatureRequest extends Message<RemoveFeatureRequest> {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId = "";
+
+  /**
+   * @generated from field: string feature = 2;
+   */
+  feature = "";
+
+  constructor(data?: PartialMessage<RemoveFeatureRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.RemoveFeatureRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "feature", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RemoveFeatureRequest {
+    return new RemoveFeatureRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RemoveFeatureRequest {
+    return new RemoveFeatureRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RemoveFeatureRequest {
+    return new RemoveFeatureRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RemoveFeatureRequest | PlainMessage<RemoveFeatureRequest> | undefined, b: RemoveFeatureRequest | PlainMessage<RemoveFeatureRequest> | undefined): boolean {
+    return proto3.util.equals(RemoveFeatureRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.RemoveFeatureResponse
+ */
+export class RemoveFeatureResponse extends Message<RemoveFeatureResponse> {
+  /**
+   * @generated from field: bool ok = 1;
+   */
+  ok = false;
+
+  constructor(data?: PartialMessage<RemoveFeatureResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.RemoveFeatureResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "ok", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RemoveFeatureResponse {
+    return new RemoveFeatureResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RemoveFeatureResponse {
+    return new RemoveFeatureResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RemoveFeatureResponse {
+    return new RemoveFeatureResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RemoveFeatureResponse | PlainMessage<RemoveFeatureResponse> | undefined, b: RemoveFeatureResponse | PlainMessage<RemoveFeatureResponse> | undefined): boolean {
+    return proto3.util.equals(RemoveFeatureResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.Cohort
+ */
+export class Cohort extends Message<Cohort> {
+  /**
+   * @generated from field: string name = 1;
+   */
+  name = "";
+
+  /**
+   * @generated from oneof keat.core.v1.Cohort.strategy
+   */
+  strategy: {
+    /**
+     * @generated from field: keat.core.v1.Cohort.Rollout rollout = 2;
+     */
+    value: Cohort_Rollout;
+    case: "rollout";
+  } | {
+    /**
+     * @generated from field: keat.core.v1.Cohort.Group group = 3;
+     */
+    value: Cohort_Group;
+    case: "group";
+  } | { case: undefined; value?: undefined } = { case: undefined };
+
+  constructor(data?: PartialMessage<Cohort>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.Cohort";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "rollout", kind: "message", T: Cohort_Rollout, oneof: "strategy" },
+    { no: 3, name: "group", kind: "message", T: Cohort_Group, oneof: "strategy" },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Cohort {
+    return new Cohort().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Cohort {
+    return new Cohort().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Cohort {
+    return new Cohort().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Cohort | PlainMessage<Cohort> | undefined, b: Cohort | PlainMessage<Cohort> | undefined): boolean {
+    return proto3.util.equals(Cohort, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.Cohort.Rollout
+ */
+export class Cohort_Rollout extends Message<Cohort_Rollout> {
+  /**
+   * @generated from field: int32 percentage = 1;
+   */
+  percentage = 0;
+
+  constructor(data?: PartialMessage<Cohort_Rollout>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.Cohort.Rollout";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "percentage", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Cohort_Rollout {
+    return new Cohort_Rollout().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Cohort_Rollout {
+    return new Cohort_Rollout().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Cohort_Rollout {
+    return new Cohort_Rollout().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Cohort_Rollout | PlainMessage<Cohort_Rollout> | undefined, b: Cohort_Rollout | PlainMessage<Cohort_Rollout> | undefined): boolean {
+    return proto3.util.equals(Cohort_Rollout, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.Cohort.Group
+ */
+export class Cohort_Group extends Message<Cohort_Group> {
+  /**
+   * @generated from field: repeated string targets = 1;
+   */
+  targets: string[] = [];
+
+  constructor(data?: PartialMessage<Cohort_Group>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.Cohort.Group";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "targets", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Cohort_Group {
+    return new Cohort_Group().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Cohort_Group {
+    return new Cohort_Group().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Cohort_Group {
+    return new Cohort_Group().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Cohort_Group | PlainMessage<Cohort_Group> | undefined, b: Cohort_Group | PlainMessage<Cohort_Group> | undefined): boolean {
+    return proto3.util.equals(Cohort_Group, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.TargetRequest
+ */
+export class TargetRequest extends Message<TargetRequest> {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId = "";
+
+  /**
+   * @generated from field: string cohort = 2;
+   */
+  cohort = "";
+
+  /**
+   * @generated from oneof keat.core.v1.TargetRequest.strategy
+   */
+  strategy: {
+    /**
+     * @generated from field: keat.core.v1.Cohort.Rollout rollout = 3;
+     */
+    value: Cohort_Rollout;
+    case: "rollout";
+  } | {
+    /**
+     * @generated from field: keat.core.v1.Cohort.Group group = 4;
+     */
+    value: Cohort_Group;
+    case: "group";
+  } | { case: undefined; value?: undefined } = { case: undefined };
+
+  constructor(data?: PartialMessage<TargetRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.TargetRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "cohort", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "rollout", kind: "message", T: Cohort_Rollout, oneof: "strategy" },
+    { no: 4, name: "group", kind: "message", T: Cohort_Group, oneof: "strategy" },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TargetRequest {
+    return new TargetRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TargetRequest {
+    return new TargetRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TargetRequest {
+    return new TargetRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TargetRequest | PlainMessage<TargetRequest> | undefined, b: TargetRequest | PlainMessage<TargetRequest> | undefined): boolean {
+    return proto3.util.equals(TargetRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.TargetResponse
+ */
+export class TargetResponse extends Message<TargetResponse> {
+  /**
+   * @generated from field: bool ok = 1;
+   */
+  ok = false;
+
+  constructor(data?: PartialMessage<TargetResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.TargetResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "ok", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TargetResponse {
+    return new TargetResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TargetResponse {
+    return new TargetResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TargetResponse {
+    return new TargetResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TargetResponse | PlainMessage<TargetResponse> | undefined, b: TargetResponse | PlainMessage<TargetResponse> | undefined): boolean {
+    return proto3.util.equals(TargetResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.RemoveCohortRequest
+ */
+export class RemoveCohortRequest extends Message<RemoveCohortRequest> {
+  /**
+   * @generated from field: string app_id = 1;
+   */
+  appId = "";
+
+  /**
+   * @generated from field: string cohort = 2;
+   */
+  cohort = "";
+
+  constructor(data?: PartialMessage<RemoveCohortRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.RemoveCohortRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "app_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "cohort", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RemoveCohortRequest {
+    return new RemoveCohortRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RemoveCohortRequest {
+    return new RemoveCohortRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RemoveCohortRequest {
+    return new RemoveCohortRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RemoveCohortRequest | PlainMessage<RemoveCohortRequest> | undefined, b: RemoveCohortRequest | PlainMessage<RemoveCohortRequest> | undefined): boolean {
+    return proto3.util.equals(RemoveCohortRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message keat.core.v1.RemoveCohortResponse
+ */
+export class RemoveCohortResponse extends Message<RemoveCohortResponse> {
+  /**
+   * @generated from field: bool ok = 1;
+   */
+  ok = false;
+
+  constructor(data?: PartialMessage<RemoveCohortResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "keat.core.v1.RemoveCohortResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "ok", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RemoveCohortResponse {
+    return new RemoveCohortResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RemoveCohortResponse {
+    return new RemoveCohortResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RemoveCohortResponse {
+    return new RemoveCohortResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RemoveCohortResponse | PlainMessage<RemoveCohortResponse> | undefined, b: RemoveCohortResponse | PlainMessage<RemoveCohortResponse> | undefined): boolean {
+    return proto3.util.equals(RemoveCohortResponse, a, b);
   }
 }
 

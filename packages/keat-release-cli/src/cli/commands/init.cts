@@ -11,6 +11,8 @@ import {
 } from '../utils/io.cjs'
 import { failure, print, started, success } from '../utils/screens.cjs'
 import { client } from '../../api/client'
+import prompts from 'prompts'
+import { addAppToStore } from '../utils/store.cjs'
 
 export type InitOptions = {
     path: string | undefined
@@ -25,26 +27,31 @@ export async function init({ path, appFlag }: InitOptions) {
         envs: process.env as Record<string, string>,
         flags: { app: appFlag },
     })
+
     if (appId) {
         print(failure('App already exists'))
         return
     }
 
-    print(started(`Creating application..`))
-    const resp = await client.createApp({})
+    const password = await promptPassword()
+    const resp = await client.createApp({ password })
+    await addAppToStore({ id: resp.id, key: resp.key })
 
     print(success('You are ready to release your first feature'))
-
     print(`
-Your application is:
-
-- Your public application id: ${resp.id}
-- Your secret application key: ${resp.key}
-
-Make sure to copy your application key now as you will not be able to see this again.
-
-The next step is to toggle a flag with \`keat release\`
+Your application identifier is ${resp.id}
 `)
+}
+
+async function promptPassword(): Promise<string> {
+    const { result } = await prompts({
+        type: 'password',
+        name: 'result',
+        message: 'Please enter a password',
+        instructions: false,
+    })
+
+    return result
 }
 
 export async function discoverKeatInstancePath(path?: string): Promise<string> {
@@ -68,7 +75,7 @@ export async function discoverKeatInstancePath(path?: string): Promise<string> {
 }
 
 async function searchInFiles(dir: string) {
-    const keatLike = '= keat('
+    const keatLike = '= createKeat('
     const paths = klaw(dir, {
         nodir: true,
         filter: (item) => !item.path.includes('node_modules'),

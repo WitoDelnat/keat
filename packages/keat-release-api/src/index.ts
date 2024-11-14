@@ -4,14 +4,22 @@ import { KeatService } from '__codegen__/keat/core/v1/core_connect'
 import { createApp } from 'handlers/createApp'
 import { getApp } from 'handlers/getApp'
 import { createContextValues } from './utils/context'
-import { updateApp } from 'handlers/updateApp'
 import { toggle } from 'handlers/toggle'
+import { auth } from 'handlers/auth'
+import { deleteApp } from 'handlers/deleteApp'
+import { removeFeature } from 'handlers/removeFeature'
+import { target } from 'handlers/target'
+import { removeCohort } from 'handlers/removeCohort'
 
 function routes(router: ConnectRouter) {
+    router.rpc(KeatService, KeatService.methods.auth, auth)
     router.rpc(KeatService, KeatService.methods.createApp, createApp)
     router.rpc(KeatService, KeatService.methods.getApp, getApp)
-    router.rpc(KeatService, KeatService.methods.updateApp, updateApp)
+    router.rpc(KeatService, KeatService.methods.deleteApp, deleteApp)
     router.rpc(KeatService, KeatService.methods.toggle, toggle)
+    router.rpc(KeatService, KeatService.methods.removeFeature, removeFeature)
+    router.rpc(KeatService, KeatService.methods.target, target)
+    router.rpc(KeatService, KeatService.methods.removeCohort, removeCohort)
 }
 
 const handler = connectWorkersAdapter<Env>({
@@ -20,6 +28,7 @@ const handler = connectWorkersAdapter<Env>({
         return createContextValues({
             appKey: request.headers.get('X-Auth-Key'),
             storage: env.BUCKET,
+            authSecret: env.AUTH_SECRET,
         })
     },
 })

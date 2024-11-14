@@ -18,6 +18,7 @@ export type Context = Writeable<{
 export const contextkeys = {
     appKey: createContextKey<string | null>(null),
     storage: createContextKey<Env['BUCKET']>(undefined as any),
+    authSecret: createContextKey<Env['AUTH_SECRET']>(undefined as any),
 } as const satisfies Record<string, ContextKey<any>>
 
 export function expandContext(ctx: HandlerContext): Context {

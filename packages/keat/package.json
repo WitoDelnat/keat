@@ -28,7 +28,7 @@
         "lib"
     ],
     "scripts": {
-        "lint": "tsc --noEmit",
+        "typecheck": "tsc --noEmit",
         "build": "rimraf lib && tsc"
     },
     "devDependencies": {

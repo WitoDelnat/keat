@@ -14,6 +14,10 @@ import type {
 } from './types'
 import { normalise, normaliseFetch } from './utils/normalise'
 
+export function fromEnv(s: string): string[] {
+    return s.split(',').map((s) => s.trim())
+}
+
 export function createKeat<TFeatures extends AnyFeatures>(
     init: KeatInit<TFeatures>
 ): KeatApi<TFeatures> {
@@ -30,7 +34,16 @@ export function createKeat<TFeatures extends AnyFeatures>(
     const fetcher = normaliseFetch(init.fetch)
     const loader = load(fetcher?.().then(configure).catch(nop))
 
-    return {
+    const api: KeatApi<TFeatures> = {
+        get appId() {
+            if (typeof init.fetch !== 'string') {
+                return undefined
+            }
+            const matches = /^https?\:\/\/.*\/(.*)\/feature-flags.json$/.exec(
+                init.fetch
+            )
+            return matches?.[1] ?? init.fetch
+        },
         get config() {
             return cfg
         },
@@ -55,7 +68,14 @@ export function createKeat<TFeatures extends AnyFeatures>(
                 listeners = listeners.filter((l) => l === listener)
             }
         },
+        refresh() {
+            fetcher?.().then(configure).catch(nop)
+        },
     }
+
+    ;(globalThis as any).__keat = { apps: [api] }
+
+    return api
 }
 
 const nop = () => {}
@@ -63,6 +83,6 @@ const nop = () => {}
 function merge(c1: Config, c2: Config): Config {
     return {
         features: { ...(c1?.features ?? {}), ...(c2?.features ?? {}) },
-        audiences: { ...(c1?.audiences ?? {}), ...(c2?.audiences ?? {}) },
+        cohorts: { ...(c1?.cohorts ?? {}), ...(c2?.cohorts ?? {}) },
     }
 }

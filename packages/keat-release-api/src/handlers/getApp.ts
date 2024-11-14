@@ -9,7 +9,7 @@ export const getApp: Handler = async (req, ctx) => {
     const { storage, appKey } = expandContext(ctx)
 
     try {
-        const keatDoc = await storage.get(`${req.id}/${appKey}.json`)
+        const keatDoc = await storage.get(`${req.appId}/${appKey}.json`)
         if (!keatDoc) {
             throw new Error()
         }
@@ -19,11 +19,14 @@ export const getApp: Handler = async (req, ctx) => {
             app: {
                 name: keat.name,
                 env: keat.env,
-                audiences: keat.audiences,
+                cohorts: keat.cohorts,
                 features: keat.features,
             },
         }
     } catch (err) {
-        throw new ConnectError('cannot up app', Code.Internal)
+        console.log('cannot get app', {
+            err: err instanceof Error ? err.message : err,
+        })
+        throw new ConnectError('cannot get app', Code.Internal)
     }
 }
