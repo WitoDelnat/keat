@@ -4,3 +4,5 @@ yarn-error.log
 .env
 .idea/**
 examples/react-release/**
+.DS_Store
+**/.DS_Store
